@@ -1,10 +1,7 @@
 defmodule HeadsUp.Repo.Migrations.AddDatesToChallengePhases do
   use Ecto.Migration
 
+  # No-op: Challenge phases have been removed.
   def change do
-    alter table(:challenge_phases) do
-      add :start_date, :date
-      add :end_date, :date
-    end
   end
 end

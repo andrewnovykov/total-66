@@ -1,9 +1,7 @@
 defmodule HeadsUp.Repo.Migrations.AddStatusToChallengeStepProgress do
   use Ecto.Migration
 
+  # No-op: Challenge step progress has been removed.
   def change do
-    alter table(:challenge_step_progress) do
-      add :status, :string, default: "completed", null: false
-    end
   end
 end

@@ -5,7 +5,7 @@ defmodule HeadsUp.Challenges.Challenge do
   schema "challenges" do
     field :title, :string
     field :description, :string
-    field :type, Ecto.Enum, values: [:predefined, :custom], default: :custom
+    field :type, Ecto.Enum, values: [:official, :community], default: :community
     field :visibility, Ecto.Enum, values: [:public, :friends, :private], default: :public
 
     field :status, Ecto.Enum,
@@ -16,7 +16,7 @@ defmodule HeadsUp.Challenges.Challenge do
     # For custom challenges: specific dates
     field :start_date, :date
     field :end_date, :date
-    # For predefined (official) challenges: duration in days
+    # For template challenges: duration in days
     field :duration_days, :integer
     # For community challenges shared as templates
     field :is_template, :boolean, default: false
@@ -25,13 +25,12 @@ defmodule HeadsUp.Challenges.Challenge do
     field :failed_at, :utc_datetime
     field :report_count, :integer, default: 0
     field :moderation_status, :string, default: "clean"
+    field :approval_status, Ecto.Enum, values: [:pending, :approved, :rejected], default: :approved
 
     belongs_to :creator, HeadsUp.Users, foreign_key: :creator_user_id
-    belongs_to :category, HeadsUp.Challenges.ChallengeCategory, foreign_key: :category_id
     # For user challenges created from a template
     belongs_to :template, HeadsUp.Challenges.Challenge, foreign_key: :template_id
 
-    has_many :phases, HeadsUp.Challenges.ChallengePhase
     has_many :tasks, HeadsUp.Challenges.ChallengeTask
     has_many :participants, HeadsUp.Challenges.ChallengeParticipant
     has_many :daily_check_ins, HeadsUp.Challenges.DailyCheckIn
@@ -41,7 +40,7 @@ defmodule HeadsUp.Challenges.Challenge do
     timestamps(type: :utc_datetime)
   end
 
-  @base_required [:title, :type, :creator_user_id, :category_id]
+  @base_required [:title, :type, :creator_user_id]
   @optional_fields [
     :description,
     :visibility,
@@ -55,7 +54,8 @@ defmodule HeadsUp.Challenges.Challenge do
     :failure_reason,
     :failed_at,
     :report_count,
-    :moderation_status
+    :moderation_status,
+    :approval_status
   ]
 
   def changeset(challenge, attrs) do
@@ -65,7 +65,6 @@ defmodule HeadsUp.Challenges.Challenge do
     |> validate_length(:title, min: 3, max: 255)
     |> validate_by_type()
     |> foreign_key_constraint(:creator_user_id)
-    |> foreign_key_constraint(:category_id)
   end
 
   defp validate_by_type(changeset) do

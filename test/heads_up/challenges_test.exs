@@ -9,16 +9,15 @@ defmodule HeadsUp.ChallengesTest do
     setup do
       user = AuthFixtures.user_fixture()
       admin = AuthFixtures.admin_fixture()
-      category = ChallengesFixtures.challenge_category_fixture()
-      %{user: user, admin: admin, category: category}
+      %{user: user, admin: admin}
     end
 
     test "list_public_challenges/0 returns only public active templates", %{admin: admin} do
       public_template =
-        ChallengesFixtures.predefined_challenge_fixture(%{user: admin, visibility: :public})
+        ChallengesFixtures.official_challenge_fixture(%{user: admin, visibility: :public})
 
       _private_template =
-        ChallengesFixtures.predefined_challenge_fixture(%{user: admin, visibility: :private})
+        ChallengesFixtures.official_challenge_fixture(%{user: admin, visibility: :private})
 
       challenges = Challenges.list_public_challenges()
       assert length(challenges) == 1
@@ -45,75 +44,58 @@ defmodule HeadsUp.ChallengesTest do
       assert fetched.creator != nil
     end
 
-    test "create_challenge/2 creates a custom challenge for users", %{
-      user: user,
-      category: category
-    } do
+    test "create_challenge/2 creates a community challenge for users", %{user: user} do
       attrs = %{
-        title: "My Custom Challenge",
+        title: "My Community Challenge",
         description: "Test",
         visibility: :public,
-        category_id: category.id,
         start_date: Date.utc_today(),
         end_date: Date.add(Date.utc_today(), 30)
       }
 
       assert {:ok, challenge} = Challenges.create_challenge(attrs, user)
-      assert challenge.title == "My Custom Challenge"
-      assert challenge.type == :custom
+      assert challenge.title == "My Community Challenge"
+      assert challenge.type == :community
       assert challenge.creator_user_id == user.id
     end
 
-    test "create_challenge/2 allows admin to create predefined challenges", %{
-      admin: admin,
-      category: category
-    } do
+    test "create_challenge/2 allows admin to create official challenges", %{admin: admin} do
       attrs = %{
         title: "Official Challenge",
         description: "Test",
-        type: :predefined,
-        category_id: category.id,
+        type: :official,
         duration_days: 30
       }
 
       assert {:ok, challenge} = Challenges.create_challenge(attrs, admin)
-      assert challenge.type == :predefined
+      assert challenge.type == :official
       assert challenge.duration_days == 30
     end
 
-    test "create_challenge/2 prevents non-admin from creating predefined challenges", %{
-      user: user,
-      category: category
-    } do
+    test "create_challenge/2 prevents non-admin from creating official challenges", %{user: user} do
       attrs = %{
         title: "Fake Official",
         description: "Test",
-        type: :predefined,
-        category_id: category.id,
+        type: :official,
         duration_days: 30
       }
 
       assert {:error, :unauthorized, _} = Challenges.create_challenge(attrs, user)
     end
 
-    test "create_challenge/2 requires category_id, start_date, end_date", %{user: user} do
+    test "create_challenge/2 requires start_date, end_date for community", %{user: user} do
       attrs = %{title: "Missing Fields", description: "Test"}
 
       assert {:error, changeset} = Challenges.create_challenge(attrs, user)
-      assert "is required" in errors_on(changeset).category_id
       assert "is required" in errors_on(changeset).start_date
       assert "is required" in errors_on(changeset).end_date
     end
 
-    test "create_challenge/2 accepts consistently string-keyed attrs", %{
-      user: user,
-      category: category
-    } do
+    test "create_challenge/2 accepts consistently string-keyed attrs", %{user: user} do
       attrs = %{
         "title" => "String Params Challenge",
         "description" => "Created from string-keyed params",
         "visibility" => "public",
-        "category_id" => category.id,
         "start_date" => Date.utc_today(),
         "end_date" => Date.add(Date.utc_today(), 30)
       }
@@ -123,15 +105,11 @@ defmodule HeadsUp.ChallengesTest do
       assert challenge.creator_user_id == user.id
     end
 
-    test "create_challenge/2 rejects mixed atom/string keyed attrs", %{
-      user: user,
-      category: category
-    } do
+    test "create_challenge/2 rejects mixed atom/string keyed attrs", %{user: user} do
       attrs = %{
         :title => "Mixed Keys",
         "description" => "This should be rejected",
         :visibility => :public,
-        :category_id => category.id,
         :start_date => Date.utc_today(),
         :end_date => Date.add(Date.utc_today(), 30)
       }
@@ -234,41 +212,10 @@ defmodule HeadsUp.ChallengesTest do
     end
   end
 
-  describe "phases and steps" do
-    setup do
-      user = AuthFixtures.user_fixture()
-      challenge = ChallengesFixtures.challenge_fixture(%{user: user, type: :predefined})
-      %{user: user, challenge: challenge}
-    end
-
-    test "create_phase/2 allows owner to create phase", %{user: user, challenge: challenge} do
-      attrs = %{title: "Phase 1", order_index: 0, challenge_id: challenge.id}
-
-      assert {:ok, phase} = Challenges.create_phase(attrs, user.id)
-      assert phase.title == "Phase 1"
-      assert phase.challenge_id == challenge.id
-    end
-
-    test "create_phase/2 prevents non-owner from creating phase", %{challenge: challenge} do
-      other_user = AuthFixtures.user_fixture()
-      attrs = %{title: "Phase 1", order_index: 0, challenge_id: challenge.id}
-
-      assert {:error, :unauthorized} = Challenges.create_phase(attrs, other_user.id)
-    end
-
-    test "create_step/2 allows owner to create step", %{user: user, challenge: challenge} do
-      phase = ChallengesFixtures.challenge_phase_fixture(%{challenge: challenge})
-      attrs = %{title: "Step 1", order_index: 0, phase_id: phase.id}
-
-      assert {:ok, step} = Challenges.create_step(attrs, user.id)
-      assert step.title == "Step 1"
-    end
-  end
-
   describe "tasks" do
     setup do
       user = AuthFixtures.user_fixture()
-      challenge = ChallengesFixtures.challenge_fixture(%{user: user, type: :custom})
+      challenge = ChallengesFixtures.challenge_fixture(%{user: user, type: :community})
       %{user: user, challenge: challenge}
     end
 
@@ -288,67 +235,11 @@ defmodule HeadsUp.ChallengesTest do
     end
   end
 
-  describe "progress tracking" do
-    setup do
-      creator = AuthFixtures.user_fixture()
-      participant_user = AuthFixtures.user_fixture()
-      challenge = ChallengesFixtures.challenge_fixture(%{user: creator, type: :predefined})
-      phase = ChallengesFixtures.challenge_phase_fixture(%{challenge: challenge})
-      step = ChallengesFixtures.challenge_step_fixture(%{phase: phase})
-
-      {:ok, participant} = Challenges.join_challenge(challenge.id, participant_user.id)
-
-      %{
-        creator: creator,
-        participant_user: participant_user,
-        challenge: challenge,
-        phase: phase,
-        step: step,
-        participant: participant
-      }
-    end
-
-    test "complete_step/2 marks step as completed", %{participant: participant, step: step} do
-      assert {:ok, progress} = Challenges.complete_step(participant.id, step.id)
-      assert progress.completed_at != nil
-    end
-
-    test "step_completed?/2 returns correct status", %{participant: participant, step: step} do
-      refute Challenges.step_completed?(participant.id, step.id)
-
-      {:ok, _} = Challenges.complete_step(participant.id, step.id)
-      assert Challenges.step_completed?(participant.id, step.id)
-    end
-
-    test "uncomplete_step/2 removes progress", %{participant: participant, step: step} do
-      {:ok, _} = Challenges.complete_step(participant.id, step.id)
-      assert Challenges.step_completed?(participant.id, step.id)
-
-      {:ok, _} = Challenges.uncomplete_step(participant.id, step.id)
-      refute Challenges.step_completed?(participant.id, step.id)
-    end
-
-    test "get_participant_progress/1 returns correct stats", %{
-      participant: participant,
-      step: _step,
-      phase: _phase
-    } do
-      progress = Challenges.get_participant_progress(participant.id)
-      assert progress.type == :predefined
-      # New progress format uses days-based tracking
-      assert progress.total_days > 0
-      assert progress.days_elapsed >= 0
-      assert progress.days_percentage >= 0.0
-      assert progress.today_completed >= 0
-      assert progress.today_failed >= 0
-    end
-  end
-
   describe "task completion" do
     setup do
       creator = AuthFixtures.user_fixture()
       participant_user = AuthFixtures.user_fixture()
-      challenge = ChallengesFixtures.challenge_fixture(%{user: creator, type: :custom})
+      challenge = ChallengesFixtures.challenge_fixture(%{user: creator, type: :community})
       task = ChallengesFixtures.challenge_task_fixture(%{challenge: challenge})
 
       {:ok, participant} = Challenges.join_challenge(challenge.id, participant_user.id)
@@ -381,6 +272,15 @@ defmodule HeadsUp.ChallengesTest do
 
       {:ok, _} = Challenges.uncomplete_task(participant.id, task.id, Date.utc_today())
       refute Challenges.task_completed?(participant.id, task.id, Date.utc_today())
+    end
+
+    test "get_participant_progress/1 returns correct stats", %{participant: participant} do
+      progress = Challenges.get_participant_progress(participant.id)
+      assert progress.total_days > 0
+      assert progress.days_elapsed >= 0
+      assert progress.days_percentage >= 0.0
+      assert progress.today_completed >= 0
+      assert progress.today_failed >= 0
     end
   end
 
@@ -419,7 +319,7 @@ defmodule HeadsUp.ChallengesTest do
 
     test "cannot fail a template", %{owner: _owner} do
       admin = AuthFixtures.admin_fixture()
-      template = ChallengesFixtures.predefined_challenge_fixture(%{user: admin})
+      template = ChallengesFixtures.official_challenge_fixture(%{user: admin})
       assert {:error, :cannot_fail_template} = Challenges.fail_challenge(template.id, admin.id)
     end
 
@@ -553,62 +453,49 @@ defmodule HeadsUp.ChallengesTest do
     setup do
       user = AuthFixtures.user_fixture()
       admin = AuthFixtures.admin_fixture()
-      category = ChallengesFixtures.challenge_category_fixture()
-      %{user: user, admin: admin, category: category}
+      %{user: user, admin: admin}
     end
 
-    test "custom challenge created by user has is_template=false", %{
-      user: user,
-      category: category
-    } do
+    test "community challenge created by user has is_template=false", %{user: user} do
       attrs = %{
         title: "My Personal Challenge",
         description: "A personal challenge",
         visibility: :public,
-        category_id: category.id,
         start_date: Date.utc_today(),
         end_date: Date.add(Date.utc_today(), 30)
       }
 
       assert {:ok, challenge} = Challenges.create_challenge(attrs, user)
       assert challenge.is_template == false
-      assert challenge.type == :custom
+      assert challenge.type == :community
     end
 
-    test "custom challenge explicitly overrides is_template if passed as true", %{
-      user: user,
-      category: category
-    } do
+    test "community challenge explicitly overrides is_template if passed as true", %{user: user} do
       attrs = %{
         title: "Sneaky Template Attempt",
         description: "Trying to create a template",
         visibility: :public,
-        category_id: category.id,
         start_date: Date.utc_today(),
         end_date: Date.add(Date.utc_today(), 30),
         is_template: true
       }
 
       assert {:ok, challenge} = Challenges.create_challenge(attrs, user)
-      # Even if is_template is passed as true, non-admin custom should be forced to false
+      # Even if is_template is passed as true, non-admin community should be forced to false
       assert challenge.is_template == false
     end
 
-    test "predefined challenge created by admin has is_template=true", %{
-      admin: admin,
-      category: category
-    } do
+    test "official challenge created by admin has is_template=true", %{admin: admin} do
       attrs = %{
         title: "Official Template",
         description: "Admin template",
-        type: :predefined,
-        category_id: category.id,
+        type: :official,
         duration_days: 30
       }
 
       assert {:ok, challenge} = Challenges.create_challenge(attrs, admin)
       assert challenge.is_template == true
-      assert challenge.type == :predefined
+      assert challenge.type == :official
     end
   end
 end

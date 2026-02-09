@@ -44,15 +44,14 @@ defmodule HeadsUpWeb.NavigationRoleTest do
       refute html =~ ~r/href="\/admin\/challenge-categories"/
     end
 
-    test "admin user sees Admin links in sidebar", %{conn: conn} do
+    test "admin user sees sidebar (admin links removed for now)", %{conn: conn} do
       admin = admin_fixture()
       conn = log_in_user(conn, admin)
 
       {:ok, _lv, html} = live(conn, ~p"/my-challenges")
 
       refute html =~ "Coach Center"
-      assert html =~ "Challenge Categories"
-      assert html =~ ~r/href="\/admin\/challenge-categories"/
+      refute html =~ ~r/href="\/admin\/challenge-categories"/
     end
 
     test "sidebar shows user name when logged in", %{conn: conn} do

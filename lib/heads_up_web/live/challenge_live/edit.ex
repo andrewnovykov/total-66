@@ -20,13 +20,11 @@ defmodule HeadsUpWeb.ChallengeLive.Edit do
          |> put_flash(:error, "You can only edit your own challenges")
          |> push_navigate(to: ~p"/challenges/#{id}")}
       else
-        categories = Challenges.list_active_categories()
         changeset = Challenges.change_challenge(challenge)
 
         socket =
           socket
           |> assign(:challenge, challenge)
-          |> assign(:categories, categories)
           |> assign(:changeset, changeset)
           |> assign(:page_title, "Edit Challenge")
 
@@ -131,25 +129,6 @@ defmodule HeadsUpWeb.ChallengeLive.Edit do
             rows="4"
             class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           ><%= @changeset.data.description || "" %></textarea>
-        </div>
-        
-    <!-- Category -->
-        <div>
-          <label for="challenge_category_id" class="block text-sm font-medium text-gray-700 mb-1">
-            Category
-          </label>
-          <select
-            id="challenge_category_id"
-            name="challenge[category_id]"
-            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value="">Select a category (optional)</option>
-            <%= for category <- @categories do %>
-              <option value={category.id} selected={@changeset.data.category_id == category.id}>
-                {category.name}
-              </option>
-            <% end %>
-          </select>
         </div>
         
     <!-- Visibility -->

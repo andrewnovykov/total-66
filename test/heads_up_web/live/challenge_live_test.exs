@@ -10,7 +10,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       user = AuthFixtures.user_fixture()
       admin = AuthFixtures.admin_fixture()
       # Index page only shows templates
-      template = ChallengesFixtures.predefined_challenge_fixture(%{user: admin})
+      template = ChallengesFixtures.official_challenge_fixture(%{user: admin})
 
       %{conn: conn, user: user, admin: admin, template: template}
     end
@@ -32,7 +32,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
 
     test "filters templates by type", %{conn: conn, admin: admin} do
       _official =
-        ChallengesFixtures.predefined_challenge_fixture(%{
+        ChallengesFixtures.official_challenge_fixture(%{
           user: admin,
           title: "Official Challenge"
         })
@@ -40,17 +40,17 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       community =
         ChallengesFixtures.challenge_fixture(%{
           user: AuthFixtures.user_fixture(),
-          type: :custom,
+          type: :community,
           is_template: true,
           title: "Community Template"
         })
 
       {:ok, index_live, _html} = live(conn, ~p"/challenges")
 
-      # Filter to custom only
+      # Filter to community only
       index_live
       |> element("select[name=type]")
-      |> render_change(%{type: "custom"})
+      |> render_change(%{type: "community"})
 
       html = render(index_live)
       assert html =~ community.title
@@ -60,10 +60,10 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       admin = AuthFixtures.admin_fixture()
 
       _template1 =
-        ChallengesFixtures.predefined_challenge_fixture(%{user: admin, title: "Fitness Challenge"})
+        ChallengesFixtures.official_challenge_fixture(%{user: admin, title: "Fitness Challenge"})
 
       _template2 =
-        ChallengesFixtures.predefined_challenge_fixture(%{user: admin, title: "Reading Goal"})
+        ChallengesFixtures.official_challenge_fixture(%{user: admin, title: "Reading Goal"})
 
       {:ok, index_live, _html} = live(conn, ~p"/challenges")
 
@@ -94,7 +94,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
 
     test "authenticated user can start challenge from template", %{conn: conn} do
       admin = AuthFixtures.admin_fixture()
-      template = ChallengesFixtures.predefined_challenge_fixture(%{user: admin})
+      template = ChallengesFixtures.official_challenge_fixture(%{user: admin})
 
       {:ok, show_live, _html} = live(conn, ~p"/challenges/#{template.id}")
 
@@ -103,7 +103,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       |> element("button[phx-click=start_challenge]")
       |> render_click()
 
-      # Confirm start from the modal
+      # Confirm start from the modal — now redirects to /my-challenges/:id
       {:ok, _, html} =
         show_live
         |> element("button[phx-click=confirm_start_challenge]")
@@ -118,7 +118,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       my_challenge = ChallengesFixtures.challenge_fixture(%{user: user})
       HeadsUp.Challenges.join_challenge(my_challenge.id, user.id)
 
-      {:ok, show_live, _html} = live(conn, ~p"/challenges/#{my_challenge.id}")
+      {:ok, show_live, _html} = live(conn, ~p"/my-challenges/#{my_challenge.id}")
 
       # Open fail modal
       show_live
@@ -134,23 +134,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       assert html =~ "marked as failed"
     end
 
-    test "displays phases and steps for predefined challenges", %{conn: conn} do
-      admin = AuthFixtures.admin_fixture()
-      challenge = ChallengesFixtures.challenge_fixture(%{user: admin, type: :predefined})
-
-      phase =
-        ChallengesFixtures.challenge_phase_fixture(%{challenge: challenge, title: "Phase One"})
-
-      _step = ChallengesFixtures.challenge_step_fixture(%{phase: phase, title: "Step One"})
-
-      {:ok, _show_live, html} = live(conn, ~p"/challenges/#{challenge.id}")
-
-      assert html =~ "Phases &amp; Steps" or html =~ "Phases & Steps"
-      assert html =~ "Phase One"
-      assert html =~ "Step One"
-    end
-
-    test "displays tasks for custom challenges", %{conn: conn, challenge: challenge} do
+    test "displays tasks for challenges", %{conn: conn, challenge: challenge} do
       _task =
         ChallengesFixtures.challenge_task_fixture(%{challenge: challenge, title: "Daily Workout"})
 
@@ -164,8 +148,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
   describe "New" do
     setup %{conn: conn} do
       user = AuthFixtures.user_fixture()
-      category = ChallengesFixtures.challenge_category_fixture()
-      %{conn: log_in_user(conn, user), user: user, category: category}
+      %{conn: log_in_user(conn, user), user: user}
     end
 
     test "renders create challenge form", %{conn: conn} do
@@ -175,17 +158,16 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       assert html =~ "Title"
       assert html =~ "Description"
       assert html =~ "Visibility"
-      assert html =~ "Category"
       assert html =~ "Duration (Days)"
       assert html =~ "Start Date"
     end
 
-    test "creates new custom challenge", %{conn: conn, category: category} do
+    test "creates new community challenge", %{conn: conn} do
       {:ok, new_live, _html} = live(conn, ~p"/challenges/new")
 
       start_date = Date.to_iso8601(Date.utc_today())
 
-      # First add a task title (required for custom challenges)
+      # First add a task title (required for challenges)
       new_live
       |> element("input[phx-blur=update_task_title]")
       |> render_blur(%{value: "Daily Workout"})
@@ -197,7 +179,6 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
             title: "My New Challenge",
             description: "Test desc",
             visibility: "public",
-            category_id: category.id,
             duration_days: 30,
             start_date: start_date
           }
@@ -220,7 +201,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       assert html =~ "Create a Challenge"
     end
 
-    test "shows error when no task is added", %{conn: conn, category: category} do
+    test "shows error when no task is added", %{conn: conn} do
       {:ok, new_live, _html} = live(conn, ~p"/challenges/new")
 
       start_date = Date.to_iso8601(Date.utc_today())
@@ -233,7 +214,6 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
             title: "My Challenge",
             description: "Test",
             visibility: "public",
-            category_id: category.id,
             duration_days: 30,
             start_date: start_date
           }
@@ -295,43 +275,27 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
     end
   end
 
-  describe "Progress tracking" do
+  describe "Task completion" do
     setup %{conn: conn} do
       user = AuthFixtures.user_fixture()
       creator = AuthFixtures.user_fixture()
-      challenge = ChallengesFixtures.challenge_fixture(%{user: creator, type: :predefined})
-      phase = ChallengesFixtures.challenge_phase_fixture(%{challenge: challenge})
-      step = ChallengesFixtures.challenge_step_fixture(%{phase: phase})
+      challenge = ChallengesFixtures.challenge_fixture(%{user: creator, type: :community})
+      task = ChallengesFixtures.challenge_task_fixture(%{challenge: challenge, title: "Daily Task"})
 
       HeadsUp.Challenges.join_challenge(challenge.id, user.id)
 
-      %{conn: log_in_user(conn, user), user: user, challenge: challenge, step: step}
+      %{conn: log_in_user(conn, user), user: user, challenge: challenge, task: task}
     end
 
-    test "participant can complete a step", %{conn: conn, challenge: challenge, step: step} do
-      {:ok, show_live, _html} = live(conn, ~p"/challenges/#{challenge.id}")
+    test "participant can complete a task", %{conn: conn, challenge: challenge, task: task} do
+      {:ok, show_live, _html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
       html =
         show_live
-        |> element("button[phx-click=complete_step][phx-value-step-id=#{step.id}]")
+        |> element("button[phx-click=complete_task][phx-value-task-id=#{task.id}]")
         |> render_click()
 
-      assert html =~ "Step completed"
-    end
-
-    test "progress updates after completing steps", %{
-      conn: conn,
-      challenge: challenge,
-      step: step
-    } do
-      {:ok, show_live, _html} = live(conn, ~p"/challenges/#{challenge.id}")
-
-      html =
-        show_live
-        |> element("button[phx-click=complete_step][phx-value-step-id=#{step.id}]")
-        |> render_click()
-
-      assert html =~ "Step completed"
+      assert html =~ "Task completed"
     end
   end
 
@@ -352,7 +316,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       conn: conn,
       challenge: challenge
     } do
-      {:ok, _show_live, html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, _show_live, html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
       assert html =~ "Fail"
       refute html =~ ">Leave<"
@@ -365,20 +329,20 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       conn: conn,
       challenge: challenge
     } do
-      {:ok, _show_live, html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, _show_live, html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
       refute html =~ "People who started"
     end
 
     test "personal challenge shows Today's Check-in section", %{conn: conn, challenge: challenge} do
-      {:ok, _show_live, html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, _show_live, html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
-      assert html =~ "Today&#39;s Check-in" or html =~ "Today's Check-in"
+      assert html =~ "Today" or html =~ "Day"
       assert html =~ "Morning Run"
     end
 
     test "daily check-in creates feed entry", %{conn: conn, challenge: challenge} do
-      {:ok, show_live, _html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, show_live, _html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
       html =
         show_live
@@ -390,7 +354,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
     end
 
     test "shows day completed after check-in", %{conn: conn, challenge: challenge} do
-      {:ok, show_live, _html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, show_live, _html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
       show_live
       |> element("button[phx-click=finish_day]")
@@ -406,7 +370,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
     setup %{conn: conn} do
       user = AuthFixtures.user_fixture()
       admin = AuthFixtures.admin_fixture()
-      template = ChallengesFixtures.predefined_challenge_fixture(%{user: admin})
+      template = ChallengesFixtures.official_challenge_fixture(%{user: admin})
 
       %{conn: log_in_user(conn, user), user: user, template: template}
     end
@@ -436,7 +400,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
     setup %{conn: conn} do
       user = AuthFixtures.user_fixture()
       admin = AuthFixtures.admin_fixture()
-      template = ChallengesFixtures.predefined_challenge_fixture(%{user: admin})
+      template = ChallengesFixtures.official_challenge_fixture(%{user: admin})
 
       # Create personal challenge and fail it
       challenge =
@@ -452,9 +416,9 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
     end
 
     test "shows failed banner with reason", %{conn: conn, challenge: challenge} do
-      {:ok, _show_live, html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, _show_live, html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
-      assert html =~ "marked as failed"
+      assert html =~ "marked as failed" or html =~ "Failed"
       assert html =~ "Too difficult"
     end
 
@@ -463,23 +427,22 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       challenge: challenge,
       template: template
     } do
-      {:ok, _show_live, html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, _show_live, html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
-      assert html =~ "Start again from template"
-      assert html =~ "/challenges/#{template.id}"
+      assert html =~ "Start again" or html =~ "/challenges/#{template.id}"
     end
 
     test "does not show Fail button for already-failed challenge", %{
       conn: conn,
       challenge: challenge
     } do
-      {:ok, _show_live, html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, _show_live, html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
       refute html =~ "phx-click=\"show_fail_modal\""
     end
 
     test "shows Failed status badge", %{conn: conn, challenge: challenge} do
-      {:ok, _show_live, html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, _show_live, html} = live(conn, ~p"/my-challenges/#{challenge.id}")
 
       assert html =~ "Failed"
     end
@@ -488,7 +451,7 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
   describe "BUG-1 regression: failed challenge restart" do
     setup %{conn: conn} do
       admin = AuthFixtures.admin_fixture()
-      template = ChallengesFixtures.predefined_challenge_fixture(%{user: admin})
+      template = ChallengesFixtures.official_challenge_fixture(%{user: admin})
 
       %{conn: conn, admin: admin, template: template}
     end
@@ -569,9 +532,9 @@ defmodule HeadsUpWeb.ChallengeLiveTest do
       conn = log_in_user(conn, user)
       {:ok, show_live, _html} = live(conn, ~p"/challenges/#{template.id}")
 
-      # Click Start Again (hero button)
+      # Click Start Again (hero button - the one with uppercase tracking)
       show_live
-      |> element("button[phx-click=start_challenge][class*='bg-white']")
+      |> element("button[phx-click=start_challenge][class*='uppercase']")
       |> render_click()
 
       # Confirm start

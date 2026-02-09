@@ -10,6 +10,8 @@ defmodule HeadsUp.Challenges.ChallengeTask do
     field :description, :string
     field :schedule_type, Ecto.Enum, values: @schedule_types, default: :daily
     field :schedule_weekdays, {:array, :string}, default: []
+    field :task_type, Ecto.Enum, values: [:mandatory, :optional], default: :mandatory
+    field :order_index, :integer, default: 0
 
     belongs_to :challenge, HeadsUp.Challenges.Challenge
     has_many :completions, HeadsUp.Challenges.ChallengeTaskCompletion, foreign_key: :task_id
@@ -18,7 +20,7 @@ defmodule HeadsUp.Challenges.ChallengeTask do
   end
 
   @required_fields [:title, :schedule_type, :challenge_id]
-  @optional_fields [:description, :schedule_weekdays]
+  @optional_fields [:description, :schedule_weekdays, :task_type, :order_index]
 
   def changeset(task, attrs) do
     task

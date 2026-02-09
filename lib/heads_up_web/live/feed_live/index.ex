@@ -56,48 +56,39 @@ defmodule HeadsUpWeb.FeedLive.Index do
 
   def render(assigns) do
     ~H"""
-    <div class="flex gap-0 h-full">
-      <%!-- ===== CENTER CONTENT ===== --%>
-      <div class="flex-grow p-5 sm:p-8 lg:p-10 overflow-y-auto custom-scrollbar">
-        <%!-- Hero Banner --%>
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[40px] p-8 sm:p-10 lg:p-12 mb-10 relative overflow-hidden text-white soft-shadow">
-          <div class="relative z-10">
-            <.link
-              navigate={~p"/"}
-              class="inline-flex items-center gap-2 text-blue-200 hover:text-white text-sm font-medium mb-6 transition-colors"
-            >
-              <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Home
-            </.link>
+    <style>
+      @keyframes panelIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
 
-            <span class="bg-blue-500/50 text-blue-100 text-xs font-bold px-4 py-1.5 rounded-full mb-4 inline-block uppercase tracking-wider">
-              Activity
-            </span>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
-              Your Feed
-            </h1>
-            <p class="text-blue-100 text-lg leading-relaxed max-w-xl">
-              Stay up to date with activity from people you follow and your own progress.
-            </p>
-          </div>
-          <div class="absolute right-0 top-0 h-full w-1/3 opacity-10 pointer-events-none flex items-center justify-center">
-            <.icon name="hero-rss" class="w-48 h-48 lg:w-64 lg:h-64" />
-          </div>
+    <div style="animation: panelIn 0.4s ease both;">
+      <div class="max-w-4xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+        <%!-- Panel Header --%>
+        <div class="mb-8">
+          <h1 class="font-['Bebas_Neue'] text-[clamp(2rem,4vw,2.6rem)] tracking-[3px] text-[#f0ece6] leading-none">
+            Your Feed
+          </h1>
+          <p class="text-t66-text-muted text-[0.9rem] mt-1.5">
+            Latest from your community
+          </p>
         </div>
 
         <%!-- Feed Controls --%>
-        <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-              <.icon name="hero-bolt" class="w-5 h-5 text-blue-600" />
+            <div class="w-10 h-10 bg-[rgba(255,77,0,0.15)] rounded-xl flex items-center justify-center">
+              <.icon name="hero-bolt" class="w-5 h-5 text-t66-accent" />
             </div>
             <div>
-              <p class="font-extrabold text-slate-900">Recent Activity</p>
-              <p class="text-sm text-slate-400">{length(@feed_items)} items</p>
+              <p class="font-bold text-[#f0ece6] text-[0.9rem]">Recent Activity</p>
+              <p class="text-sm text-t66-text-muted">{length(@feed_items)} items</p>
             </div>
           </div>
           <button
             phx-click="refresh"
-            class="inline-flex items-center gap-2 bg-white text-slate-600 px-5 py-2.5 rounded-xl font-bold text-sm soft-shadow hover:bg-slate-50 transition-colors"
+            class="inline-flex items-center gap-2 bg-t66-card border border-white/[0.06] text-[#8a8680] px-5 py-2.5 rounded-xl font-bold text-sm hover:border-white/[0.12] hover:text-[#f0ece6] transition-colors"
           >
             <.icon name="hero-arrow-path" class="w-4 h-4" /> Refresh
           </button>
@@ -105,26 +96,27 @@ defmodule HeadsUpWeb.FeedLive.Index do
 
         <%!-- Empty State --%>
         <%= if Enum.empty?(@feed_items) and not @loading do %>
-          <HeadsUpWeb.Components.UI.EmptyState.empty_state
-            icon="hero-rss"
-            title="No activities yet"
-            message="Follow some users or create goals to see activities in your feed!"
-          >
-            <:action>
-              <.link
-                navigate={~p"/people"}
-                class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold px-6 py-3 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
-              >
-                <.icon name="hero-users" class="w-4 h-4" /> Find People
-              </.link>
-            </:action>
-          </HeadsUpWeb.Components.UI.EmptyState.empty_state>
+          <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-10 text-center">
+            <div class="w-14 h-14 rounded-xl bg-[rgba(255,77,0,0.15)] flex items-center justify-center mx-auto mb-4">
+              <.icon name="hero-rss" class="w-7 h-7 text-t66-accent" />
+            </div>
+            <div class="text-lg font-bold text-[#f0ece6] mb-2">No activities yet</div>
+            <p class="text-sm text-t66-text-muted max-w-sm mx-auto">
+              Follow some users or start challenges to see activities in your feed!
+            </p>
+            <.link
+              navigate={~p"/people"}
+              class="inline-flex items-center gap-2 mt-6 bg-t66-accent text-white px-6 py-3 rounded-xl font-bold text-sm hover:-translate-y-0.5 transition-transform shadow-[0_0_30px_rgba(255,77,0,0.2)]"
+            >
+              <.icon name="hero-users" class="w-4 h-4" /> Find People
+            </.link>
+          </div>
         <% else %>
           <%!-- Feed Items --%>
-          <div class="space-y-6">
+          <div class="flex flex-col gap-4">
             <%= for item <- @feed_items do %>
-              <HeadsUpWeb.Components.UI.Card.card hover>
-                <div class="flex items-start gap-4">
+              <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-6 hover:border-white/[0.1] transition-colors">
+                <div class="flex items-start gap-3.5">
                   <%!-- Avatar --%>
                   <.link
                     navigate={~p"/people/#{item.user.user_name || item.user.id}"}
@@ -142,27 +134,27 @@ defmodule HeadsUpWeb.FeedLive.Index do
                     <div class="flex flex-wrap items-center gap-2 mb-1">
                       <.link
                         navigate={~p"/people/#{item.user.user_name || item.user.id}"}
-                        class="font-extrabold text-slate-900 text-base hover:text-blue-600 transition-colors"
+                        class="font-bold text-[#f0ece6] text-[0.88rem] hover:text-t66-accent transition-colors"
                       >
                         {item.user.name || item.user.user_name}
                       </.link>
-                      <span class="text-slate-400 text-sm font-medium">
+                      <span class="text-t66-text-muted text-[0.72rem]">
                         {format_time_ago(item.inserted_at)}
                       </span>
                       <%= if item.xp_change > 0 do %>
-                        <span class="bg-green-50 text-green-600 text-xs font-bold px-3 py-1 rounded-full">
+                        <span class="bg-[rgba(34,197,94,0.12)] text-[#22c55e] text-xs font-bold px-3 py-1 rounded-full">
                           +{item.xp_change} XP
                         </span>
                       <% end %>
                       <%= if item.xp_change < 0 do %>
-                        <span class="bg-red-50 text-red-500 text-xs font-bold px-3 py-1 rounded-full">
+                        <span class="bg-[rgba(239,68,68,0.12)] text-[#ef4444] text-xs font-bold px-3 py-1 rounded-full">
                           {item.xp_change} XP
                         </span>
                       <% end %>
                     </div>
 
                     <%!-- Description --%>
-                    <p class="text-slate-600 text-base leading-relaxed">
+                    <p class="text-[#8a8680] text-[0.9rem] leading-relaxed">
                       {item.user_friendly_description}
                     </p>
 
@@ -170,18 +162,18 @@ defmodule HeadsUpWeb.FeedLive.Index do
                     <%= if item[:challenge] do %>
                       <.link
                         navigate={~p"/challenges/#{item.challenge.id}"}
-                        class="block mt-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
+                        class="block mt-4 p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl hover:border-white/[0.12] transition-colors group"
                       >
                         <div class="flex items-center gap-3">
-                          <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <.icon name="hero-bolt" class="w-5 h-5 text-amber-600" />
+                          <div class="w-10 h-10 bg-[rgba(255,77,0,0.15)] rounded-xl flex items-center justify-center flex-shrink-0">
+                            <.icon name="hero-bolt" class="w-5 h-5 text-t66-accent" />
                           </div>
                           <div class="min-w-0 flex-1">
-                            <p class="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors">
+                            <p class="font-bold text-[#f0ece6] text-sm group-hover:text-t66-accent transition-colors">
                               {item.challenge.title}
                             </p>
                             <%= if item.challenge.description do %>
-                              <p class="text-slate-400 text-sm mt-0.5 truncate">
+                              <p class="text-t66-text-muted text-sm mt-0.5 truncate">
                                 {String.slice(item.challenge.description, 0, 100)}{if String.length(
                                                                                         item.challenge.description ||
                                                                                           ""
@@ -193,7 +185,7 @@ defmodule HeadsUpWeb.FeedLive.Index do
                           </div>
                           <.icon
                             name="hero-chevron-right"
-                            class="w-4 h-4 text-slate-400 flex-shrink-0"
+                            class="w-4 h-4 text-t66-text-muted flex-shrink-0"
                           />
                         </div>
                       </.link>
@@ -201,13 +193,13 @@ defmodule HeadsUpWeb.FeedLive.Index do
 
                     <%!-- Description Content --%>
                     <%= if item[:description] do %>
-                      <div class="mt-4 p-4 bg-blue-50 rounded-2xl border-l-4 border-blue-400">
-                        <p class="text-slate-700 text-sm leading-relaxed">{item.description}</p>
+                      <div class="mt-4 p-4 bg-[rgba(255,77,0,0.06)] border-l-[3px] border-t66-accent rounded-xl">
+                        <p class="text-[#8a8680] text-sm leading-relaxed">{item.description}</p>
                       </div>
                     <% end %>
                   </div>
                 </div>
-              </HeadsUpWeb.Components.UI.Card.card>
+              </div>
             <% end %>
           </div>
 
@@ -216,7 +208,7 @@ defmodule HeadsUpWeb.FeedLive.Index do
             <div class="text-center mt-10">
               <button
                 phx-click="load_more"
-                class="inline-flex items-center gap-2 bg-white text-slate-600 px-8 py-3 rounded-xl font-bold text-sm soft-shadow hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex items-center gap-2 bg-t66-card border border-white/[0.06] text-[#8a8680] px-8 py-3 rounded-xl font-bold text-sm hover:border-white/[0.12] hover:text-[#f0ece6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={@loading}
               >
                 <%= if @loading do %>
@@ -229,101 +221,6 @@ defmodule HeadsUpWeb.FeedLive.Index do
           <% end %>
         <% end %>
       </div>
-
-      <%!-- ===== RIGHT SIDEBAR ===== --%>
-      <aside class="hidden xl:flex flex-col w-[420px] flex-shrink-0 bg-white border-l border-slate-100 p-8 overflow-y-auto custom-scrollbar gap-10">
-        <%!-- Feed Stats --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Feed Stats</h3>
-          <div class="space-y-4">
-            <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl">
-              <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-bolt" class="w-7 h-7 text-blue-600" />
-              </div>
-              <div>
-                <p class="text-3xl font-extrabold text-slate-900">{length(@feed_items)}</p>
-                <p class="text-xs text-slate-400 font-medium">Activities Loaded</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <%!-- Quick Links --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Quick Links</h3>
-          <div class="space-y-3">
-            <.link
-              navigate={~p"/people"}
-              class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
-            >
-              <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-users" class="w-5 h-5 text-blue-600" />
-              </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">Find People</span>
-              <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
-            </.link>
-            <.link
-              navigate={~p"/my-challenges"}
-              class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
-            >
-              <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-bolt" class="w-5 h-5 text-indigo-600" />
-              </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">My Challenges</span>
-              <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
-            </.link>
-            <.link
-              navigate={~p"/connections"}
-              class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
-            >
-              <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-user-group" class="w-5 h-5 text-green-600" />
-              </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">Connections</span>
-              <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
-            </.link>
-            <.link
-              navigate={~p"/challenges"}
-              class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
-            >
-              <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-fire" class="w-5 h-5 text-amber-600" />
-              </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">Browse Challenges</span>
-              <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
-            </.link>
-          </div>
-        </div>
-
-        <%!-- Tips --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Grow Your Feed</h3>
-          <div class="space-y-4">
-            <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl">
-              <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <.icon name="hero-user-plus" class="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p class="font-bold text-slate-900 text-sm">Follow People</p>
-                <p class="text-slate-500 text-sm mt-1">
-                  Follow users to see their goal updates in your feed.
-                </p>
-              </div>
-            </div>
-            <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl">
-              <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <.icon name="hero-pencil-square" class="w-5 h-5 text-indigo-600" />
-              </div>
-              <div>
-                <p class="font-bold text-slate-900 text-sm">Stay Active</p>
-                <p class="text-slate-500 text-sm mt-1">
-                  Create goals and post updates to earn XP and engage your followers.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </aside>
     </div>
     """
   end

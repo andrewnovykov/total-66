@@ -3,8 +3,10 @@ defmodule HeadsUp.Challenges do
   The Challenges context manages challenge creation, participation, and progress tracking.
 
   Challenges come in two types:
-  - Predefined: Admin-created with phases and steps
-  - Custom: User-created with scheduled tasks
+  - Official: Admin-created templates
+  - Community: User-created templates (require admin approval)
+
+  All challenges use the unified ChallengeTask structure with mandatory/optional task types.
   """
 
   import Ecto.Query, warn: false
@@ -14,12 +16,8 @@ defmodule HeadsUp.Challenges do
 
   alias HeadsUp.Challenges.{
     Challenge,
-    ChallengeCategory,
-    ChallengePhase,
-    ChallengeStep,
     ChallengeTask,
     ChallengeParticipant,
-    ChallengeStepProgress,
     ChallengeTaskCompletion,
     CheckInComment,
     CheckInLike,
@@ -38,11 +36,11 @@ defmodule HeadsUp.Challenges do
     from(c in Challenge,
       where:
         c.visibility == :public and c.status == :active and c.is_template == true and
-          c.moderation_status != "hidden",
+          c.moderation_status != "hidden" and c.approval_status == :approved,
       order_by: [desc: c.inserted_at]
     )
     |> Repo.all()
-    |> Repo.preload([:creator, :category, :derived_challenges])
+    |> Repo.preload([:creator, :derived_challenges])
   end
 
   @doc """
@@ -57,27 +55,28 @@ defmodule HeadsUp.Challenges do
         c.is_template == true and
           c.status == :active and
           c.moderation_status != "hidden" and
+          c.approval_status == :approved and
           (c.visibility == :public or
              c.creator_user_id == ^user_id or
              (c.visibility == :friends and c.creator_user_id in ^friend_ids)),
       order_by: [desc: c.inserted_at]
     )
     |> Repo.all()
-    |> Repo.preload([:creator, :category, :derived_challenges])
+    |> Repo.preload([:creator, :derived_challenges])
   end
 
   @doc """
-  Lists predefined challenges (admin-created).
+  Lists official challenges (admin-created).
   """
-  def list_predefined_challenges do
+  def list_official_challenges do
     from(c in Challenge,
       where:
-        c.type == :predefined and c.visibility == :public and c.status == :active and
+        c.type == :official and c.visibility == :public and c.status == :active and
           c.moderation_status != "hidden",
       order_by: [desc: c.inserted_at]
     )
     |> Repo.all()
-    |> Repo.preload([:creator, :category])
+    |> Repo.preload([:creator])
   end
 
   @doc """
@@ -89,7 +88,6 @@ defmodule HeadsUp.Challenges do
       order_by: [desc: c.inserted_at]
     )
     |> Repo.all()
-    |> Repo.preload([:category])
   end
 
   @doc """
@@ -103,7 +101,7 @@ defmodule HeadsUp.Challenges do
       order_by: [desc: p.joined_at]
     )
     |> Repo.all()
-    |> Repo.preload([:creator, :category])
+    |> Repo.preload([:creator])
   end
 
   @doc """
@@ -120,9 +118,7 @@ defmodule HeadsUp.Challenges do
     Repo.get!(Challenge, id)
     |> Repo.preload([
       :creator,
-      :category,
       participants: :user,
-      phases: [steps: :progress_records],
       tasks: :completions
     ])
   end
@@ -139,9 +135,7 @@ defmodule HeadsUp.Challenges do
         challenge
         |> Repo.preload([
           :creator,
-          :category,
           participants: :user,
-          phases: [steps: []],
           tasks: []
         ])
     end
@@ -149,17 +143,17 @@ defmodule HeadsUp.Challenges do
 
   @doc """
   Creates a challenge.
-  For predefined challenges, only admins can create.
-  For custom challenges, any user can create.
+  For official challenges, only admins can create.
+  For community challenges, any user can create.
   """
   def create_challenge(attrs, user) do
-    type = Map.get(attrs, :type) || Map.get(attrs, "type") || :custom
+    type = Map.get(attrs, :type) || Map.get(attrs, "type") || :community
 
-    is_template = type in [:predefined, "predefined"] && user.role in [:admin, "admin"]
+    is_template = type in [:official, "official"] && user.role in [:admin, "admin"]
 
     cond do
-      type in [:predefined, "predefined"] && user.role not in [:admin, "admin"] ->
-        {:error, :unauthorized, "Only admins can create predefined challenges"}
+      type in [:official, "official"] && user.role not in [:admin, "admin"] ->
+        {:error, :unauthorized, "Only admins can create official challenges"}
 
       # Check active item limit for personal challenges (not templates)
       !is_template &&
@@ -276,7 +270,7 @@ defmodule HeadsUp.Challenges do
   end
 
   defp do_start_challenge_from_template(template_id, user_id, start_date) do
-    template = get_challenge!(template_id) |> Repo.preload([:phases, :tasks, phases: :steps])
+    template = get_challenge!(template_id) |> Repo.preload([:tasks])
 
     unless template.is_template do
       {:error, :not_a_template}
@@ -294,7 +288,6 @@ defmodule HeadsUp.Challenges do
         visibility: :private,
         status: :active,
         creator_user_id: user_id,
-        category_id: template.category_id,
         template_id: template.id,
         start_date: start_date,
         end_date: end_date,
@@ -308,13 +301,8 @@ defmodule HeadsUp.Challenges do
 
       case result do
         {:ok, challenge} ->
-          # Copy phases and steps for predefined templates
-          if template.type == :predefined do
-            copy_phases_and_steps(template, challenge)
-          else
-            # Copy tasks for custom templates
-            copy_tasks(template, challenge)
-          end
+          # Copy tasks for all challenge types
+          copy_tasks(template, challenge)
 
           # Automatically add the user as a participant
           join_challenge(challenge.id, user_id, start_date: start_date)
@@ -325,41 +313,10 @@ defmodule HeadsUp.Challenges do
             description: "Started challenge: #{challenge.title}"
           )
 
-          {:ok, Repo.preload(challenge, [:phases, :tasks, phases: :steps])}
+          {:ok, Repo.preload(challenge, [:tasks])}
 
         error ->
           error
-      end
-    end
-  end
-
-  defp copy_phases_and_steps(template, challenge) do
-    for phase <- template.phases do
-      {:ok, new_phase} =
-        create_phase(
-          %{
-            title: phase.title,
-            description: phase.description,
-            order_index: phase.order_index,
-            start_day: phase.start_day,
-            end_day: phase.end_day,
-            challenge_id: challenge.id
-          },
-          challenge.creator_user_id
-        )
-
-      for step <- phase.steps || [] do
-        create_step(
-          %{
-            title: step.title,
-            description: step.description,
-            order_index: step.order_index,
-            schedule_type: step.schedule_type,
-            schedule_weekdays: step.schedule_weekdays,
-            phase_id: new_phase.id
-          },
-          challenge.creator_user_id
-        )
       end
     end
   end
@@ -372,6 +329,8 @@ defmodule HeadsUp.Challenges do
           description: task.description,
           schedule_type: task.schedule_type,
           schedule_weekdays: task.schedule_weekdays,
+          task_type: task.task_type,
+          order_index: task.order_index,
           challenge_id: challenge.id
         },
         challenge.creator_user_id
@@ -382,9 +341,10 @@ defmodule HeadsUp.Challenges do
   @doc """
   Shares a user's challenge as a community template.
   Creates a copy marked as is_template = true.
+  Community templates require admin approval (approval_status: :pending).
   """
   def share_as_template(challenge_id, user_id) do
-    challenge = get_challenge!(challenge_id) |> Repo.preload([:phases, :tasks, phases: :steps])
+    challenge = get_challenge!(challenge_id) |> Repo.preload([:tasks])
 
     unless challenge.creator_user_id == user_id do
       {:error, :unauthorized}
@@ -403,13 +363,13 @@ defmodule HeadsUp.Challenges do
         template_attrs = %{
           title: challenge.title,
           description: challenge.description,
-          type: :custom,
+          type: :community,
           visibility: :public,
           status: :active,
           creator_user_id: user_id,
-          category_id: challenge.category_id,
           duration_days: duration,
-          is_template: true
+          is_template: true,
+          approval_status: :pending
         }
 
         result =
@@ -451,7 +411,7 @@ defmodule HeadsUp.Challenges do
       order_by: [desc: c.inserted_at]
     )
     |> Repo.all()
-    |> Repo.preload([:creator, :category, :template, participants: :user])
+    |> Repo.preload([:creator, :template, participants: :user])
   end
 
   @doc """
@@ -515,74 +475,41 @@ defmodule HeadsUp.Challenges do
   end
 
   @doc """
-  Lists available templates (official and community).
+  Lists available templates (official and community, approved only).
   """
   def list_templates do
     from(c in Challenge,
       where:
         c.is_template == true and c.visibility == :public and c.status == :active and
-          c.moderation_status != "hidden",
+          c.moderation_status != "hidden" and c.approval_status == :approved,
       order_by: [desc: c.inserted_at]
     )
     |> Repo.all()
-    |> Repo.preload([:creator, :category])
+    |> Repo.preload([:creator])
   end
 
-  # ============================================================================
-  # Challenge Categories (Admin Only)
-  # ============================================================================
-
   @doc """
-  Lists all challenge categories.
+  Lists community templates pending admin approval.
   """
-  def list_categories do
-    from(c in ChallengeCategory,
-      order_by: [asc: c.order, asc: c.name]
+  def list_pending_templates do
+    from(c in Challenge,
+      where:
+        c.is_template == true and c.type == :community and c.approval_status == :pending,
+      order_by: [asc: c.inserted_at]
     )
     |> Repo.all()
+    |> Repo.preload([:creator])
   end
 
   @doc """
-  Lists active challenge categories.
+  Approves a community template. Admin only.
   """
-  def list_active_categories do
-    from(c in ChallengeCategory,
-      where: c.status == :active,
-      order_by: [asc: c.order, asc: c.name]
-    )
-    |> Repo.all()
-  end
+  def approve_template(template_id, admin_user) do
+    if admin_user.role in [:admin, "admin"] do
+      template = Repo.get!(Challenge, template_id)
 
-  @doc """
-  Gets a challenge category by ID.
-  """
-  def get_category(id), do: Repo.get(ChallengeCategory, id)
-
-  @doc """
-  Gets a challenge category by ID, raises if not found.
-  """
-  def get_category!(id), do: Repo.get!(ChallengeCategory, id)
-
-  @doc """
-  Creates a challenge category. Admin only.
-  """
-  def create_category(attrs, user) do
-    if user.role in [:admin, "admin"] do
-      %ChallengeCategory{}
-      |> ChallengeCategory.changeset(attrs)
-      |> Repo.insert()
-    else
-      {:error, :unauthorized}
-    end
-  end
-
-  @doc """
-  Updates a challenge category. Admin only.
-  """
-  def update_category(%ChallengeCategory{} = category, attrs, user) do
-    if user.role in [:admin, "admin"] do
-      category
-      |> ChallengeCategory.changeset(attrs)
+      template
+      |> Challenge.changeset(%{approval_status: :approved})
       |> Repo.update()
     else
       {:error, :unauthorized}
@@ -590,121 +517,22 @@ defmodule HeadsUp.Challenges do
   end
 
   @doc """
-  Deletes a challenge category. Admin only.
+  Rejects a community template. Admin only.
   """
-  def delete_category(%ChallengeCategory{} = category, user) do
-    if user.role in [:admin, "admin"] do
-      Repo.delete(category)
-    else
-      {:error, :unauthorized}
-    end
-  end
+  def reject_template(template_id, admin_user) do
+    if admin_user.role in [:admin, "admin"] do
+      template = Repo.get!(Challenge, template_id)
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking category changes.
-  """
-  def change_category(%ChallengeCategory{} = category, attrs \\ %{}) do
-    ChallengeCategory.changeset(category, attrs)
-  end
-
-  # ============================================================================
-  # Challenge Phases (for Predefined Challenges)
-  # ============================================================================
-
-  @doc """
-  Creates a challenge phase.
-  """
-  def create_phase(attrs, user_id) do
-    challenge_id = Map.get(attrs, :challenge_id) || Map.get(attrs, "challenge_id")
-    challenge = get_challenge!(challenge_id)
-
-    if challenge.creator_user_id == user_id do
-      %ChallengePhase{}
-      |> ChallengePhase.changeset(attrs)
-      |> Repo.insert()
-    else
-      {:error, :unauthorized}
-    end
-  end
-
-  @doc """
-  Updates a challenge phase.
-  """
-  def update_phase(%ChallengePhase{} = phase, attrs, user_id) do
-    phase = Repo.preload(phase, :challenge)
-
-    if phase.challenge.creator_user_id == user_id do
-      phase
-      |> ChallengePhase.changeset(attrs)
+      template
+      |> Challenge.changeset(%{approval_status: :rejected})
       |> Repo.update()
     else
       {:error, :unauthorized}
     end
   end
 
-  @doc """
-  Deletes a challenge phase.
-  """
-  def delete_phase(%ChallengePhase{} = phase, user_id) do
-    phase = Repo.preload(phase, :challenge)
-
-    if phase.challenge.creator_user_id == user_id do
-      Repo.delete(phase)
-    else
-      {:error, :unauthorized}
-    end
-  end
-
   # ============================================================================
-  # Challenge Steps (within Phases)
-  # ============================================================================
-
-  @doc """
-  Creates a challenge step within a phase.
-  """
-  def create_step(attrs, user_id) do
-    phase_id = Map.get(attrs, :phase_id) || Map.get(attrs, "phase_id")
-    phase = Repo.get!(ChallengePhase, phase_id) |> Repo.preload(:challenge)
-
-    if phase.challenge.creator_user_id == user_id do
-      %ChallengeStep{}
-      |> ChallengeStep.changeset(attrs)
-      |> Repo.insert()
-    else
-      {:error, :unauthorized}
-    end
-  end
-
-  @doc """
-  Updates a challenge step.
-  """
-  def update_step(%ChallengeStep{} = step, attrs, user_id) do
-    step = Repo.preload(step, phase: :challenge)
-
-    if step.phase.challenge.creator_user_id == user_id do
-      step
-      |> ChallengeStep.changeset(attrs)
-      |> Repo.update()
-    else
-      {:error, :unauthorized}
-    end
-  end
-
-  @doc """
-  Deletes a challenge step.
-  """
-  def delete_step(%ChallengeStep{} = step, user_id) do
-    step = Repo.preload(step, phase: :challenge)
-
-    if step.phase.challenge.creator_user_id == user_id do
-      Repo.delete(step)
-    else
-      {:error, :unauthorized}
-    end
-  end
-
-  # ============================================================================
-  # Challenge Tasks (for Custom Challenges)
+  # Challenge Tasks (unified for all challenge types)
   # ============================================================================
 
   @doc """
@@ -759,8 +587,8 @@ defmodule HeadsUp.Challenges do
   Joins a challenge. Any user can join unlimited challenges.
   Checks visibility and duplicate enrollment only.
 
-  For predefined (official) challenges: user provides start_date, end_date is calculated from duration.
-  For custom challenges: uses the challenge's start_date and end_date.
+  For official challenges: user provides start_date, end_date is calculated from duration.
+  For community challenges: uses the challenge's start_date and end_date.
   """
   def join_challenge(challenge_id, user_id, opts \\ []) do
     challenge = get_challenge!(challenge_id)
@@ -810,8 +638,8 @@ defmodule HeadsUp.Challenges do
       challenge.start_date && challenge.end_date ->
         {challenge.start_date, challenge.end_date}
 
-      # Predefined template — calculate from duration
-      challenge.type == :predefined ->
+      # Official template — calculate from duration
+      challenge.type == :official ->
         end_date = Date.add(start_date, challenge.duration_days || 30)
         {start_date, end_date}
 
@@ -867,31 +695,6 @@ defmodule HeadsUp.Challenges do
   # ============================================================================
   # Progress Tracking
   # ============================================================================
-
-  @doc """
-  Marks a step as completed in a predefined challenge.
-  """
-  def complete_step(participant_id, step_id) do
-    participant = Repo.get!(ChallengeParticipant, participant_id)
-
-    result =
-      %ChallengeStepProgress{}
-      |> ChallengeStepProgress.changeset(%{
-        participant_id: participant_id,
-        step_id: step_id,
-        completed_at: DateTime.utc_now()
-      })
-      |> Repo.insert()
-
-    case result do
-      {:ok, progress} ->
-        check_and_complete_challenge(participant)
-        {:ok, progress}
-
-      error ->
-        error
-    end
-  end
 
   @doc """
   Marks a task as completed (accomplished) for a specific date.
@@ -956,16 +759,6 @@ defmodule HeadsUp.Challenges do
   end
 
   @doc """
-  Uncompletes a step (removes progress).
-  """
-  def uncomplete_step(participant_id, step_id) do
-    case Repo.get_by(ChallengeStepProgress, participant_id: participant_id, step_id: step_id) do
-      nil -> {:error, :not_found}
-      progress -> Repo.delete(progress)
-    end
-  end
-
-  @doc """
   Uncompletes a task for a specific date.
   """
   def uncomplete_task(participant_id, task_id, date) do
@@ -976,76 +769,6 @@ defmodule HeadsUp.Challenges do
          ) do
       nil -> {:error, :not_found}
       completion -> Repo.delete(completion)
-    end
-  end
-
-  @doc """
-  Checks if a step is completed by a participant.
-  Only returns true for status :completed, not :failed.
-  """
-  def step_completed?(participant_id, step_id) do
-    Repo.exists?(
-      from(p in ChallengeStepProgress,
-        where:
-          p.participant_id == ^participant_id and p.step_id == ^step_id and p.status == :completed
-      )
-    )
-  end
-
-  @doc """
-  Marks a step as failed for a participant.
-  Upserts a ChallengeStepProgress record with status :failed.
-  """
-  def fail_step(participant_id, step_id) do
-    existing =
-      Repo.get_by(ChallengeStepProgress,
-        participant_id: participant_id,
-        step_id: step_id
-      )
-
-    result =
-      if existing do
-        existing
-        |> ChallengeStepProgress.changeset(%{status: :failed, completed_at: DateTime.utc_now()})
-        |> Repo.update()
-      else
-        %ChallengeStepProgress{}
-        |> ChallengeStepProgress.changeset(%{
-          participant_id: participant_id,
-          step_id: step_id,
-          status: :failed,
-          completed_at: DateTime.utc_now()
-        })
-        |> Repo.insert()
-      end
-
-    case result do
-      {:ok, progress} ->
-        participant = Repo.get!(ChallengeParticipant, participant_id)
-
-        ActivityService.track_activity(participant.user_id, "step_failed",
-          challenge_id: participant.challenge_id,
-          description: "Failed a challenge step"
-        )
-
-        {:ok, progress}
-
-      error ->
-        error
-    end
-  end
-
-  @doc """
-  Gets the status of a step for a participant.
-  Returns :completed, :failed, or :pending.
-  """
-  def get_step_status(participant_id, step_id) do
-    case Repo.get_by(ChallengeStepProgress,
-           participant_id: participant_id,
-           step_id: step_id
-         ) do
-      nil -> :pending
-      %{status: status} -> status
     end
   end
 
@@ -1085,7 +808,7 @@ defmodule HeadsUp.Challenges do
   def get_participant_progress(participant_id) do
     participant =
       Repo.get!(ChallengeParticipant, participant_id)
-      |> Repo.preload(challenge: [:phases, :tasks])
+      |> Repo.preload(challenge: [:tasks])
 
     today = Date.utc_today()
     start_date = participant.start_date
@@ -1108,29 +831,17 @@ defmodule HeadsUp.Challenges do
 
     days_percentage = min(100, calculate_percentage(days_elapsed, total_days))
 
-    {today_completed, today_failed, total_items} =
-      case participant.challenge.type do
-        :predefined ->
-          # Predefined challenges: track step completions
-          total = count_total_steps(participant.challenge)
-          completed = count_completed_steps(participant_id)
-          failed = count_failed_steps(participant_id)
-          {completed, failed, total}
-
-        :custom ->
-          # Custom challenges: track task completions
-          total = length(get_today_tasks(participant.challenge_id))
-          completed = count_tasks_completed_today(participant_id)
-          failed = count_tasks_failed_today(participant_id)
-          {completed, failed, total}
-      end
+    # All challenges use tasks
+    total = length(get_today_tasks(participant.challenge_id))
+    completed = count_tasks_completed_today(participant_id)
+    failed = count_tasks_failed_today(participant_id)
 
     %{
       type: participant.challenge.type,
       # Daily progress
-      today_total: total_items,
-      today_completed: today_completed,
-      today_failed: today_failed,
+      today_total: total,
+      today_completed: completed,
+      today_failed: failed,
       # Challenge progress (by days)
       total_days: total_days,
       days_elapsed: min(days_elapsed, total_days),
@@ -1267,55 +978,30 @@ defmodule HeadsUp.Challenges do
 
   @doc """
   Gets today's actionable items for a challenge.
-  For predefined: returns all incomplete steps (steps are the daily items).
-  For custom: returns today's scheduled tasks.
+  Returns today's scheduled tasks with their completion status.
   """
   def get_today_items(challenge_id, participant_id) do
-    challenge = Repo.get!(Challenge, challenge_id) |> Repo.preload([:tasks, phases: :steps])
+    challenge = Repo.get!(Challenge, challenge_id) |> Repo.preload([:tasks])
+    today = Date.utc_today()
 
-    case challenge.type do
-      :predefined ->
-        # Return all steps, marking which are completed
-        steps =
-          challenge.phases
-          |> Enum.sort_by(& &1.order_index)
-          |> Enum.flat_map(fn phase ->
-            phase.steps
-            |> Enum.sort_by(& &1.order_index)
-            |> Enum.map(fn step ->
-              %{
-                id: step.id,
-                title: step.title,
-                description: step.description,
-                type: :step,
-                status: get_step_status(participant_id, step.id)
-              }
-            end)
-          end)
+    tasks =
+      challenge.tasks
+      |> Enum.filter(&ChallengeTask.scheduled_for_date?(&1, today))
+      |> Enum.map(fn task ->
+        status = get_task_status(participant_id, task.id, today)
 
-        {:steps, steps}
+        %{
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          type: :task,
+          task_type: task.task_type,
+          schedule_type: task.schedule_type,
+          status: status
+        }
+      end)
 
-      :custom ->
-        today = Date.utc_today()
-
-        tasks =
-          challenge.tasks
-          |> Enum.filter(&ChallengeTask.scheduled_for_date?(&1, today))
-          |> Enum.map(fn task ->
-            status = get_task_status(participant_id, task.id, today)
-
-            %{
-              id: task.id,
-              title: task.title,
-              description: task.description,
-              type: :task,
-              schedule_type: task.schedule_type,
-              status: status
-            }
-          end)
-
-        {:tasks, tasks}
-    end
+    {:tasks, tasks}
   end
 
   @doc """
@@ -1524,30 +1210,19 @@ defmodule HeadsUp.Challenges do
 
       true ->
         day_number = Date.diff(check_in_date, participant.start_date) + 1
-        challenge = Repo.preload(participant.challenge, phases: :steps)
 
-        {total_tasks, completed_tasks, failed_tasks, skipped_tasks} =
-          case challenge.type do
-            :predefined ->
-              total = count_total_steps(challenge)
-              completed = count_completed_steps(participant_id)
-              failed = count_failed_steps(participant_id)
-              {total, completed, failed, total - completed - failed}
+        # All challenges use tasks
+        today_tasks = get_today_tasks(participant.challenge_id)
+        total = length(today_tasks)
 
-            :custom ->
-              today_tasks = get_today_tasks(participant.challenge_id)
-              total = length(today_tasks)
+        statuses =
+          Enum.map(today_tasks, fn task ->
+            get_task_status(participant_id, task.id, check_in_date)
+          end)
 
-              statuses =
-                Enum.map(today_tasks, fn task ->
-                  get_task_status(participant_id, task.id, check_in_date)
-                end)
-
-              completed = Enum.count(statuses, &(&1 == :accomplished))
-              failed = Enum.count(statuses, &(&1 == :failed))
-              skipped = Enum.count(statuses, &(&1 == :pending))
-              {total, completed, failed, skipped}
-          end
+        completed = Enum.count(statuses, &(&1 == :accomplished))
+        failed = Enum.count(statuses, &(&1 == :failed))
+        skipped = Enum.count(statuses, &(&1 == :pending))
 
         check_in_attrs = %{
           participant_id: participant_id,
@@ -1555,10 +1230,10 @@ defmodule HeadsUp.Challenges do
           user_id: participant.user_id,
           day_number: day_number,
           completed_date: check_in_date,
-          total_tasks: total_tasks,
-          completed_tasks: completed_tasks,
-          failed_tasks: failed_tasks,
-          skipped_tasks: skipped_tasks,
+          total_tasks: total,
+          completed_tasks: completed,
+          failed_tasks: failed,
+          skipped_tasks: skipped,
           note: Map.get(attrs, :note) || Map.get(attrs, "note"),
           mood: Map.get(attrs, :mood) || Map.get(attrs, "mood")
         }
@@ -1572,7 +1247,7 @@ defmodule HeadsUp.Challenges do
           {:ok, check_in} ->
             ActivityService.track_activity(participant.user_id, "daily_check_in_submitted",
               challenge_id: participant.challenge_id,
-              description: "Day #{day_number}: #{completed_tasks}/#{total_tasks} tasks completed"
+              description: "Day #{day_number}: #{completed}/#{total} tasks completed"
             )
 
             # Check if all days are now checked in → auto-complete
@@ -1800,29 +1475,6 @@ defmodule HeadsUp.Challenges do
     |> Repo.aggregate(:count)
   end
 
-  defp count_total_steps(challenge) do
-    from(s in ChallengeStep,
-      join: p in ChallengePhase,
-      on: s.phase_id == p.id,
-      where: p.challenge_id == ^challenge.id
-    )
-    |> Repo.aggregate(:count)
-  end
-
-  defp count_completed_steps(participant_id) do
-    from(p in ChallengeStepProgress,
-      where: p.participant_id == ^participant_id and p.status == :completed
-    )
-    |> Repo.aggregate(:count)
-  end
-
-  defp count_failed_steps(participant_id) do
-    from(p in ChallengeStepProgress,
-      where: p.participant_id == ^participant_id and p.status == :failed
-    )
-    |> Repo.aggregate(:count)
-  end
-
   defp count_tasks_completed_today(participant_id) do
     today = Date.utc_today()
 
@@ -1849,29 +1501,4 @@ defmodule HeadsUp.Challenges do
   end
 
   defp calculate_percentage(_, _), do: 0.0
-
-  defp check_and_complete_challenge(participant) do
-    participant = Repo.preload(participant, challenge: :phases)
-    total_steps = count_total_steps(participant.challenge)
-    completed_steps = count_completed_steps(participant.id)
-    today = Date.utc_today()
-
-    # Only auto-complete when ALL steps are done AND we've reached the end date.
-    # This prevents premature completion that would hide daily check-in features.
-    past_end_date = participant.end_date && Date.compare(today, participant.end_date) != :lt
-
-    if completed_steps >= total_steps and total_steps > 0 and past_end_date do
-      participant
-      |> ChallengeParticipant.changeset(%{
-        status: :completed,
-        completed_at: DateTime.utc_now()
-      })
-      |> Repo.update()
-
-      ActivityService.track_activity(participant.user_id, "challenge_completed",
-        challenge_id: participant.challenge_id,
-        description: "Completed the challenge!"
-      )
-    end
-  end
 end

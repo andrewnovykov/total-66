@@ -17,7 +17,6 @@ alias HeadsUp.Friendship
 
 alias HeadsUp.Challenges.{
   Challenge,
-  ChallengeCategory,
   ChallengeParticipant
 }
 
@@ -36,7 +35,7 @@ challenge_visibility_cycle = [:public, :friends, :private]
 
 subscription_cycle = ["free", "pro_3", "pro_5", "unlimited"]
 challenge_status_cycle = [:active, :active, :completed, :paused]
-challenge_type_cycle = [:custom, :predefined]
+challenge_type_cycle = [:community, :official]
 
 user_images = [
   "/images/user-1.png",
@@ -68,21 +67,7 @@ maybe_add_completed_at = fn attrs, challenge ->
   end
 end
 
-ensure_category = fn attrs ->
-  case Repo.get_by(ChallengeCategory, name: attrs.name) do
-    nil ->
-      %ChallengeCategory{}
-      |> ChallengeCategory.changeset(attrs)
-      |> Repo.insert!()
-
-    category ->
-      category
-      |> ChallengeCategory.changeset(attrs)
-      |> Repo.update!()
-  end
-end
-
-IO.puts("[1/4] Cleaning previously generated seed users...")
+IO.puts("[1/3] Cleaning previously generated seed users...")
 
 seeded_user_ids =
   from(u in Users,
@@ -96,49 +81,7 @@ if seeded_user_ids != [] do
   |> Repo.delete_all()
 end
 
-IO.puts("[2/4] Ensuring challenge categories...")
-
-category_specs = [
-  %{
-    name: "Seed Challenge Fitness",
-    description: "Fitness challenge templates",
-    image_path: "/images/goal-fitness-1.png",
-    status: :active,
-    order: 1
-  },
-  %{
-    name: "Seed Challenge Career",
-    description: "Career challenge templates",
-    image_path: "/images/goal-career-1.png",
-    status: :active,
-    order: 2
-  },
-  %{
-    name: "Seed Challenge Personal",
-    description: "Personal challenge templates",
-    image_path: "/images/goal-personal-1.png",
-    status: :active,
-    order: 3
-  },
-  %{
-    name: "Seed Challenge Finance",
-    description: "Finance challenge templates",
-    image_path: "/images/goal-finance-1.png",
-    status: :active,
-    order: 4
-  },
-  %{
-    name: "Seed Challenge Mindset",
-    description: "Mindset and consistency challenges",
-    image_path: "/images/goal-personal-2.png",
-    status: :active,
-    order: 5
-  }
-]
-
-categories = Enum.map(category_specs, ensure_category)
-
-IO.puts("[3/4] Creating users (coach + regular, no admins)...")
+IO.puts("[2/3] Creating users (coach + regular, no admins)...")
 
 users =
   for i <- 1..users_count do
@@ -186,7 +129,7 @@ for i <- 0..(length(users) - 1) do
   end
 end
 
-IO.puts("[4/4] Creating challenge templates and personal challenges...")
+IO.puts("[3/3] Creating challenge templates and personal challenges...")
 
 templates =
   for i <- 1..templates_count do
@@ -199,7 +142,6 @@ templates =
 
     type = pick.(challenge_type_cycle, i - 1)
     visibility = pick.(challenge_visibility_cycle, i - 1)
-    category = pick.(categories, i - 1)
 
     base_attrs = %{
       title: "Seed Template #{i}",
@@ -209,16 +151,15 @@ templates =
       status: :active,
       image_path: pick.(goal_images, i - 1),
       creator_user_id: creator.id,
-      category_id: category.id,
       is_template: true
     }
 
     attrs =
       case type do
-        :predefined ->
+        :official ->
           Map.put(base_attrs, :duration_days, 14 + rem(i, 50))
 
-        :custom ->
+        :community ->
           start_date = Date.add(Date.utc_today(), -rem(i, 20))
           end_date = Date.add(start_date, 14 + rem(i, 30))
 
@@ -248,10 +189,10 @@ personal_challenges =
 
         end_date =
           case template.type do
-            :predefined ->
+            :official ->
               Date.add(start_date, template.duration_days || 30)
 
-            :custom ->
+            :community ->
               template_length =
                 if template.start_date && template.end_date do
                   max(1, Date.diff(template.end_date, template.start_date))
@@ -270,7 +211,6 @@ personal_challenges =
           status: status,
           image_path: pick.(goal_images, i - 1),
           creator_user_id: creator.id,
-          category_id: template.category_id,
           template_id: template.id,
           start_date: start_date,
           end_date: end_date,
@@ -278,7 +218,6 @@ personal_challenges =
         }
       else
         type = pick.(challenge_type_cycle, i - 1)
-        category = pick.(categories, i - 1)
         start_date = Date.add(Date.utc_today(), -rem(i, 12))
         end_date = Date.add(start_date, 10 + rem(i, 40))
 
@@ -290,7 +229,6 @@ personal_challenges =
           status: status,
           image_path: pick.(goal_images, i - 1),
           creator_user_id: creator.id,
-          category_id: category.id,
           start_date: start_date,
           end_date: end_date,
           is_template: false
@@ -310,7 +248,7 @@ Enum.each(personal_challenges, fn challenge ->
       challenge.end_date ->
         challenge.end_date
 
-      challenge.type == :predefined ->
+      challenge.type == :official ->
         Date.add(start_date, challenge.duration_days || 30)
 
       true ->

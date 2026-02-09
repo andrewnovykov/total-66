@@ -21,9 +21,7 @@ defmodule HeadsUpWeb.Api.ChallengeControllerTest do
         password: "password123456"
       })
 
-    category = challenge_category_fixture()
-
-    %{user: user, other_user: other_user, category: category}
+    %{user: user, other_user: other_user}
   end
 
   # ============================================================================
@@ -47,17 +45,6 @@ defmodule HeadsUpWeb.Api.ChallengeControllerTest do
       conn = get(conn, "/api/challenges/templates")
       assert %{"data" => templates} = json_response(conn, 200)
       assert is_list(templates)
-    end
-  end
-
-  describe "GET /api/challenges/categories" do
-    test "lists challenge categories", %{conn: conn} do
-      _category = challenge_category_fixture()
-
-      conn = get(conn, "/api/challenges/categories")
-      assert %{"data" => categories} = json_response(conn, 200)
-      assert is_list(categories)
-      assert length(categories) > 0
     end
   end
 
@@ -102,14 +89,13 @@ defmodule HeadsUpWeb.Api.ChallengeControllerTest do
   end
 
   describe "POST /api/challenges" do
-    test "creates a custom challenge", %{conn: conn, user: user, category: category} do
+    test "creates a community challenge", %{conn: conn, user: user} do
       params = %{
         "challenge" => %{
           "title" => "My New Challenge",
           "description" => "Testing creation",
-          "type" => "custom",
+          "type" => "community",
           "visibility" => "public",
-          "category_id" => category.id,
           "duration_days" => 30,
           "start_date" => Date.to_iso8601(Date.utc_today()),
           "end_date" => Date.to_iso8601(Date.add(Date.utc_today(), 30))
@@ -121,13 +107,12 @@ defmodule HeadsUpWeb.Api.ChallengeControllerTest do
       assert challenge["title"] == "My New Challenge"
     end
 
-    test "returns 401 for unauthenticated", %{conn: conn, category: category} do
+    test "returns 401 for unauthenticated", %{conn: conn} do
       params = %{
         "challenge" => %{
           "title" => "Test",
           "description" => "Test",
-          "type" => "custom",
-          "category_id" => category.id,
+          "type" => "community",
           "duration_days" => 30,
           "start_date" => Date.to_iso8601(Date.utc_today()),
           "end_date" => Date.to_iso8601(Date.add(Date.utc_today(), 30))
@@ -190,7 +175,7 @@ defmodule HeadsUpWeb.Api.ChallengeControllerTest do
 
   describe "POST /api/challenges/:id/start" do
     test "starts a challenge from a template", %{conn: conn, user: user} do
-      template = predefined_challenge_fixture()
+      template = official_challenge_fixture()
 
       conn = conn |> log_in_user(user) |> post("/api/challenges/#{template.id}/start")
       assert %{"data" => challenge} = json_response(conn, 201)

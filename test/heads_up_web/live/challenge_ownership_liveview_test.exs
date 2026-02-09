@@ -76,21 +76,18 @@ defmodule HeadsUpWeb.ChallengeOwnershipLiveViewTest do
       assert html =~ "don&#39;t have permission"
     end
 
-    test "non-owner cannot fail challenge via event", %{
+    test "non-owner cannot see fail button on show page", %{
       conn: conn,
       non_owner: non_owner,
       challenge: challenge
     } do
       conn = log_in_user(conn, non_owner)
-      {:ok, lv, _html} = live(conn, ~p"/challenges/#{challenge.id}")
+      {:ok, _lv, html} = live(conn, ~p"/challenges/#{challenge.id}")
 
-      # Set failure reason and try to confirm
-      render_click(lv, "show_fail_modal", %{})
-      render_click(lv, "update_failure_reason", %{"value" => "test reason"})
-      html = render_click(lv, "confirm_fail_challenge", %{})
-
-      assert html =~ "don&#39;t have permission" or html =~ "unauthorized" or
-               html =~ "Could not fail"
+      # Fail functionality has moved to active.ex (/my-challenges/:id)
+      # Show page should not have fail button at all
+      refute html =~ "Fail Challenge"
+      refute html =~ "show_fail_modal"
     end
 
     test "non-owner cannot see management buttons", %{

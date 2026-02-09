@@ -25,46 +25,69 @@ defmodule HeadsUpWeb.MessagesLive.Index do
 
   def render(assigns) do
     ~H"""
-    <div class="flex gap-0 h-full">
-      <div class="flex-grow min-w-0 p-5 sm:p-8 lg:p-10 overflow-y-auto custom-scrollbar">
-        <%!-- Hero Banner --%>
-        <div class="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[40px] shadow-lg p-8 sm:p-10 lg:p-12 mb-8">
-          <div class="relative z-10">
-            <span class="inline-block px-4 py-1.5 bg-blue-500/50 text-blue-100 text-xs font-bold uppercase tracking-wider rounded-full mb-4">
-              Chat
-            </span>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-3">
-              Messages
-            </h1>
-            <p class="text-blue-100 text-lg">Chat with your friends</p>
-          </div>
-          <div class="absolute top-6 right-6 opacity-10">
-            <.icon name="hero-chat-bubble-left-right" class="w-32 h-32 text-white" />
-          </div>
+    <style>
+      @keyframes panelIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+
+    <div style="animation: panelIn 0.4s ease both;">
+      <div class="max-w-3xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+        <%!-- Panel Header --%>
+        <div class="mb-8">
+          <h1 class="font-['Bebas_Neue'] text-[clamp(2rem,4vw,2.6rem)] tracking-[3px] text-[#f0ece6] leading-none">
+            Messages
+          </h1>
+          <p class="text-t66-text-muted text-[0.9rem] mt-1.5">
+            Your conversations
+          </p>
         </div>
 
         <%!-- Conversations List --%>
-        <div class="bg-white rounded-[32px] shadow-sm p-6 sm:p-8">
-          <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2 mb-6">
-            <.icon name="hero-chat-bubble-left-right" class="w-5 h-5 text-blue-600" /> Conversations
-          </h2>
-
-          <%= if Enum.empty?(@conversations) do %>
-            <div class="text-center py-12">
-              <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4">
-                <.icon name="hero-chat-bubble-left-right" class="w-8 h-8 text-slate-400" />
-              </div>
-              <h3 class="text-lg font-extrabold text-slate-900 mb-2">No messages yet</h3>
-              <p class="text-slate-500 text-sm max-w-sm mx-auto">
-                Visit a friend's profile and tap the Message button to start chatting.
+        <div class="bg-t66-card border border-white/[0.06] rounded-2xl overflow-hidden">
+          <div class="flex items-center gap-3 px-6 pt-6 pb-4">
+            <div class="w-10 h-10 bg-[rgba(255,77,0,0.15)] rounded-xl flex items-center justify-center">
+              <.icon name="hero-chat-bubble-left-right" class="w-5 h-5 text-t66-accent" />
+            </div>
+            <div>
+              <h2 class="font-['Bebas_Neue'] text-[1.3rem] tracking-[2px] text-[#f0ece6]">
+                Conversations
+              </h2>
+              <p class="text-sm text-t66-text-muted">
+                {length(@conversations)} total
               </p>
             </div>
+          </div>
+
+          <%= if Enum.empty?(@conversations) do %>
+            <div class="text-center py-12 px-6">
+              <div class="w-14 h-14 rounded-xl bg-[rgba(255,77,0,0.15)] flex items-center justify-center mx-auto mb-4">
+                <.icon name="hero-chat-bubble-left-right" class="w-7 h-7 text-t66-accent" />
+              </div>
+              <h3 class="text-lg font-bold text-[#f0ece6] mb-2">No messages yet</h3>
+              <p class="text-t66-text-muted text-sm max-w-sm mx-auto">
+                Visit a friend's profile and tap the Message button to start chatting.
+              </p>
+              <.link
+                navigate={~p"/people"}
+                class="inline-flex items-center gap-2 mt-6 bg-t66-accent text-white px-6 py-3 rounded-xl font-bold text-sm hover:-translate-y-0.5 transition-transform shadow-[0_0_30px_rgba(255,77,0,0.2)]"
+              >
+                <.icon name="hero-users" class="w-4 h-4" /> Find People
+              </.link>
+            </div>
           <% else %>
-            <div class="space-y-2">
+            <div class="flex flex-col gap-1 px-2 pb-2">
               <%= for conv <- @conversations do %>
                 <.link
                   navigate={~p"/messages/#{conv.conversation.id}"}
-                  class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors group"
+                  class={[
+                    "flex items-center gap-3.5 px-4 py-4 rounded-xl transition-colors group",
+                    if(conv.unread_count > 0,
+                      do: "border-l-[3px] border-t66-accent bg-[rgba(255,77,0,0.04)]",
+                      else: "hover:bg-white/[0.03]"
+                    )
+                  ]}
                 >
                   <div class="relative flex-shrink-0">
                     <HeadsUpWeb.Components.UI.Avatar.avatar
@@ -74,36 +97,36 @@ defmodule HeadsUpWeb.MessagesLive.Index do
                       rounded={:xl}
                     />
                     <%= if conv.unread_count > 0 do %>
-                      <div class="absolute -top-1 -right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                      <div class="absolute -top-1 -right-1 w-5 h-5 bg-t66-accent rounded-full flex items-center justify-center">
                         <span class="text-[10px] font-bold text-white">{conv.unread_count}</span>
                       </div>
                     <% end %>
                   </div>
 
                   <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center justify-between mb-0.5">
                       <h3 class={[
-                        "text-sm font-extrabold truncate group-hover:text-blue-600 transition-colors",
-                        if(conv.unread_count > 0, do: "text-slate-900", else: "text-slate-700")
+                        "text-[0.88rem] font-bold truncate group-hover:text-t66-accent transition-colors",
+                        if(conv.unread_count > 0, do: "text-t66-accent", else: "text-[#f0ece6]")
                       ]}>
                         {conv.other_user.name || conv.other_user.user_name}
                       </h3>
                       <%= if conv.last_message do %>
-                        <span class="text-xs text-slate-400 flex-shrink-0 ml-2">
+                        <span class="text-[0.7rem] text-t66-text-muted flex-shrink-0 ml-2">
                           {format_time(conv.last_message.inserted_at)}
                         </span>
                       <% end %>
                     </div>
                     <p class={[
-                      "text-sm truncate",
+                      "text-[0.82rem] truncate",
                       if(conv.unread_count > 0,
-                        do: "text-slate-700 font-medium",
-                        else: "text-slate-500"
+                        do: "text-[#8a8680] font-medium",
+                        else: "text-t66-text-muted"
                       )
                     ]}>
                       <%= if conv.last_message do %>
                         <%= if conv.last_message.sender_id == @current_user.id do %>
-                          <span class="text-slate-400">You: </span>
+                          <span class="text-t66-text-muted">You: </span>
                         <% end %>
                         {conv.last_message.content}
                       <% else %>
@@ -112,7 +135,11 @@ defmodule HeadsUpWeb.MessagesLive.Index do
                     </p>
                   </div>
 
-                  <.icon name="hero-chevron-right" class="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  <%= if conv.unread_count > 0 do %>
+                    <div class="w-2.5 h-2.5 rounded-full bg-t66-accent flex-shrink-0"></div>
+                  <% else %>
+                    <.icon name="hero-chevron-right" class="w-4 h-4 text-t66-text-muted flex-shrink-0" />
+                  <% end %>
                 </.link>
               <% end %>
             </div>

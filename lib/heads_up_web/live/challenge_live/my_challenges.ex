@@ -7,13 +7,11 @@ defmodule HeadsUpWeb.ChallengeLive.MyChallenges do
     current_user = socket.assigns.current_user
 
     my_challenges = Challenges.list_my_challenges(current_user.id)
-    categories = Challenges.list_active_categories()
 
     socket =
       socket
       |> assign(:my_challenges, my_challenges)
       |> assign(:filtered_challenges, my_challenges)
-      |> assign(:categories, categories)
       |> assign(:filter_status, "all")
       |> assign(:search_query, "")
       |> assign(:page_title, "My Challenges")
@@ -120,175 +118,124 @@ defmodule HeadsUpWeb.ChallengeLive.MyChallenges do
     assigns = assign(assigns, :counts, counts)
 
     ~H"""
-    <div class="flex gap-0 h-full">
-      <%!-- ===== CENTER CONTENT ===== --%>
-      <div class="flex-grow p-5 sm:p-8 lg:p-10 overflow-y-auto custom-scrollbar">
-        <%!-- Hero Banner --%>
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[40px] p-8 sm:p-10 lg:p-12 mb-10 relative overflow-hidden text-white soft-shadow">
-          <div class="relative z-10">
-            <span class="bg-blue-500/50 text-blue-100 text-xs font-bold px-4 py-1.5 rounded-full mb-4 inline-block uppercase tracking-wider">
-              Dashboard
-            </span>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
+    <style>
+      @keyframes panelIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+
+    <div style="animation: panelIn 0.4s ease both;">
+      <div class="max-w-4xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+        <%!-- Panel Header --%>
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div>
+            <h1 class="font-['Bebas_Neue'] text-[clamp(2rem,4vw,2.6rem)] tracking-[3px] text-[#f0ece6] leading-none">
               My Challenges
             </h1>
-            <p class="text-blue-100 text-lg leading-relaxed max-w-xl mb-8">
-              <%= cond do %>
-                <% @counts.active > 0 -> %>
-                  You have {@counts.active} active challenge{if @counts.active != 1, do: "s"}. Keep going!
-                <% @counts.all > 0 -> %>
-                  You have {@counts.all} challenge{if @counts.all != 1, do: "s"}. Start a new one!
-                <% true -> %>
-                  Track your personal challenge progress and push your limits.
-              <% end %>
+            <p class="text-t66-text-muted text-[0.9rem] mt-1.5">
+              Your history of grit and growth
             </p>
-
-            <div class="flex flex-col sm:flex-row gap-3">
-              <.link
-                navigate={~p"/challenges"}
-                class="inline-flex items-center justify-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-base hover:scale-105 transition-all duration-200 soft-shadow"
-              >
-                <.icon name="hero-magnifying-glass" class="w-5 h-5" /> Browse Templates
-              </.link>
-              <.link
-                navigate={~p"/challenges/new"}
-                class="inline-flex items-center justify-center gap-2 bg-white/15 backdrop-blur-sm text-white border border-white/20 px-8 py-4 rounded-2xl font-bold text-base hover:bg-white/25 transition-all duration-200"
-              >
-                <.icon name="hero-plus" class="w-5 h-5" /> Create Challenge
-              </.link>
-            </div>
           </div>
-          <div class="absolute right-0 top-0 h-full w-1/3 opacity-10 pointer-events-none flex items-center justify-center">
-            <.icon name="hero-bolt" class="w-48 h-48 lg:w-64 lg:h-64" />
+          <div class="flex gap-2.5">
+            <.link
+              navigate={~p"/challenges"}
+              class="inline-flex items-center gap-2 bg-t66-card border border-white/[0.06] text-[#8a8680] px-5 py-2.5 rounded-xl font-bold text-sm hover:border-white/[0.12] hover:text-[#f0ece6] transition-colors"
+            >
+              <.icon name="hero-magnifying-glass" class="w-4 h-4" /> Browse Templates
+            </.link>
+            <.link
+              navigate={~p"/challenges/new"}
+              class="inline-flex items-center gap-2 bg-t66-accent text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:-translate-y-0.5 transition-all shadow-[0_0_30px_rgba(255,77,0,0.2)]"
+            >
+              <.icon name="hero-plus" class="w-4 h-4" /> Create Challenge
+            </.link>
           </div>
         </div>
 
-        <%!-- Filter Row --%>
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div class="flex items-center gap-3">
-            <h2 class="text-2xl font-extrabold text-slate-900">
-              {case @filter_status do
-                "active" -> "Active Challenges"
-                "completed" -> "Completed Challenges"
-                "failed" -> "Failed Challenges"
-                "cancelled" -> "Cancelled Challenges"
-                _ -> "All Challenges"
-              end}
-            </h2>
-            <span class="text-slate-400 text-sm font-medium">
-              {length(@filtered_challenges)} challenges
-            </span>
+        <%!-- Stats Row --%>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-5 text-center">
+            <div class="font-['Bebas_Neue'] text-[2rem] leading-none text-t66-accent">{@counts.all}</div>
+            <div class="text-[0.6rem] uppercase tracking-[2px] text-t66-text-muted mt-1">Total</div>
           </div>
-
-          <div class="flex items-center gap-3 flex-wrap">
-            <%!-- Status Filter Pills --%>
-            <div class="flex gap-2">
-              <button
-                phx-click="filter_status"
-                phx-value-status="all"
-                class={[
-                  "px-5 py-2.5 rounded-xl text-sm font-bold transition-all",
-                  if(@filter_status == "all",
-                    do: "bg-slate-900 text-white",
-                    else: "bg-white text-slate-500 soft-shadow hover:bg-slate-50"
-                  )
-                ]}
-              >
-                All ({@counts.all})
-              </button>
-              <button
-                phx-click="filter_status"
-                phx-value-status="active"
-                class={[
-                  "px-5 py-2.5 rounded-xl text-sm font-bold transition-all",
-                  if(@filter_status == "active",
-                    do: "bg-slate-900 text-white",
-                    else: "bg-white text-slate-500 soft-shadow hover:bg-slate-50"
-                  )
-                ]}
-              >
-                Active ({@counts.active})
-              </button>
-              <button
-                phx-click="filter_status"
-                phx-value-status="completed"
-                class={[
-                  "px-5 py-2.5 rounded-xl text-sm font-bold transition-all hidden sm:block",
-                  if(@filter_status == "completed",
-                    do: "bg-slate-900 text-white",
-                    else: "bg-white text-slate-500 soft-shadow hover:bg-slate-50"
-                  )
-                ]}
-              >
-                Completed ({@counts.completed})
-              </button>
-              <button
-                phx-click="filter_status"
-                phx-value-status="failed"
-                class={[
-                  "px-5 py-2.5 rounded-xl text-sm font-bold transition-all hidden sm:block",
-                  if(@filter_status == "failed",
-                    do: "bg-slate-900 text-white",
-                    else: "bg-white text-slate-500 soft-shadow hover:bg-slate-50"
-                  )
-                ]}
-              >
-                Failed ({@counts.failed})
-              </button>
-            </div>
+          <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-5 text-center">
+            <div class="font-['Bebas_Neue'] text-[2rem] leading-none text-t66-accent">{@counts.active}</div>
+            <div class="text-[0.6rem] uppercase tracking-[2px] text-t66-text-muted mt-1">Active</div>
+          </div>
+          <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-5 text-center">
+            <div class="font-['Bebas_Neue'] text-[2rem] leading-none text-[#22c55e]">{@counts.completed}</div>
+            <div class="text-[0.6rem] uppercase tracking-[2px] text-t66-text-muted mt-1">Completed</div>
+          </div>
+          <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-5 text-center">
+            <div class="font-['Bebas_Neue'] text-[2rem] leading-none text-[#ef4444]">{@counts.failed}</div>
+            <div class="text-[0.6rem] uppercase tracking-[2px] text-t66-text-muted mt-1">Failed</div>
           </div>
         </div>
 
-        <%!-- Challenges Feed --%>
-        <div class="space-y-6">
-          <%= for challenge <- @filtered_challenges do %>
-            <.challenge_card challenge={challenge} />
-          <% end %>
-        </div>
+        <%!-- Search + Filter Row --%>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <%!-- Filter Pills --%>
+          <div class="flex flex-wrap gap-1.5">
+            <button
+              phx-click="filter_status"
+              phx-value-status="all"
+              class={[
+                "px-[18px] py-2 rounded-lg text-[0.78rem] font-semibold tracking-[0.5px] transition-all border",
+                if(@filter_status == "all",
+                  do: "border-[#ff4d00] text-[#ff4d00] bg-[rgba(255,77,0,0.15)]",
+                  else: "border-white/[0.06] text-[#5a5754] hover:border-white/[0.12] hover:text-[#8a8680]"
+                )
+              ]}
+            >
+              All ({@counts.all})
+            </button>
+            <button
+              phx-click="filter_status"
+              phx-value-status="active"
+              class={[
+                "px-[18px] py-2 rounded-lg text-[0.78rem] font-semibold tracking-[0.5px] transition-all border",
+                if(@filter_status == "active",
+                  do: "border-[#ff4d00] text-[#ff4d00] bg-[rgba(255,77,0,0.15)]",
+                  else: "border-white/[0.06] text-[#5a5754] hover:border-white/[0.12] hover:text-[#8a8680]"
+                )
+              ]}
+            >
+              Active ({@counts.active})
+            </button>
+            <button
+              phx-click="filter_status"
+              phx-value-status="completed"
+              class={[
+                "px-[18px] py-2 rounded-lg text-[0.78rem] font-semibold tracking-[0.5px] transition-all border",
+                if(@filter_status == "completed",
+                  do: "border-[#ff4d00] text-[#ff4d00] bg-[rgba(255,77,0,0.15)]",
+                  else: "border-white/[0.06] text-[#5a5754] hover:border-white/[0.12] hover:text-[#8a8680]"
+                )
+              ]}
+            >
+              Completed ({@counts.completed})
+            </button>
+            <button
+              phx-click="filter_status"
+              phx-value-status="failed"
+              class={[
+                "px-[18px] py-2 rounded-lg text-[0.78rem] font-semibold tracking-[0.5px] transition-all border",
+                if(@filter_status == "failed",
+                  do: "border-[#ff4d00] text-[#ff4d00] bg-[rgba(255,77,0,0.15)]",
+                  else: "border-white/[0.06] text-[#5a5754] hover:border-white/[0.12] hover:text-[#8a8680]"
+                )
+              ]}
+            >
+              Failed ({@counts.failed})
+            </button>
+          </div>
 
-        <%!-- Empty State --%>
-        <%= if @filtered_challenges == [] do %>
-          <HeadsUpWeb.Components.UI.Card.card padding={:lg} class="text-center">
-            <div class="py-8">
-              <div class="w-16 h-16 mx-auto bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
-                <.icon name="hero-bolt" class="w-8 h-8 text-slate-400" />
-              </div>
-              <%= if @filter_status == "all" && @search_query == "" do %>
-                <h3 class="text-xl font-extrabold text-slate-900 mb-2">No challenges yet</h3>
-                <p class="text-slate-500 mb-6">Browse templates and start your first challenge!</p>
-                <.link
-                  navigate={~p"/challenges"}
-                  class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:scale-105 transition-all"
-                >
-                  <.icon name="hero-magnifying-glass" class="w-4 h-4" /> Browse Templates
-                </.link>
-              <% else %>
-                <h3 class="text-xl font-extrabold text-slate-900 mb-2">
-                  No {if @filter_status != "all", do: @filter_status <> " ", else: ""}challenges found
-                </h3>
-                <p class="text-slate-500 mb-6">Try adjusting your filters or search query.</p>
-                <button
-                  phx-click="filter_status"
-                  phx-value-status="all"
-                  class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:scale-105 transition-all"
-                >
-                  Show All Challenges
-                </button>
-              <% end %>
-            </div>
-          </HeadsUpWeb.Components.UI.Card.card>
-        <% end %>
-      </div>
-
-      <%!-- ===== RIGHT SIDEBAR ===== --%>
-      <aside class="hidden xl:flex flex-col w-[420px] flex-shrink-0 bg-white border-l border-slate-100 p-8 overflow-y-auto custom-scrollbar gap-10">
-        <%!-- Search --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Search</h3>
-          <div class="relative">
+          <%!-- Search --%>
+          <div class="relative w-full sm:w-auto">
             <.icon
               name="hero-magnifying-glass"
-              class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-t66-text-muted"
             />
             <input
               type="text"
@@ -296,92 +243,72 @@ defmodule HeadsUpWeb.ChallengeLive.MyChallenges do
               phx-debounce="300"
               name="query"
               value={@search_query}
-              placeholder="Search my challenges..."
-              class="w-full pl-12 pr-5 py-4 bg-slate-50 border-0 rounded-2xl text-slate-800 text-sm focus:ring-2 focus:ring-blue-500/30 transition"
+              placeholder="Search challenges..."
+              class="w-full sm:w-[220px] pl-10 pr-4 py-2 bg-t66-card border border-white/[0.06] rounded-lg text-[#f0ece6] text-[0.85rem] outline-none transition-all placeholder:text-t66-text-muted focus:border-[rgba(255,77,0,0.4)] focus:ring-[3px] focus:ring-[rgba(255,77,0,0.08)]"
             />
           </div>
         </div>
 
-        <%!-- Overview Stats --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Overview</h3>
-          <div class="space-y-4">
-            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
-              <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-bolt" class="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p class="text-2xl font-extrabold text-slate-900">{@counts.all}</p>
-                <p class="text-slate-500 text-xs font-bold">Total Challenges</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
-              <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-play" class="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p class="text-2xl font-extrabold text-slate-900">{@counts.active}</p>
-                <p class="text-slate-500 text-xs font-bold">Active</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl">
-              <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-trophy" class="w-5 h-5 text-indigo-600" />
-              </div>
-              <div>
-                <p class="text-2xl font-extrabold text-slate-900">{@counts.completed}</p>
-                <p class="text-slate-500 text-xs font-bold">Completed</p>
-              </div>
-            </div>
-          </div>
+        <%!-- Challenges List --%>
+        <div class="flex flex-col gap-3">
+          <%= for challenge <- @filtered_challenges do %>
+            <.challenge_card challenge={challenge} />
+          <% end %>
         </div>
 
-        <%!-- Quick Links --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Quick Links</h3>
-          <div class="space-y-3">
+        <%!-- Empty State --%>
+        <%= if @filtered_challenges == [] do %>
+          <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-10 text-center">
+            <div class="w-14 h-14 rounded-xl bg-[rgba(255,77,0,0.15)] flex items-center justify-center mx-auto mb-4">
+              <.icon name="hero-bolt" class="w-7 h-7 text-t66-accent" />
+            </div>
+            <%= if @filter_status == "all" && @search_query == "" do %>
+              <div class="text-lg font-bold text-[#f0ece6] mb-2">No challenges yet</div>
+              <p class="text-sm text-t66-text-muted max-w-sm mx-auto mb-6">
+                Browse templates and start your first challenge!
+              </p>
+              <.link
+                navigate={~p"/challenges"}
+                class="inline-flex items-center gap-2 bg-t66-accent text-white px-6 py-3 rounded-xl font-bold text-sm hover:-translate-y-0.5 transition-transform shadow-[0_0_30px_rgba(255,77,0,0.2)]"
+              >
+                <.icon name="hero-magnifying-glass" class="w-4 h-4" /> Browse Templates
+              </.link>
+            <% else %>
+              <div class="text-lg font-bold text-[#f0ece6] mb-2">
+                No {if @filter_status != "all", do: @filter_status <> " ", else: ""}challenges found
+              </div>
+              <p class="text-sm text-t66-text-muted max-w-sm mx-auto mb-6">
+                Try adjusting your filters or search query.
+              </p>
+              <button
+                phx-click="filter_status"
+                phx-value-status="all"
+                class="inline-flex items-center gap-2 bg-t66-accent text-white px-6 py-3 rounded-xl font-bold text-sm hover:-translate-y-0.5 transition-transform shadow-[0_0_30px_rgba(255,77,0,0.2)]"
+              >
+                Show All Challenges
+              </button>
+            <% end %>
+          </div>
+        <% end %>
+
+        <%!-- Start New Challenge Button --%>
+        <%= if @counts.all > 0 do %>
+          <div class="mt-8 flex flex-col sm:flex-row gap-3">
             <.link
               navigate={~p"/challenges"}
-              class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
+              class="inline-flex items-center justify-center gap-2 bg-t66-accent text-white px-7 py-3.5 rounded-xl font-bold text-[0.8rem] tracking-[1.5px] uppercase hover:-translate-y-0.5 transition-all shadow-[0_0_30px_rgba(255,77,0,0.2)] hover:shadow-[0_0_50px_rgba(255,77,0,0.35)]"
             >
-              <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-bolt" class="w-5 h-5 text-blue-600" />
-              </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">
-                Browse Templates
-              </span>
-              <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
+              <.icon name="hero-fire" class="w-4 h-4" /> Start New Challenge
             </.link>
             <.link
-              navigate={~p"/my-challenges"}
-              class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
+              navigate={~p"/challenges/new"}
+              class="inline-flex items-center justify-center gap-2 bg-t66-card border border-white/[0.06] text-[#8a8680] px-7 py-3.5 rounded-xl font-bold text-[0.8rem] tracking-[1.5px] uppercase hover:border-white/[0.12] hover:text-[#f0ece6] transition-colors"
             >
-              <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-bolt" class="w-5 h-5 text-indigo-600" />
-              </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">My Challenges</span>
-              <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
+              <.icon name="hero-plus" class="w-4 h-4" /> Create Custom
             </.link>
           </div>
-        </div>
-
-        <%!-- Start New Challenge Promo --%>
-        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[32px] p-8 text-white">
-          <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
-            <.icon name="hero-rocket-launch" class="w-7 h-7 text-white" />
-          </div>
-          <h4 class="text-xl font-extrabold mb-2">Ready for more?</h4>
-          <p class="text-blue-100 text-sm mb-6">
-            Browse templates or create your own challenge to push your limits.
-          </p>
-          <.link
-            navigate={~p"/challenges"}
-            class="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-2xl font-bold text-sm hover:scale-105 transition-all"
-          >
-            <.icon name="hero-magnifying-glass" class="w-4 h-4" /> Browse Templates
-          </.link>
-        </div>
-      </aside>
+        <% end %>
+      </div>
     </div>
     """
   end
@@ -390,115 +317,130 @@ defmodule HeadsUpWeb.ChallengeLive.MyChallenges do
     progress = progress_percentage(assigns.challenge)
     remaining = days_remaining(assigns.challenge)
     total = days_total(assigns.challenge)
+    elapsed = days_elapsed(assigns.challenge)
+    circumference = 2 * :math.pi() * 20
 
     assigns =
       assigns
       |> assign(:progress, progress)
       |> assign(:remaining, remaining)
       |> assign(:total, total)
+      |> assign(:elapsed, elapsed)
+      |> assign(:circumference, circumference)
+      |> assign(:stroke_offset, circumference - progress / 100 * circumference)
 
     ~H"""
-    <.link navigate={~p"/challenges/#{@challenge.id}"} class="block cursor-pointer group">
-      <HeadsUpWeb.Components.UI.Card.card hover padding={:md}>
-        <div class="flex flex-col sm:flex-row gap-6">
-          <%!-- Challenge Image/Gradient --%>
+    <.link navigate={~p"/my-challenges/#{@challenge.id}"} class="block group">
+      <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-5 sm:p-6 hover:border-white/[0.1] transition-colors">
+        <div class="flex items-center gap-4 sm:gap-5">
+          <%!-- Challenge Icon --%>
           <div class={[
-            "w-full sm:w-40 h-40 sm:h-32 rounded-2xl flex items-center justify-center flex-shrink-0",
-            case @challenge.status do
-              :active -> "bg-gradient-to-br from-blue-500 to-indigo-600"
-              :completed -> "bg-gradient-to-br from-green-500 to-emerald-600"
-              :failed -> "bg-gradient-to-br from-slate-400 to-slate-500"
-              :cancelled -> "bg-gradient-to-br from-slate-300 to-slate-400"
-              _ -> "bg-gradient-to-br from-blue-500 to-indigo-600"
-            end
+            "w-[46px] h-[46px] rounded-xl flex items-center justify-center flex-shrink-0",
+            if(@challenge.type == :official,
+              do: "bg-[rgba(255,77,0,0.15)]",
+              else: "bg-[rgba(0,212,170,0.12)]"
+            )
           ]}>
-            <.icon name={status_icon(@challenge.status)} class="w-12 h-12 text-white/80" />
+            <.icon
+              name={if @challenge.type == :official, do: "hero-fire", else: "hero-bolt"}
+              class={if @challenge.type == :official, do: "w-6 h-6 text-t66-accent", else: "w-6 h-6 text-t66-cyan"}
+            />
           </div>
 
-          <%!-- Content --%>
+          <%!-- Challenge Info --%>
           <div class="flex-1 min-w-0">
-            <%!-- Badges --%>
-            <div class="flex flex-wrap items-center gap-2 mb-2">
-              <HeadsUpWeb.Components.UI.StatusBadge.status_badge
-                status={@challenge.status}
-                size={:sm}
-              />
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="font-bold text-[0.9rem] text-[#f0ece6] group-hover:text-t66-accent transition-colors truncate">
+                {@challenge.title}
+              </span>
               <span class={[
-                "px-3 py-1 text-xs font-bold rounded-full",
-                if(@challenge.type == :predefined,
-                  do: "bg-purple-50 text-purple-600",
-                  else: "bg-blue-50 text-blue-600"
+                "text-[0.55rem] uppercase tracking-[1.5px] px-[7px] py-[2px] rounded font-bold",
+                if(@challenge.type == :official,
+                  do: "text-t66-accent bg-[rgba(255,77,0,0.15)]",
+                  else: "text-t66-cyan bg-[rgba(0,212,170,0.12)]"
                 )
               ]}>
-                {if @challenge.type == :predefined, do: "Official", else: "Community"}
+                {if @challenge.type == :official, do: "Official", else: "Community"}
               </span>
-              <%= if @challenge.category do %>
-                <span class="px-3 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-600">
-                  {@challenge.category.name}
-                </span>
-              <% end %>
             </div>
-
-            <%!-- Title --%>
-            <h3 class="text-lg font-extrabold text-slate-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors">
-              {@challenge.title}
-            </h3>
-
-            <%!-- Description --%>
-            <%= if @challenge.description do %>
-              <p class="text-slate-500 text-sm mb-3 line-clamp-2">{@challenge.description}</p>
-            <% end %>
-
-            <%!-- Progress Bar (for active challenges) --%>
-            <%= if @challenge.status == :active && @total && @total > 0 do %>
-              <div class="mb-3">
-                <div class="flex justify-between text-xs mb-1.5">
-                  <span class="font-bold text-slate-500">Progress</span>
-                  <span class="font-extrabold text-indigo-600">{@progress}%</span>
-                </div>
-                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                  <div
-                    class="h-2.5 rounded-full bg-indigo-500 transition-all duration-500"
-                    style={"width: #{@progress}%"}
-                  />
-                </div>
-              </div>
-            <% end %>
-
-            <%!-- Meta --%>
-            <div class="flex flex-wrap items-center gap-4 text-sm text-slate-400">
+            <div class="text-t66-text-muted text-[0.78rem] mt-0.5">
               <%= if @challenge.start_date && @challenge.end_date do %>
-                <span class="flex items-center gap-1.5">
-                  <.icon name="hero-calendar" class="w-4 h-4" />
-                  {Calendar.strftime(@challenge.start_date, "%b %d")} - {Calendar.strftime(
-                    @challenge.end_date,
-                    "%b %d"
-                  )}
-                </span>
-              <% end %>
-              <%= if @challenge.status == :active && @remaining do %>
-                <span class="flex items-center gap-1.5">
-                  <.icon name="hero-clock" class="w-4 h-4" />
-                  {@remaining} days left
-                </span>
-              <% end %>
-              <%= if @total do %>
-                <span class="flex items-center gap-1.5 hidden sm:flex">
-                  <.icon name="hero-arrow-path" class="w-4 h-4" />
-                  {@total} day challenge
-                </span>
+                {Calendar.strftime(@challenge.start_date, "%b %d")} → {Calendar.strftime(@challenge.end_date, "%b %d, %Y")}
+                · {min(@elapsed || 0, @total || 0)}/{@total || 66} days
+              <% else %>
+                {if @total, do: "#{@total} day challenge", else: "66 day challenge"}
               <% end %>
             </div>
           </div>
+
+          <%!-- Progress Ring + Status (desktop) --%>
+          <div class="hidden sm:flex items-center gap-3.5 flex-shrink-0">
+            <%!-- SVG Progress Ring --%>
+            <div class="relative w-12 h-12">
+              <svg width="48" height="48" class="-rotate-90">
+                <circle
+                  cx="24" cy="24" r="20"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.05)"
+                  stroke-width="4"
+                />
+                <circle
+                  cx="24" cy="24" r="20"
+                  fill="none"
+                  stroke={status_color(@challenge.status)}
+                  stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-dasharray={@circumference}
+                  stroke-dashoffset={@stroke_offset}
+                />
+              </svg>
+              <span
+                class="absolute inset-0 flex items-center justify-center font-['Bebas_Neue'] text-[0.75rem]"
+                style={"color: #{status_color(@challenge.status)}"}
+              >
+                {@progress}%
+              </span>
+            </div>
+
+            <%!-- Status Badge --%>
+            <span class={[
+              "text-[0.6rem] uppercase tracking-[2px] font-bold py-[5px] px-3 rounded-full whitespace-nowrap",
+              status_badge_class(@challenge.status)
+            ]}>
+              {status_label(@challenge.status)}
+            </span>
+          </div>
+
+          <%!-- Status (mobile only) --%>
+          <div class="flex sm:hidden flex-shrink-0">
+            <span class={[
+              "text-[0.55rem] uppercase tracking-[1.5px] font-bold py-1 px-2.5 rounded-full",
+              status_badge_class(@challenge.status)
+            ]}>
+              {status_label(@challenge.status)}
+            </span>
+          </div>
         </div>
-      </HeadsUpWeb.Components.UI.Card.card>
+      </div>
     </.link>
     """
   end
 
-  defp status_icon(:active), do: "hero-bolt"
-  defp status_icon(:completed), do: "hero-trophy"
-  defp status_icon(:failed), do: "hero-x-circle"
-  defp status_icon(:cancelled), do: "hero-x-mark"
-  defp status_icon(_), do: "hero-bolt"
+  defp status_color(:active), do: "#ff4d00"
+  defp status_color(:completed), do: "#22c55e"
+  defp status_color(:failed), do: "#ef4444"
+  defp status_color(:cancelled), do: "#5a5754"
+  defp status_color(_), do: "#ff4d00"
+
+  defp status_badge_class(:active), do: "text-t66-accent bg-[rgba(255,77,0,0.15)]"
+  defp status_badge_class(:completed), do: "text-[#22c55e] bg-[rgba(34,197,94,0.12)]"
+  defp status_badge_class(:failed), do: "text-[#ef4444] bg-[rgba(239,68,68,0.12)]"
+  defp status_badge_class(:cancelled), do: "text-t66-text-muted bg-white/[0.04]"
+  defp status_badge_class(_), do: "text-t66-accent bg-[rgba(255,77,0,0.15)]"
+
+  defp status_label(:active), do: "In Progress"
+  defp status_label(:completed), do: "Completed"
+  defp status_label(:failed), do: "Didn't Finish"
+  defp status_label(:cancelled), do: "Cancelled"
+  defp status_label(_), do: "In Progress"
 end

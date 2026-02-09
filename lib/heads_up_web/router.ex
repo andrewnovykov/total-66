@@ -51,6 +51,7 @@ defmodule HeadsUpWeb.Router do
     live_session :authenticated,
       on_mount: [{HeadsUpWeb.UserAuth, :ensure_authenticated}] do
       live "/my-challenges", ChallengeLive.MyChallenges
+      live "/my-challenges/:id", ChallengeLive.Active
       live "/connections", ConnectionsLive.Index
       live "/feed", FeedLive.Index
       live "/messages", MessagesLive.Index
@@ -81,7 +82,6 @@ defmodule HeadsUpWeb.Router do
         {HeadsUpWeb.UserAuth, :ensure_authenticated},
         {HeadsUpWeb.AdminAuth, :ensure_admin}
       ] do
-      live "/challenge-categories", Admin.ChallengeCategoriesLive.Index
     end
   end
 
@@ -169,7 +169,6 @@ defmodule HeadsUpWeb.Router do
     scope "/challenges" do
       get "/", ChallengeController, :index
       get "/templates", ChallengeController, :templates
-      get "/categories", ChallengeController, :categories
     end
   end
 
@@ -237,8 +236,7 @@ defmodule HeadsUpWeb.Router do
       get "/:id/feed", ChallengeController, :feed
       post "/:id/check-in", ChallengeController, :check_in
 
-      # Challenge step/task completion
-      post "/:id/steps/:step_id/complete", ChallengeController, :complete_step
+      # Challenge task completion
       post "/:id/tasks/:task_id/complete", ChallengeController, :complete_task
 
       # Challenge reporting
