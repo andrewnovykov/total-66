@@ -1,0 +1,174 @@
+{
+  "contexts": {
+    "description": "Phoenix Contexts for bounded domain logic",
+    "required_patterns": {
+      "boundary-enforcement": "All database operations go through context modules (Goals, Accounts, Auth, Groups)",
+      "changeset-validation": "All data mutations use Ecto changesets with proper validations",
+      "ownership-validation": "Functions ending with _with_ownership validate user_id matches resource owner",
+      "preloading": "Related data is preloaded through context functions, not in LiveViews"
+    },
+    "architectural_constraints": {
+      "no-repo-in-web": "Repo is never called directly from LiveViews or controllers",
+      "context-owns-schema": "Each schema belongs to a single context that manages its lifecycle",
+      "error-tuples": "Functions return {:ok, result} or {:error, reason} tuples"
+    }
+  },
+  "services": {
+    "description": "Service modules for complex business logic and cross-cutting concerns",
+    "required_patterns": {
+      "single-responsibility": "Services handle one domain concern (ActivityService for XP/levels, FeedService for feeds)",
+      "transaction-wrapping": "Complex operations use Repo.transaction for atomicity",
+      "helper-functions": "Private helper functions handle calculations and transformations"
+    },
+    "architectural_constraints": {
+      "no-side-effects-in-helpers": "Private functions are pure; side effects happen in public functions",
+      "stateless": "Services are stateless modules, no GenServer state"
+    }
+  },
+  "live-views": {
+    "description": "LiveView modules for real-time UI",
+    "required_patterns": {
+      "assign-pattern": "Use assign/3 for state, assigns are accessed via @variable in templates",
+      "event-handling": "All user interactions go through handle_event/3",
+      "pubsub-subscription": "Subscribe to PubSub topics in mount when connected?(socket)",
+      "on-mount-auth": "Authentication via on_mount hooks defined in router live_session"
+    },
+    "architectural_constraints": {
+      "no-blocking-mount": "mount/3 should be fast; defer data loading to connected state",
+      "socket-assigns": "All state stored in socket assigns, no module attributes for state",
+      "context-calls": "Call context modules for data operations, never Repo directly",
+      "embedded-templates": "Templates can be embedded via render/1 function with ~H sigil"
+    }
+  },
+  "live-components": {
+    "description": "Stateful LiveComponents for reusable interactive UI",
+    "required_patterns": {
+      "update-callback": "Implement update/2 to receive assigns from parent",
+      "form-handling": "Form components handle validate and save events",
+      "id-required": "Components must have unique id assigns"
+    },
+    "architectural_constraints": {
+      "parent-communication": "Communicate to parent via send(self(), message) or events",
+      "isolated-state": "Components manage their own state, don't modify parent assigns directly"
+    }
+  },
+  "function-components": {
+    "description": "Stateless function components for UI building blocks",
+    "required_patterns": {
+      "attr-declarations": "Use attr macro to declare component attributes with types",
+      "slot-support": "Use slot macro for content injection",
+      "heex-sigil": "Use ~H sigil for template markup"
+    },
+    "architectural_constraints": {
+      "no-state": "Function components are pure - no assigns updates",
+      "reusable": "Components should be generic and reusable across pages"
+    }
+  },
+  "schemas": {
+    "description": "Ecto schemas for database mapping",
+    "required_patterns": {
+      "changeset-function": "Every schema has a changeset/2 function",
+      "field-types": "Use appropriate Ecto types (Ecto.Enum for status fields)",
+      "associations": "Define has_many, belongs_to, has_one relationships",
+      "timestamps": "Use timestamps(type: :utc_datetime)"
+    },
+    "architectural_constraints": {
+      "no-business-logic": "Schemas contain only data mapping and validation, not business logic",
+      "immutable-validation": "Changesets validate but don't have side effects",
+      "virtual-fields": "Use virtual: true for non-persisted fields like password"
+    }
+  },
+  "data-layer": {
+    "description": "Ecto data access patterns",
+    "required_patterns": {
+      "query-composition": "Build queries using Ecto.Query macros (from, where, preload)",
+      "preload-explicit": "Preload associations explicitly, don't rely on lazy loading",
+      "repo-aggregate": "Use Repo.aggregate for counts and sums",
+      "soft-delete": "Use deleted_at timestamp pattern for soft deletion"
+    },
+    "architectural_constraints": {
+      "no-raw-sql": "Use Ecto query DSL, avoid raw SQL when possible",
+      "context-only": "Repo calls only in context modules or services"
+    }
+  },
+  "auth": {
+    "description": "Authentication and authorization patterns",
+    "required_patterns": {
+      "plug-based": "Authentication via Plug middleware (fetch_current_user)",
+      "on-mount-hooks": "LiveView auth via on_mount callbacks in router",
+      "role-checking": "Admin checks via user.role == \"admin\"",
+      "ownership-pattern": "Resource access checks owner's user_id"
+    },
+    "architectural_constraints": {
+      "session-tokens": "Use database-backed session tokens, not stateless JWT",
+      "bcrypt-hashing": "Password hashing via Bcrypt",
+      "separate-api-auth": "API routes use require_authenticated_user_api for JSON responses"
+    }
+  },
+  "api": {
+    "description": "JSON API controller patterns",
+    "required_patterns": {
+      "json-view-modules": "Separate JSON view modules (*_json.ex) for response formatting",
+      "fallback-controller": "Use FallbackController for error handling",
+      "action-fallback": "Controllers use action_fallback macro",
+      "scoped-routing": "API routes under /api scope with proper pipelines"
+    },
+    "architectural_constraints": {
+      "restful-actions": "Follow REST conventions (index, show, create, update, delete)",
+      "json-responses": "Return consistent JSON structure with success/error keys"
+    }
+  },
+  "real-time": {
+    "description": "PubSub and real-time update patterns",
+    "required_patterns": {
+      "topic-naming": "Use descriptive topic strings (\"user_activities\", \"goals:#{id}\")",
+      "subscribe-on-connect": "Subscribe in mount when connected?(socket) is true",
+      "handle-info": "Handle PubSub messages in handle_info/2"
+    },
+    "architectural_constraints": {
+      "no-blocking-broadcasts": "Broadcasts should not block main operations",
+      "local-pubsub": "Uses local Phoenix.PubSub, no distributed Redis"
+    }
+  },
+  "gamification": {
+    "description": "XP, levels, and activity tracking system",
+    "required_patterns": {
+      "activity-tracking": "All significant actions call ActivityService.track_activity",
+      "xp-rewards": "XP values defined in @xp_rewards module attribute",
+      "level-thresholds": "Level progression via @level_thresholds map",
+      "transactional": "XP updates wrapped in Repo.transaction"
+    },
+    "architectural_constraints": {
+      "positive-and-negative": "XP can be negative (failures, deletions)",
+      "streak-calculation": "Streaks calculated from activity dates, not stored",
+      "level-sync": "User level always derived from XP, kept in sync"
+    }
+  },
+  "testing": {
+    "description": "ExUnit testing patterns",
+    "required_patterns": {
+      "fixture-functions": "Use fixture modules for test data creation",
+      "conn-case": "Controller tests use ConnCase for connection setup",
+      "data-case": "Context tests use DataCase for database setup",
+      "describe-blocks": "Group related tests with describe blocks"
+    },
+    "architectural_constraints": {
+      "sandbox-mode": "Tests run in Ecto SQL sandbox mode",
+      "isolated-tests": "Each test is independent, no shared state",
+      "async-where-possible": "Use async: true when tests don't share resources"
+    }
+  },
+  "routing": {
+    "description": "Router and pipeline configuration",
+    "required_patterns": {
+      "live-session": "Group LiveViews in live_session with shared on_mount hooks",
+      "pipeline-separation": "Separate browser and API pipelines",
+      "scoped-routes": "Use scope for logical grouping (/admin, /api)"
+    },
+    "architectural_constraints": {
+      "auth-in-pipeline": "Authentication plugs in pipeline, not individual routes",
+      "verified-routes": "Use ~p sigil for type-safe route generation",
+      "admin-protection": "Admin routes require both authentication and admin role check"
+    }
+  }
+}

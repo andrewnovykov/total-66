@@ -1,0 +1,194 @@
+{
+  "contexts": [
+    "./lib/heads_up/goals.ex",
+    "./lib/heads_up/accounts.ex",
+    "./lib/heads_up/auth.ex",
+    "./lib/heads_up/groups.ex",
+    "./lib/heads_up/goal_groups.ex"
+  ],
+  "services": [
+    "./lib/heads_up/activity_service.ex",
+    "./lib/heads_up/feed_service.ex"
+  ],
+  "schemas": [
+    "./lib/heads_up/goal.ex",
+    "./lib/heads_up/goal_step.ex",
+    "./lib/heads_up/goal_like.ex",
+    "./lib/heads_up/goal_subscription.ex",
+    "./lib/heads_up/goal_post_like.ex",
+    "./lib/heads_up/goals/goal_post.ex",
+    "./lib/heads_up/users.ex",
+    "./lib/heads_up/user_follow.ex",
+    "./lib/heads_up/user_activity.ex",
+    "./lib/heads_up/user_level.ex",
+    "./lib/heads_up/friendship.ex",
+    "./lib/heads_up/group.ex",
+    "./lib/heads_up/auth/user_token.ex"
+  ],
+  "live-views": [
+    "./lib/heads_up_web/live/goal_live/index.ex",
+    "./lib/heads_up_web/live/goal_live/show.ex",
+    "./lib/heads_up_web/live/goal_live/edit.ex",
+    "./lib/heads_up_web/live/goal_live/new.ex",
+    "./lib/heads_up_web/live/my_goals_live/index.ex",
+    "./lib/heads_up_web/live/all_goals_live/index.ex",
+    "./lib/heads_up_web/live/goal_category_live/index.ex",
+    "./lib/heads_up_web/live/goal_category_live/show.ex",
+    "./lib/heads_up_web/live/users_live/index.ex",
+    "./lib/heads_up_web/live/users_live/show.ex",
+    "./lib/heads_up_web/live/connections_live/index.ex",
+    "./lib/heads_up_web/live/feed_live/index.ex",
+    "./lib/heads_up_web/live/admin/groups_live/index.ex",
+    "./lib/heads_up_web/live/user_login_live.ex",
+    "./lib/heads_up_web/live/user_registration_live.ex",
+    "./lib/heads_up_web/live/user_settings_live.ex",
+    "./lib/heads_up_web/live/user_confirmation_live.ex",
+    "./lib/heads_up_web/live/user_confirmation_instructions_live.ex",
+    "./lib/heads_up_web/live/user_forgot_password_live.ex",
+    "./lib/heads_up_web/live/user_reset_password_live.ex"
+  ],
+  "live-components": [
+    "./lib/heads_up_web/live/goal_live/form_component.ex"
+  ],
+  "function-components": [
+    "./lib/heads_up_web/components/core_components.ex",
+    "./lib/heads_up_web/components/layouts.ex",
+    "./lib/heads_up_web/components/goal_card.ex",
+    "./lib/heads_up_web/components/commitment_chart.ex"
+  ],
+  "controllers": [
+    "./lib/heads_up_web/controllers/page_controller.ex",
+    "./lib/heads_up_web/controllers/user_session_controller.ex",
+    "./lib/heads_up_web/controllers/group_controller.ex",
+    "./lib/heads_up_web/controllers/fallback_controller.ex",
+    "./lib/heads_up_web/controllers/api/goal_controller.ex",
+    "./lib/heads_up_web/controllers/api/category_controller.ex",
+    "./lib/heads_up_web/controllers/api/user_controller.ex",
+    "./lib/heads_up_web/controllers/api/activity_controller.ex"
+  ],
+  "views": [
+    "./lib/heads_up_web/controllers/page_html.ex",
+    "./lib/heads_up_web/controllers/error_html.ex",
+    "./lib/heads_up_web/controllers/error_json.ex",
+    "./lib/heads_up_web/controllers/api/goal_json.ex",
+    "./lib/heads_up_web/controllers/api/category_json.ex",
+    "./lib/heads_up_web/controllers/api/user_json.ex",
+    "./lib/heads_up_web/controllers/api/activity_json.ex"
+  ],
+  "templates": [
+    "./lib/heads_up_web/components/layouts/app.html.heex",
+    "./lib/heads_up_web/components/layouts/root.html.heex",
+    "./lib/heads_up_web/controllers/page_html/home.html.heex"
+  ],
+  "plugs": [
+    "./lib/heads_up_web/user_auth.ex",
+    "./lib/heads_up_web/admin_auth.ex"
+  ],
+  "router": [
+    "./lib/heads_up_web/router.ex"
+  ],
+  "helpers": [
+    "./lib/heads_up_web/helpers/avatar_helper.ex",
+    "./lib/heads_up_web/helpers/subscription_helper.ex",
+    "./lib/heads_up/auth/user_notifier.ex"
+  ],
+  "application": [
+    "./lib/heads_up.ex",
+    "./lib/heads_up_web.ex",
+    "./lib/heads_up/application.ex",
+    "./lib/heads_up/repo.ex",
+    "./lib/heads_up/mailer.ex",
+    "./lib/heads_up_web/endpoint.ex",
+    "./lib/heads_up_web/gettext.ex",
+    "./lib/heads_up_web/telemetry.ex"
+  ],
+  "migrations": [
+    "./priv/repo/migrations/20250523224942_create_users.exs",
+    "./priv/repo/migrations/20250524180235_add_about_to_users.exs",
+    "./priv/repo/migrations/20250524200041_create_groups.exs",
+    "./priv/repo/migrations/20250705080710_create_goals.exs",
+    "./priv/repo/migrations/20250705081401_add_privacy_to_goals.exs",
+    "./priv/repo/migrations/20250705081547_add_image_to_goals.exs",
+    "./priv/repo/migrations/20250705153638_create_goal_likes.exs",
+    "./priv/repo/migrations/20250705153639_create_goal_subscriptions.exs",
+    "./priv/repo/migrations/20250705155909_create_goal_posts.exs",
+    "./priv/repo/migrations/20250705165145_add_big_description_to_goals.exs",
+    "./priv/repo/migrations/20250705165158_create_goal_steps.exs",
+    "./priv/repo/migrations/20250705170839_add_step_id_to_goal_posts.exs",
+    "./priv/repo/migrations/20250705171919_create_users_auth_tables.exs",
+    "./priv/repo/migrations/20250706161620_create_user_follows.exs",
+    "./priv/repo/migrations/20250706164715_add_subscription_type_to_users.exs",
+    "./priv/repo/migrations/20250706171939_create_goal_post_likes.exs",
+    "./priv/repo/migrations/20250706180218_add_goal_tracking_fields.exs",
+    "./priv/repo/migrations/20250708185528_add_privacy_to_users.exs",
+    "./priv/repo/migrations/20250708185545_create_friendships.exs",
+    "./priv/repo/migrations/20250708191847_add_parent_id_to_groups.exs",
+    "./priv/repo/migrations/20250708223019_add_xp_to_users.exs",
+    "./priv/repo/migrations/20250708223321_create_user_levels.exs",
+    "./priv/repo/migrations/20250708223755_create_user_activities.exs"
+  ],
+  "seeds": [
+    "./priv/repo/seeds.exs",
+    "./priv/repo/seeds_auth.exs"
+  ],
+  "config": [
+    "./config/config.exs",
+    "./config/dev.exs",
+    "./config/test.exs",
+    "./config/prod.exs",
+    "./config/runtime.exs"
+  ],
+  "tests": [
+    "./test/heads_up/auth_test.exs",
+    "./test/heads_up/goal_deletion_test.exs",
+    "./test/heads_up/goal_failure_test.exs",
+    "./test/heads_up/goal_freeze_test.exs",
+    "./test/heads_up/goal_ownership_test.exs",
+    "./test/heads_up/goal_status_test.exs",
+    "./test/heads_up/post_ownership_test.exs",
+    "./test/heads_up/activity_service_test.exs",
+    "./test/heads_up_web/controllers/error_json_test.exs",
+    "./test/heads_up_web/controllers/error_html_test.exs",
+    "./test/heads_up_web/controllers/page_controller_test.exs",
+    "./test/heads_up_web/controllers/user_session_controller_test.exs",
+    "./test/heads_up_web/controllers/api/category_api_test.exs",
+    "./test/heads_up_web/controllers/api/goal_api_test.exs",
+    "./test/heads_up_web/controllers/api/goal_controller_test.exs",
+    "./test/heads_up_web/controllers/api/user_api_test.exs",
+    "./test/heads_up_web/controllers/api/activity_controller_test.exs",
+    "./test/heads_up_web/components/commitment_chart_test.exs",
+    "./test/heads_up_web/live/commitment_chart_enhanced_test.exs",
+    "./test/heads_up_web/live/commitment_chart_privacy_test.exs",
+    "./test/heads_up_web/live/connections_live_test.exs",
+    "./test/heads_up_web/live/feed_live_test.exs",
+    "./test/heads_up_web/live/feed_live_test_broken.exs",
+    "./test/heads_up_web/live/goal_creation_integration_test.exs",
+    "./test/heads_up_web/live/goal_live/show_ui_consistency_test.exs",
+    "./test/heads_up_web/live/goal_post_likes_and_image_test.exs",
+    "./test/heads_up_web/live/goal_privacy_test.exs",
+    "./test/heads_up_web/live/my_goals_clickable_test.exs",
+    "./test/heads_up_web/live/user_confirmation_instructions_live_test.exs",
+    "./test/heads_up_web/live/user_confirmation_live_test.exs",
+    "./test/heads_up_web/live/user_forgot_password_live_test.exs",
+    "./test/heads_up_web/live/user_login_live_test.exs",
+    "./test/heads_up_web/live/user_registration_live_test.exs",
+    "./test/heads_up_web/live/user_reset_password_live_test.exs",
+    "./test/heads_up_web/live/user_settings_live_test.exs",
+    "./test/heads_up_web/live/users_live_show_social_test.exs",
+    "./test/heads_up_web/user_auth_test.exs"
+  ],
+  "test-support": [
+    "./test/test_helper.exs",
+    "./test/support/conn_case.ex",
+    "./test/support/data_case.ex",
+    "./test/support/fixtures/auth_fixtures.ex",
+    "./test/support/fixtures/goals_fixtures.ex",
+    "./test/support/fixtures/groups_fixtures.ex"
+  ],
+  "assets": [
+    "./assets/js/app.js",
+    "./assets/css/app.css",
+    "./assets/tailwind.config.js",
+    "./assets/vendor/topbar.js"
+  ]
+}

@@ -1,0 +1,110 @@
+name: Elixir CI
+
+on:
+  push:
+    branches: [ "master", "main", "develop" ]
+  pull_request:
+    branches: [ "master", "main", "develop" ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: heads_up_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.14.5' # Define the elixir version [required]
+        otp-version: '25.3.2' # Define the OTP version [required]
+
+    - name: Restore dependencies cache
+      uses: actions/cache@v3
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+
+    - name: Install dependencies
+      run: mix deps.get
+
+    - name: Run tests
+      id: test
+      run: |
+        set -o pipefail
+        mix test --color 2>&1 | tee test_output.txt
+      env:
+        MIX_ENV: test
+        DATABASE_URL: ecto://postgres:postgres@localhost/heads_up_test
+
+    - name: Build Docker Image (Verification)
+      run: docker build .
+
+    - name: Report Test Results
+      if: always() && github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          let output = '';
+          try {
+            output = fs.readFileSync('test_output.txt', 'utf8');
+          } catch (e) {
+            output = 'Test output not found.';
+          }
+
+          const testStep = '${{ steps.test.outcome }}';
+          const success = testStep === 'success';
+          const status = success ? 'Passed ✅' : 'Failed ❌';
+
+          // Extract summary (last few lines usually contain the summary)
+          const lines = output.trim().split('\n');
+          // Get the last 10 lines to ensure we capture the summary
+          const summary = lines.slice(-10).join('\n');
+
+          const body = `### Test Results\n\n**Status**: ${status}\n\n<details>\n<summary>Output Summary</summary>\n\n\`\`\`\n${summary}\n\`\`\`\n</details>\n`;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          });
+
+  deploy:
+    name: Deploy to Render
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Trigger Render Deploy
+        run: |
+          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
+            echo "Triggering Render Deploy..."
+            curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+          else
+            echo "RENDER_DEPLOY_HOOK_URL not set. Skipping deploy trigger."
+            echo "Please set the RENDER_DEPLOY_HOOK_URL secret in repository settings to enable auto-deploy."
+          fi

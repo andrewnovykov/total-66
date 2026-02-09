@@ -1,0 +1,12 @@
+.git
+.gitignore
+.dockerignore
+.env
+_build/
+deps/
+doc/
+cover/
+tmp/
+priv/static/
+.DS_Store
+*.swp

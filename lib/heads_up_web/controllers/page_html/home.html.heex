@@ -1,0 +1,399 @@
+<div class="flex gap-0 h-full">
+  <%!-- ===== CENTER CONTENT ===== --%>
+  <div class="flex-grow p-5 sm:p-8 lg:p-10 overflow-y-auto custom-scrollbar">
+    <%!-- Hero Banner --%>
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[40px] p-8 sm:p-10 lg:p-12 mb-10 relative overflow-hidden flex items-center justify-between text-white soft-shadow">
+      <div class="relative z-10 max-w-xl">
+        <span class="bg-blue-500/50 text-blue-100 text-xs font-bold px-4 py-1.5 rounded-full mb-5 inline-block uppercase tracking-wider">
+          New Challenge
+        </span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-5 leading-tight">
+          Set fewer goals. Finish more.
+        </h1>
+        <p class="text-blue-100 mb-8 text-lg lg:text-xl leading-relaxed">
+          A goal-first social network with structure, accountability, and real progress.
+        </p>
+        <%= if @current_user do %>
+          <.link
+            navigate={~p"/goals/new"}
+            class="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-base hover:scale-105 transition-transform shadow-lg"
+          >
+            Create Your Goal <.icon name="hero-arrow-right" class="w-5 h-5" />
+          </.link>
+        <% else %>
+          <.link
+            href={~p"/users/register"}
+            class="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-base hover:scale-105 transition-transform shadow-lg"
+          >
+            Get Started <.icon name="hero-arrow-right" class="w-5 h-5" />
+          </.link>
+        <% end %>
+      </div>
+      <div class="absolute right-0 top-0 h-full w-1/3 opacity-20 pointer-events-none flex items-center justify-center">
+        <.icon name="hero-star" class="w-48 h-48 lg:w-64 lg:h-64" />
+      </div>
+    </div>
+
+    <%!-- Goal Categories --%>
+    <section class="mb-10">
+      <HeadsUpWeb.Components.UI.SectionHeader.section_header
+        title="Goal Categories"
+        link_text="View All"
+        link_to={~p"/goals-category"}
+      />
+      <div class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+        <%= for group <- @popular_groups do %>
+          <.link
+            navigate={~p"/goals-category/#{group.id}"}
+            class="flex items-center gap-3 bg-white px-6 py-4 rounded-3xl soft-shadow border border-slate-50 min-w-fit hover:border-blue-200 transition-colors"
+          >
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+              <.icon name="hero-fire" class="w-6 h-6 text-blue-600" />
+            </div>
+            <span class="font-bold text-slate-700 text-base">{group.name}</span>
+          </.link>
+        <% end %>
+        <%= if Enum.empty?(@popular_groups) do %>
+          <div class="flex items-center gap-3 bg-white px-6 py-4 rounded-3xl soft-shadow border border-slate-50 min-w-fit">
+            <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
+              <.icon name="hero-squares-2x2" class="w-6 h-6 text-slate-400" />
+            </div>
+            <span class="font-bold text-slate-400 text-base">No categories yet</span>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <%!-- Challenge Categories --%>
+    <section class="mb-10">
+      <HeadsUpWeb.Components.UI.SectionHeader.section_header
+        title="Challenge Categories"
+        link_text="View All"
+        link_to={~p"/challenges"}
+      />
+      <div class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+        <%= for category <- @challenge_categories do %>
+          <.link
+            navigate={~p"/challenges?category=#{category.id}"}
+            class="flex items-center gap-3 bg-white px-6 py-4 rounded-3xl soft-shadow border border-slate-50 min-w-fit hover:border-indigo-200 transition-colors"
+          >
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
+              <.icon name="hero-fire" class="w-6 h-6 text-indigo-600" />
+            </div>
+            <span class="font-bold text-slate-700 text-base">{category.name}</span>
+          </.link>
+        <% end %>
+        <%= if Enum.empty?(@challenge_categories) do %>
+          <div class="flex items-center gap-3 bg-white px-6 py-4 rounded-3xl soft-shadow border border-slate-50 min-w-fit">
+            <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
+              <.icon name="hero-fire" class="w-6 h-6 text-slate-400" />
+            </div>
+            <span class="font-bold text-slate-400 text-base">No categories yet</span>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <%!-- Top Goal-Setters --%>
+    <section class="mb-10">
+      <h2 class="text-2xl font-extrabold text-slate-900 mb-6">Top Goal-Setters</h2>
+      <div class="flex gap-6 overflow-x-auto pb-6 custom-scrollbar">
+        <%= for user <- @user_spotlights do %>
+          <.link
+            navigate={~p"/people/#{user.user_name || user.id}"}
+            class="flex flex-col items-center flex-shrink-0"
+          >
+            <%= if user.privacy == "private" do %>
+              <div class="w-20 h-20 rounded-full p-1 border-2 border-slate-300 border-dashed mb-2 flex items-center justify-center">
+                <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
+                  <.icon name="hero-lock-closed-solid" class="w-6 h-6 text-slate-400" />
+                </div>
+              </div>
+              <span class="text-xs font-bold text-slate-500">Private Person</span>
+            <% else %>
+              <%= if user.privacy == "friends_only" do %>
+                <div class="w-20 h-20 rounded-full p-1 border-2 border-amber-400 border-dashed mb-2 flex items-center justify-center">
+                  <HeadsUpWeb.Components.UI.Avatar.avatar
+                    name={user.name || user.user_name || "U"}
+                    src={user.image_path}
+                    size={:lg}
+                  />
+                </div>
+                <span class="text-xs font-bold text-slate-900">
+                  {user.name || user.user_name || "Anonymous"}
+                </span>
+              <% else %>
+                <div class="w-20 h-20 rounded-full p-1 border-2 border-blue-500 border-dashed mb-2 flex items-center justify-center">
+                  <HeadsUpWeb.Components.UI.Avatar.avatar
+                    name={user.name || user.user_name || "U"}
+                    src={user.image_path}
+                    size={:lg}
+                  />
+                </div>
+                <span class="text-xs font-bold text-slate-900">
+                  {user.name || user.user_name || "Anonymous"}
+                </span>
+              <% end %>
+            <% end %>
+          </.link>
+        <% end %>
+        <%= if Enum.empty?(@user_spotlights) do %>
+          <p class="text-sm text-slate-400 font-medium">No spotlight users yet</p>
+        <% end %>
+      </div>
+    </section>
+
+    <%!-- Active Goals Feed --%>
+    <section>
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="text-2xl font-extrabold text-slate-900">Active Goals</h2>
+        <div class="flex gap-3">
+          <.link
+            navigate={~p"/all-goals"}
+            class="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold"
+          >
+            Trending
+          </.link>
+          <.link
+            navigate={~p"/all-goals"}
+            class="px-6 py-2.5 rounded-xl bg-white text-slate-500 text-sm font-bold soft-shadow"
+          >
+            Recent
+          </.link>
+        </div>
+      </div>
+
+      <%= if Enum.empty?(@trending_goals) do %>
+        <HeadsUpWeb.Components.UI.EmptyState.empty_state
+          icon="hero-fire"
+          title="No active goals yet"
+          message="Be the first to create a goal and start building momentum."
+        >
+          <:action>
+            <.link
+              navigate={~p"/goals/new"}
+              class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold px-6 py-3 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
+            >
+              Create Goal
+            </.link>
+          </:action>
+        </HeadsUpWeb.Components.UI.EmptyState.empty_state>
+      <% else %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <%= for goal <- @trending_goals do %>
+            <.link navigate={~p"/goals/#{goal.id}"} class="block">
+              <HeadsUpWeb.Components.UI.Card.card hover>
+                <%!-- Post Header --%>
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex gap-3">
+                    <HeadsUpWeb.Components.UI.Avatar.avatar
+                      name={goal.user.name || goal.user.user_name || "Anonymous"}
+                      src={goal.user.image_path}
+                      size={:md}
+                    />
+                    <div>
+                      <h4 class="font-extrabold text-slate-900 text-sm">
+                        {goal.user.name || goal.user.user_name || "Anonymous"}
+                      </h4>
+                      <p class="text-slate-400 text-xs font-medium">
+                        {if goal.group, do: goal.group.name, else: "Uncategorized"}
+                      </p>
+                    </div>
+                  </div>
+                  <HeadsUpWeb.Components.UI.StatusBadge.status_badge
+                    status={goal.status}
+                    size={:sm}
+                  />
+                </div>
+
+                <%!-- Goal Content --%>
+                <h3 class="text-lg font-extrabold text-slate-900 mb-2">{goal.title}</h3>
+                <%= if goal.description do %>
+                  <p class="text-slate-600 text-sm mb-4 leading-relaxed line-clamp-2">
+                    {goal.description}
+                  </p>
+                <% end %>
+
+                <%!-- Goal Image --%>
+                <%= if goal.image_path do %>
+                  <img
+                    src={goal.image_path}
+                    alt={goal.title}
+                    class="w-full h-40 object-cover rounded-2xl mb-4"
+                  />
+                <% end %>
+
+                <%!-- Progress Bar --%>
+                <div class="mb-4">
+                  <HeadsUpWeb.Components.UI.ProgressBar.progress_bar
+                    value={goal.progress || 0}
+                    max={100}
+                    size={:sm}
+                    color={:indigo}
+                    show_label={true}
+                  />
+                </div>
+
+                <%!-- Engagement Row --%>
+                <div class="flex items-center gap-4 pt-4 border-t border-slate-100">
+                  <span class="flex items-center gap-1.5 text-slate-500 font-bold text-sm">
+                    <.icon name="hero-heart" class="w-4 h-4 text-pink-400" />
+                    {Map.get(goal, :like_count, 0)} likes
+                  </span>
+                  <span class="flex items-center gap-1.5 text-slate-500 font-bold text-sm">
+                    <.icon name="hero-eye" class="w-4 h-4 text-blue-400" />
+                    {Map.get(goal, :subscriber_count, 0)} subscribers
+                  </span>
+                  <span class="flex items-center gap-1.5 text-slate-500 font-bold text-sm">
+                    <.icon name="hero-chat-bubble-left" class="w-4 h-4 text-slate-400" />
+                    {Map.get(goal, :post_count, 0)} posts
+                  </span>
+                </div>
+              </HeadsUpWeb.Components.UI.Card.card>
+            </.link>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+  </div>
+
+  <%!-- ===== RIGHT SIDEBAR (Desktop only) ===== --%>
+  <aside class="hidden xl:flex w-[420px] flex-shrink-0 border-l border-slate-100 p-8 flex-col gap-10 overflow-y-auto custom-scrollbar bg-white">
+    <%!-- Popular Groups --%>
+    <section>
+      <HeadsUpWeb.Components.UI.SectionHeader.section_header
+        title="Popular Groups"
+        link_text="View all"
+        link_to={~p"/goals-category"}
+      />
+      <%= if Enum.empty?(@popular_groups) do %>
+        <p class="text-sm text-slate-400">No groups yet</p>
+      <% else %>
+        <div class="grid grid-cols-2 gap-4">
+          <%= for group <- @popular_groups do %>
+            <.link
+              navigate={~p"/goals-category/#{group.id}"}
+              class="bg-indigo-50 p-6 rounded-[32px] flex flex-col items-center justify-center text-center group cursor-pointer hover:scale-105 transition-transform soft-shadow"
+            >
+              <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm">
+                <.icon name="hero-user-group" class="w-6 h-6 text-blue-500" />
+              </div>
+              <span class="font-extrabold text-slate-900 text-sm">{group.name}</span>
+              <span class="text-[10px] text-slate-400 mt-1">
+                {Map.get(group, :goal_count, 0)} goals
+              </span>
+            </.link>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <%!-- Suggestions --%>
+    <section>
+      <HeadsUpWeb.Components.UI.SectionHeader.section_header
+        title="Suggestions"
+        link_text="See all"
+        link_to={~p"/people"}
+      />
+      <div class="space-y-6">
+        <%= for user <- @user_spotlights do %>
+          <div class="flex items-center gap-4 group">
+            <%= if user.privacy == "private" do %>
+              <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                <.icon name="hero-lock-closed-solid" class="w-6 h-6 text-slate-400" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h5 class="font-bold text-slate-500 text-sm">Private Person</h5>
+                <p class="text-slate-400 text-xs">Private profile</p>
+              </div>
+              <.link
+                navigate={~p"/people/#{user.user_name || user.id}"}
+                class="ml-auto bg-slate-200 text-slate-500 px-4 py-2.5 rounded-xl text-xs font-bold"
+              >
+                View
+              </.link>
+            <% else %>
+              <%= if user.privacy == "friends_only" do %>
+                <HeadsUpWeb.Components.UI.Avatar.avatar
+                  name={user.name || user.user_name || "Anonymous"}
+                  src={user.image_path}
+                  size={:lg}
+                />
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <h5 class="font-bold text-slate-900 text-sm">
+                      {user.name || user.user_name || "Anonymous"}
+                    </h5>
+                    <.icon name="hero-user-group" class="w-3.5 h-3.5 text-amber-500" />
+                  </div>
+                  <p class="text-slate-400 text-xs">Friends only</p>
+                </div>
+                <.link
+                  navigate={~p"/people/#{user.user_name || user.id}"}
+                  class="ml-auto bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:scale-105 transition-all"
+                >
+                  Add Friend
+                </.link>
+              <% else %>
+                <HeadsUpWeb.Components.UI.Avatar.avatar
+                  name={user.name || user.user_name || "Anonymous"}
+                  src={user.image_path}
+                  size={:lg}
+                />
+                <div class="flex-1 min-w-0">
+                  <h5 class="font-bold text-slate-900 text-sm">
+                    {user.name || user.user_name || "Anonymous"}
+                  </h5>
+                  <p class="text-slate-400 text-xs">Level {user.level}</p>
+                </div>
+                <.link
+                  navigate={~p"/people/#{user.user_name || user.id}"}
+                  class="ml-auto bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:scale-105 transition-all"
+                >
+                  Follow
+                </.link>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+        <%= if Enum.empty?(@user_spotlights) do %>
+          <p class="text-sm text-slate-400">No suggestions yet</p>
+        <% end %>
+      </div>
+    </section>
+
+    <%!-- Quick Stats --%>
+    <section>
+      <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Quick Stats</h3>
+      <div class="space-y-4">
+        <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl">
+          <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center">
+            <.icon name="hero-fire" class="w-7 h-7 text-blue-600" />
+          </div>
+          <div>
+            <p class="text-3xl font-extrabold text-slate-900">{length(@trending_goals)}</p>
+            <p class="text-xs text-slate-400 font-medium">Trending Goals</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl">
+          <div class="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center">
+            <.icon name="hero-user-group" class="w-7 h-7 text-indigo-500" />
+          </div>
+          <div>
+            <p class="text-3xl font-extrabold text-slate-900">{length(@popular_groups)}</p>
+            <p class="text-xs text-slate-400 font-medium">Active Groups</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl">
+          <div class="w-14 h-14 bg-purple-50 rounded-xl flex items-center justify-center">
+            <.icon name="hero-users" class="w-7 h-7 text-purple-500" />
+          </div>
+          <div>
+            <p class="text-3xl font-extrabold text-slate-900">{length(@user_spotlights)}</p>
+            <p class="text-xs text-slate-400 font-medium">Top Users</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </aside>
+</div>

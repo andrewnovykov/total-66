@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: heads_up
+    env: docker
+    plan: free
+    region: oregon
+    buildCommand: docker build -t heads_up .
+    startCommand: /app/bin/migrate && /app/bin/server
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: heads_up_db
+          property: connectionString
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: POOL_SIZE
+        value: "10"
+
+databases:
+  - name: heads_up_db
+    plan: free
+    region: oregon
+    ipAllowList: [] # Access from anywhere (for now, or restrict if needed)
+
+# Enable Preview Environments for Pull Requests
+previews:
+  - generation: automatic # Automatically deploy on every PR
+    ttl: 30d # Time to live for preview environments
+    envVars:
+      - key: SECRET_KEY_BASE
+        generateValue: true
