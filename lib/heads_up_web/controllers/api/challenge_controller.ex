@@ -15,7 +15,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
       else
         Challenges.list_public_challenges()
       end
-      |> Repo.preload([:creator, :category, :participants])
+      |> Repo.preload([:creator, :participants])
       |> paginate(params)
 
     conn
@@ -27,7 +27,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
   def templates(conn, params) do
     templates =
       Challenges.list_templates()
-      |> Repo.preload([:creator, :category, :participants])
+      |> Repo.preload([:creator, :participants])
       |> paginate(params)
 
     conn
@@ -42,7 +42,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
     if current_user_id do
       challenges =
         Challenges.list_my_challenges(current_user_id)
-        |> Repo.preload([:creator, :category, :participants])
+        |> Repo.preload([:creator, :participants])
         |> paginate(params)
 
       conn
@@ -67,9 +67,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
             challenge =
               Repo.preload(challenge, [
                 :creator,
-                :category,
                 :participants,
-                phases: [steps: :progress_records],
                 tasks: :completions
               ])
 
@@ -102,9 +100,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
           challenge =
             Repo.preload(challenge, [
               :creator,
-              :category,
               :participants,
-              phases: [steps: :progress_records],
               tasks: :completions
             ])
 
@@ -143,9 +139,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
                   updated =
                     Repo.preload(updated, [
                       :creator,
-                      :category,
                       :participants,
-                      phases: [steps: :progress_records],
                       tasks: :completions
                     ])
 
@@ -246,9 +240,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
                   challenge =
                     Repo.preload(challenge, [
                       :creator,
-                      :category,
                       :participants,
-                      phases: [steps: :progress_records],
                       tasks: :completions
                     ])
 
@@ -374,9 +366,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
                   updated =
                     Repo.preload(updated, [
                       :creator,
-                      :category,
                       :participants,
-                      phases: [steps: :progress_records],
                       tasks: :completions
                     ])
 
@@ -424,9 +414,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
               updated =
                 Repo.preload(updated, [
                   :creator,
-                  :category,
                   :participants,
-                  phases: [steps: :progress_records],
                   tasks: :completions
                 ])
 
@@ -484,9 +472,7 @@ defmodule HeadsUpWeb.Api.ChallengeController do
                   template =
                     Repo.preload(template, [
                       :creator,
-                      :category,
                       :participants,
-                      phases: [steps: :progress_records],
                       tasks: :completions
                     ])
 
@@ -564,38 +550,6 @@ defmodule HeadsUpWeb.Api.ChallengeController do
 
         :error ->
           conn |> put_status(:bad_request) |> render(:error, message: "Invalid challenge ID")
-      end
-    else
-      conn |> put_status(:unauthorized) |> render(:error, message: "Authentication required")
-    end
-  end
-
-  # POST /api/challenges/:id/steps/:step_id/complete - Complete step
-  def complete_step(conn, %{"id" => id, "step_id" => step_id}) do
-    current_user_id = get_current_user_id(conn)
-
-    if current_user_id do
-      with {challenge_id, _} <- Integer.parse(id),
-           {sid, _} <- Integer.parse(step_id),
-           participant when not is_nil(participant) <-
-             Challenges.get_participant(challenge_id, current_user_id) do
-        case Challenges.complete_step(participant.id, sid) do
-          {:ok, _progress} ->
-            conn |> put_status(:ok) |> render(:action_success, message: "Step completed")
-
-          {:error, _} ->
-            conn
-            |> put_status(:unprocessable_entity)
-            |> render(:error, message: "Failed to complete step")
-        end
-      else
-        nil ->
-          conn
-          |> put_status(:not_found)
-          |> render(:error, message: "Not participating in this challenge")
-
-        :error ->
-          conn |> put_status(:bad_request) |> render(:error, message: "Invalid ID")
       end
     else
       conn |> put_status(:unauthorized) |> render(:error, message: "Authentication required")
@@ -807,12 +761,6 @@ defmodule HeadsUpWeb.Api.ChallengeController do
     else
       conn |> put_status(:unauthorized) |> render(:error, message: "Authentication required")
     end
-  end
-
-  # GET /api/challenges/categories - List challenge categories
-  def categories(conn, _params) do
-    categories = Challenges.list_active_categories()
-    conn |> put_status(:ok) |> render(:categories, categories: categories)
   end
 
   # Private helpers

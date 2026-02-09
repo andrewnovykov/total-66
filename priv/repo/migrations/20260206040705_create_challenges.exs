@@ -22,33 +22,7 @@ defmodule HeadsUp.Repo.Migrations.CreateChallenges do
     create index(:challenges, [:visibility])
     create index(:challenges, [:status])
 
-    # Challenge phases (for predefined challenges)
-    create table(:challenge_phases) do
-      add :title, :string, null: false
-      add :description, :text
-      add :order_index, :integer, null: false, default: 0
-      add :challenge_id, references(:challenges, on_delete: :delete_all), null: false
-
-      timestamps(type: :utc_datetime)
-    end
-
-    create index(:challenge_phases, [:challenge_id])
-    create index(:challenge_phases, [:challenge_id, :order_index])
-
-    # Challenge steps (within phases)
-    create table(:challenge_steps) do
-      add :title, :string, null: false
-      add :description, :text
-      add :order_index, :integer, null: false, default: 0
-      add :phase_id, references(:challenge_phases, on_delete: :delete_all), null: false
-
-      timestamps(type: :utc_datetime)
-    end
-
-    create index(:challenge_steps, [:phase_id])
-    create index(:challenge_steps, [:phase_id, :order_index])
-
-    # Challenge tasks (for custom challenges with schedules)
+    # Challenge tasks (for all challenges with schedules)
     create table(:challenge_tasks) do
       add :title, :string, null: false
       add :description, :text
@@ -76,22 +50,7 @@ defmodule HeadsUp.Repo.Migrations.CreateChallenges do
     create index(:challenge_participants, [:user_id])
     create index(:challenge_participants, [:status])
 
-    # Challenge step progress (for predefined challenges)
-    create table(:challenge_step_progress) do
-      add :completed_at, :utc_datetime
-
-      add :participant_id, references(:challenge_participants, on_delete: :delete_all),
-        null: false
-
-      add :step_id, references(:challenge_steps, on_delete: :delete_all), null: false
-
-      timestamps(type: :utc_datetime)
-    end
-
-    create unique_index(:challenge_step_progress, [:participant_id, :step_id])
-    create index(:challenge_step_progress, [:participant_id])
-
-    # Challenge task completions (for custom challenges)
+    # Challenge task completions (for all challenges)
     create table(:challenge_task_completions) do
       add :completed_date, :date, null: false
       add :completed_at, :utc_datetime

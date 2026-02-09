@@ -62,7 +62,7 @@ defmodule HeadsUpWeb.ConnectionsLiveTest do
         |> live("/connections")
 
       # Default tab should be following
-      assert has_element?(view, "button[phx-value-tab=\"following\"][class*=\"border-blue-500\"]")
+      assert has_element?(view, "button[phx-value-tab=\"following\"][class*=\"border-[#ff4d00]\"]")
 
       # Switch to followers tab
       view |> element("button[phx-value-tab=\"followers\"]") |> render_click()

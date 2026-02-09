@@ -19,9 +19,6 @@ defmodule HeadsUp.Challenges.ChallengeParticipant do
     belongs_to :challenge, HeadsUp.Challenges.Challenge
     belongs_to :user, HeadsUp.Users
 
-    has_many :step_progress, HeadsUp.Challenges.ChallengeStepProgress,
-      foreign_key: :participant_id
-
     has_many :task_completions, HeadsUp.Challenges.ChallengeTaskCompletion,
       foreign_key: :participant_id
 

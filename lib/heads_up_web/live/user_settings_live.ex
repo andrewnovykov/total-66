@@ -5,43 +5,58 @@ defmodule HeadsUpWeb.UserSettingsLive do
 
   def render(assigns) do
     ~H"""
-    <div class="flex gap-0 h-full">
-      <%!-- ===== CENTER CONTENT ===== --%>
-      <div class="flex-grow p-5 sm:p-8 lg:p-10 overflow-y-auto custom-scrollbar">
-        <%!-- Hero Banner --%>
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[40px] p-8 sm:p-10 lg:p-12 mb-10 relative overflow-hidden text-white soft-shadow">
-          <div class="relative z-10">
-            <.link
-              navigate={~p"/"}
-              class="inline-flex items-center gap-2 text-blue-200 hover:text-white text-sm font-medium mb-6 transition-colors"
-            >
-              <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Home
-            </.link>
+    <style>
+      @keyframes panelIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
 
-            <span class="bg-blue-500/50 text-blue-100 text-xs font-bold px-4 py-1.5 rounded-full mb-4 inline-block uppercase tracking-wider">
-              Account
-            </span>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
-              Settings
-            </h1>
-            <p class="text-blue-100 text-lg leading-relaxed max-w-xl">
-              Manage your account email address and password settings.
-            </p>
+    <div style="animation: panelIn 0.4s ease both;">
+      <div class="max-w-3xl mx-auto px-5 sm:px-8 py-8 sm:py-12">
+        <%!-- Panel Header --%>
+        <div class="mb-8">
+          <h1 class="font-['Bebas_Neue'] text-[clamp(2rem,4vw,2.6rem)] tracking-[3px] text-[#f0ece6] leading-none">
+            Settings
+          </h1>
+          <p class="text-t66-text-muted text-[0.9rem] mt-1.5">
+            Manage your account and preferences
+          </p>
+        </div>
+
+        <%!-- Account Info Row --%>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-[rgba(255,77,0,0.15)] rounded-xl flex items-center justify-center flex-shrink-0">
+              <.icon name="hero-envelope" class="w-6 h-6 text-t66-accent" />
+            </div>
+            <div class="min-w-0">
+              <p class="text-xs text-t66-text-muted font-medium">Current Email</p>
+              <p class="text-sm font-bold text-[#f0ece6] truncate">{@current_email}</p>
+            </div>
           </div>
-          <div class="absolute right-0 top-0 h-full w-1/3 opacity-10 pointer-events-none flex items-center justify-center">
-            <.icon name="hero-cog-6-tooth" class="w-48 h-48 lg:w-64 lg:h-64" />
+          <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-[rgba(34,197,94,0.12)] rounded-xl flex items-center justify-center flex-shrink-0">
+              <.icon name="hero-shield-check" class="w-6 h-6 text-[#22c55e]" />
+            </div>
+            <div>
+              <p class="text-xs text-t66-text-muted font-medium">Account Status</p>
+              <p class="text-sm font-bold text-[#22c55e]">Active</p>
+            </div>
           </div>
         </div>
 
-        <%!-- Email Section --%>
-        <HeadsUpWeb.Components.UI.Card.card padding={:lg} class="mb-8">
+        <%!-- Change Email Section --%>
+        <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-6 sm:p-8 mb-6">
           <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
-              <.icon name="hero-envelope" class="w-6 h-6 text-blue-600" />
+            <div class="w-11 h-11 bg-[rgba(255,77,0,0.15)] rounded-xl flex items-center justify-center flex-shrink-0">
+              <.icon name="hero-envelope" class="w-5 h-5 text-t66-accent" />
             </div>
             <div>
-              <h2 class="text-xl font-extrabold text-slate-900">Change Email</h2>
-              <p class="text-sm text-slate-400">
+              <h2 class="font-['Bebas_Neue'] text-[1.3rem] tracking-[2px] text-[#f0ece6]">
+                Change Email
+              </h2>
+              <p class="text-sm text-t66-text-muted">
                 Update your email address. A confirmation link will be sent.
               </p>
             </div>
@@ -55,21 +70,24 @@ defmodule HeadsUpWeb.UserSettingsLive do
             class="space-y-5"
           >
             <div>
-              <label for={@email_form[:email].id} class="block text-sm font-bold text-slate-700 mb-2">
+              <label
+                for={@email_form[:email].id}
+                class="block text-[0.68rem] uppercase tracking-[2px] text-t66-text-muted font-bold mb-2"
+              >
                 Email <span class="text-red-400">*</span>
               </label>
               <.input
                 field={@email_form[:email]}
                 type="email"
                 required
-                class="w-full !bg-slate-50 !border-0 !rounded-2xl !px-5 !py-4 !text-slate-900 !placeholder-slate-400 focus:!ring-2 focus:!ring-blue-500 focus:!bg-white !transition-colors"
+                class="w-full !bg-[#0f0f0f] !border !border-white/[0.08] !rounded-xl !px-4 !py-3.5 !text-[#f0ece6] !placeholder-[#5a5754] !text-[0.9rem] !outline-none !transition-all focus:!border-[rgba(255,77,0,0.4)] focus:!shadow-[0_0_0_3px_rgba(255,77,0,0.08)]"
               />
             </div>
 
             <div>
               <label
                 for="current_password_for_email"
-                class="block text-sm font-bold text-slate-700 mb-2"
+                class="block text-[0.68rem] uppercase tracking-[2px] text-t66-text-muted font-bold mb-2"
               >
                 Current Password <span class="text-red-400">*</span>
               </label>
@@ -80,7 +98,7 @@ defmodule HeadsUpWeb.UserSettingsLive do
                 type="password"
                 value={@email_form_current_password}
                 required
-                class="w-full !bg-slate-50 !border-0 !rounded-2xl !px-5 !py-4 !text-slate-900 !placeholder-slate-400 focus:!ring-2 focus:!ring-blue-500 focus:!bg-white !transition-colors"
+                class="w-full !bg-[#0f0f0f] !border !border-white/[0.08] !rounded-xl !px-4 !py-3.5 !text-[#f0ece6] !placeholder-[#5a5754] !text-[0.9rem] !outline-none !transition-all focus:!border-[rgba(255,77,0,0.4)] focus:!shadow-[0_0_0_3px_rgba(255,77,0,0.08)]"
               />
             </div>
 
@@ -88,23 +106,27 @@ defmodule HeadsUpWeb.UserSettingsLive do
               <button
                 type="submit"
                 phx-disable-with="Changing..."
-                class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/20"
+                class="inline-flex items-center gap-2 bg-t66-accent hover:bg-[#e64400] text-white px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-[0_0_30px_rgba(255,77,0,0.2)] hover:shadow-[0_0_50px_rgba(255,77,0,0.35)] hover:-translate-y-0.5"
               >
                 <.icon name="hero-envelope" class="w-4 h-4" /> Change Email
               </button>
             </div>
           </.form>
-        </HeadsUpWeb.Components.UI.Card.card>
+        </div>
 
-        <%!-- Password Section --%>
-        <HeadsUpWeb.Components.UI.Card.card padding={:lg}>
+        <%!-- Change Password Section --%>
+        <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-6 sm:p-8 mb-6">
           <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center">
-              <.icon name="hero-key" class="w-6 h-6 text-indigo-600" />
+            <div class="w-11 h-11 bg-[rgba(255,77,0,0.15)] rounded-xl flex items-center justify-center flex-shrink-0">
+              <.icon name="hero-key" class="w-5 h-5 text-t66-accent" />
             </div>
             <div>
-              <h2 class="text-xl font-extrabold text-slate-900">Change Password</h2>
-              <p class="text-sm text-slate-400">Update your password to keep your account secure.</p>
+              <h2 class="font-['Bebas_Neue'] text-[1.3rem] tracking-[2px] text-[#f0ece6]">
+                Change Password
+              </h2>
+              <p class="text-sm text-t66-text-muted">
+                Update your password to keep your account secure.
+              </p>
             </div>
           </div>
 
@@ -128,7 +150,7 @@ defmodule HeadsUpWeb.UserSettingsLive do
             <div>
               <label
                 for={@password_form[:password].id}
-                class="block text-sm font-bold text-slate-700 mb-2"
+                class="block text-[0.68rem] uppercase tracking-[2px] text-t66-text-muted font-bold mb-2"
               >
                 New Password <span class="text-red-400">*</span>
               </label>
@@ -136,28 +158,28 @@ defmodule HeadsUpWeb.UserSettingsLive do
                 field={@password_form[:password]}
                 type="password"
                 required
-                class="w-full !bg-slate-50 !border-0 !rounded-2xl !px-5 !py-4 !text-slate-900 !placeholder-slate-400 focus:!ring-2 focus:!ring-blue-500 focus:!bg-white !transition-colors"
+                class="w-full !bg-[#0f0f0f] !border !border-white/[0.08] !rounded-xl !px-4 !py-3.5 !text-[#f0ece6] !placeholder-[#5a5754] !text-[0.9rem] !outline-none !transition-all focus:!border-[rgba(255,77,0,0.4)] focus:!shadow-[0_0_0_3px_rgba(255,77,0,0.08)]"
               />
             </div>
 
             <div>
               <label
                 for={@password_form[:password_confirmation].id}
-                class="block text-sm font-bold text-slate-700 mb-2"
+                class="block text-[0.68rem] uppercase tracking-[2px] text-t66-text-muted font-bold mb-2"
               >
                 Confirm New Password
               </label>
               <.input
                 field={@password_form[:password_confirmation]}
                 type="password"
-                class="w-full !bg-slate-50 !border-0 !rounded-2xl !px-5 !py-4 !text-slate-900 !placeholder-slate-400 focus:!ring-2 focus:!ring-blue-500 focus:!bg-white !transition-colors"
+                class="w-full !bg-[#0f0f0f] !border !border-white/[0.08] !rounded-xl !px-4 !py-3.5 !text-[#f0ece6] !placeholder-[#5a5754] !text-[0.9rem] !outline-none !transition-all focus:!border-[rgba(255,77,0,0.4)] focus:!shadow-[0_0_0_3px_rgba(255,77,0,0.08)]"
               />
             </div>
 
             <div>
               <label
                 for="current_password_for_password"
-                class="block text-sm font-bold text-slate-700 mb-2"
+                class="block text-[0.68rem] uppercase tracking-[2px] text-t66-text-muted font-bold mb-2"
               >
                 Current Password <span class="text-red-400">*</span>
               </label>
@@ -168,7 +190,7 @@ defmodule HeadsUpWeb.UserSettingsLive do
                 id="current_password_for_password"
                 value={@current_password}
                 required
-                class="w-full !bg-slate-50 !border-0 !rounded-2xl !px-5 !py-4 !text-slate-900 !placeholder-slate-400 focus:!ring-2 focus:!ring-blue-500 focus:!bg-white !transition-colors"
+                class="w-full !bg-[#0f0f0f] !border !border-white/[0.08] !rounded-xl !px-4 !py-3.5 !text-[#f0ece6] !placeholder-[#5a5754] !text-[0.9rem] !outline-none !transition-all focus:!border-[rgba(255,77,0,0.4)] focus:!shadow-[0_0_0_3px_rgba(255,77,0,0.08)]"
               />
             </div>
 
@@ -176,107 +198,56 @@ defmodule HeadsUpWeb.UserSettingsLive do
               <button
                 type="submit"
                 phx-disable-with="Changing..."
-                class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/20"
+                class="inline-flex items-center gap-2 bg-t66-accent hover:bg-[#e64400] text-white px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-[0_0_30px_rgba(255,77,0,0.2)] hover:shadow-[0_0_50px_rgba(255,77,0,0.35)] hover:-translate-y-0.5"
               >
                 <.icon name="hero-key" class="w-4 h-4" /> Change Password
               </button>
             </div>
           </.form>
-        </HeadsUpWeb.Components.UI.Card.card>
-      </div>
-
-      <%!-- ===== RIGHT SIDEBAR ===== --%>
-      <aside class="hidden xl:flex flex-col w-[420px] flex-shrink-0 bg-white border-l border-slate-100 p-8 overflow-y-auto custom-scrollbar gap-10">
-        <%!-- Account Info --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Account Info</h3>
-          <div class="space-y-4">
-            <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl">
-              <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-envelope" class="w-7 h-7 text-blue-600" />
-              </div>
-              <div class="min-w-0">
-                <p class="text-xs text-slate-400 font-medium">Current Email</p>
-                <p class="text-sm font-extrabold text-slate-900 truncate">{@current_email}</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl">
-              <div class="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-shield-check" class="w-7 h-7 text-green-600" />
-              </div>
-              <div>
-                <p class="text-xs text-slate-400 font-medium">Account Status</p>
-                <p class="text-sm font-extrabold text-green-600">Active</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         <%!-- Security Tips --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Security Tips</h3>
-          <div class="space-y-4">
-            <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl">
-              <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <.icon name="hero-lock-closed" class="w-5 h-5 text-amber-600" />
+        <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-6 sm:p-8">
+          <h3 class="font-['Bebas_Neue'] text-[1.3rem] tracking-[2px] text-[#f0ece6] mb-5">
+            Security Tips
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3.5 p-4 bg-[#0a0a0a] border border-white/[0.06] rounded-xl">
+              <div class="w-9 h-9 bg-[rgba(255,198,66,0.12)] rounded-lg flex items-center justify-center flex-shrink-0">
+                <.icon name="hero-lock-closed" class="w-4.5 h-4.5 text-[#ffc642]" />
               </div>
               <div>
-                <p class="font-bold text-slate-900 text-sm">Strong Password</p>
-                <p class="text-slate-500 text-sm mt-1">
+                <p class="font-bold text-[#f0ece6] text-sm">Strong Password</p>
+                <p class="text-t66-text-muted text-sm mt-0.5">
                   Use at least 12 characters with letters, numbers, and symbols.
                 </p>
               </div>
             </div>
-            <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl">
-              <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <.icon name="hero-finger-print" class="w-5 h-5 text-blue-600" />
+            <div class="flex items-start gap-3.5 p-4 bg-[#0a0a0a] border border-white/[0.06] rounded-xl">
+              <div class="w-9 h-9 bg-[rgba(59,130,246,0.12)] rounded-lg flex items-center justify-center flex-shrink-0">
+                <.icon name="hero-finger-print" class="w-4.5 h-4.5 text-[#3b82f6]" />
               </div>
               <div>
-                <p class="font-bold text-slate-900 text-sm">Unique Password</p>
-                <p class="text-slate-500 text-sm mt-1">Don't reuse passwords from other services.</p>
+                <p class="font-bold text-[#f0ece6] text-sm">Unique Password</p>
+                <p class="text-t66-text-muted text-sm mt-0.5">
+                  Don't reuse passwords from other services.
+                </p>
               </div>
             </div>
-            <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl">
-              <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <.icon name="hero-arrow-path" class="w-5 h-5 text-indigo-600" />
+            <div class="flex items-start gap-3.5 p-4 bg-[#0a0a0a] border border-white/[0.06] rounded-xl">
+              <div class="w-9 h-9 bg-[rgba(255,77,0,0.15)] rounded-lg flex items-center justify-center flex-shrink-0">
+                <.icon name="hero-arrow-path" class="w-4.5 h-4.5 text-t66-accent" />
               </div>
               <div>
-                <p class="font-bold text-slate-900 text-sm">Regular Updates</p>
-                <p class="text-slate-500 text-sm mt-1">
+                <p class="font-bold text-[#f0ece6] text-sm">Regular Updates</p>
+                <p class="text-t66-text-muted text-sm mt-0.5">
                   Change your password periodically for better security.
                 </p>
               </div>
             </div>
           </div>
         </div>
-
-        <%!-- Quick Links --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Quick Links</h3>
-          <div class="space-y-3">
-            <.link
-              navigate={~p"/people/#{@current_user.user_name || @current_user.id}"}
-              class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
-            >
-              <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-user" class="w-5 h-5 text-blue-600" />
-              </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">My Profile</span>
-              <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
-            </.link>
-            <.link
-              navigate={~p"/my-challenges"}
-              class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
-            >
-              <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-bolt" class="w-5 h-5 text-indigo-600" />
-              </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">My Challenges</span>
-              <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
-            </.link>
-          </div>
-        </div>
-      </aside>
+      </div>
     </div>
     """
   end

@@ -38,10 +38,6 @@ defmodule HeadsUpWeb.Api.ChallengeJSON do
     %{data: render_comment(comment)}
   end
 
-  def categories(%{categories: categories}) do
-    %{data: Enum.map(categories, &render_category/1)}
-  end
-
   def action_success(%{message: message}) do
     %{success: true, message: message}
   end
@@ -83,21 +79,14 @@ defmodule HeadsUpWeb.Api.ChallengeJSON do
       participant_count: participant_count,
       is_participant: is_participant,
       is_owner: current_user_id == challenge.creator_user_id,
+      approval_status: challenge.approval_status,
       creator: if(challenge.creator, do: render_user(challenge.creator), else: nil),
-      category: if(challenge.category, do: render_category(challenge.category), else: nil),
       created_at: challenge.inserted_at
     }
   end
 
   defp render_challenge_detail(challenge, current_user_id, participant) do
     base = render_challenge_summary(challenge, current_user_id)
-
-    phases =
-      if challenge.phases do
-        Enum.map(challenge.phases, &render_phase/1) |> Enum.sort_by(& &1.order_index)
-      else
-        []
-      end
 
     tasks =
       if challenge.tasks do
@@ -110,42 +99,9 @@ defmodule HeadsUpWeb.Api.ChallengeJSON do
       failure_reason: challenge.failure_reason,
       failed_at: challenge.failed_at,
       template_id: challenge.template_id,
-      phases: phases,
       tasks: tasks,
       my_participation: if(participant, do: render_participant(participant), else: nil)
     })
-  end
-
-  defp render_phase(phase) do
-    steps =
-      if phase.steps do
-        Enum.map(phase.steps, &render_step/1) |> Enum.sort_by(& &1.order_index)
-      else
-        []
-      end
-
-    %{
-      id: phase.id,
-      title: phase.title,
-      description: phase.description,
-      order_index: phase.order_index,
-      start_date: phase.start_date,
-      end_date: phase.end_date,
-      start_day: phase.start_day,
-      end_day: phase.end_day,
-      steps: steps
-    }
-  end
-
-  defp render_step(step) do
-    %{
-      id: step.id,
-      title: step.title,
-      description: step.description,
-      order_index: step.order_index,
-      schedule_type: step.schedule_type,
-      schedule_weekdays: step.schedule_weekdays
-    }
   end
 
   defp render_task(task) do
@@ -154,7 +110,9 @@ defmodule HeadsUpWeb.Api.ChallengeJSON do
       title: task.title,
       description: task.description,
       schedule_type: task.schedule_type,
-      schedule_weekdays: task.schedule_weekdays
+      schedule_weekdays: task.schedule_weekdays,
+      task_type: task.task_type,
+      order_index: task.order_index
     }
   end
 
@@ -209,15 +167,6 @@ defmodule HeadsUpWeb.Api.ChallengeJSON do
       content: comment.content,
       user: if(comment.user, do: render_user(comment.user), else: nil),
       created_at: comment.inserted_at
-    }
-  end
-
-  defp render_category(category) do
-    %{
-      id: category.id,
-      name: category.name,
-      description: Map.get(category, :description, nil),
-      image_path: Map.get(category, :image_path, nil)
     }
   end
 

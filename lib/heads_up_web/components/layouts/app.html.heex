@@ -65,17 +65,6 @@
       />
       <.sidebar_link href="/users/settings" label="Settings" icon="hero-cog-6-tooth" />
 
-      <%!-- Admin --%>
-      <%= if HeadsUpWeb.Helpers.RoleHelper.is_admin?(@current_user) do %>
-        <div class="text-[0.6rem] uppercase tracking-[3px] text-t66-text-muted font-bold px-3 pt-4 pb-2">
-          Admin
-        </div>
-        <.sidebar_link
-          href="/admin/challenge-categories"
-          label="Challenge Categories"
-          icon="hero-rectangle-group"
-        />
-      <% end %>
     </nav>
 
     <%!-- Footer: Log Out --%>

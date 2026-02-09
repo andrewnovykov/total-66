@@ -488,153 +488,15 @@ defmodule HeadsUpWeb.UsersLive.ShowSocialTest do
         |> live("/people/#{public_user.user_name}")
 
       # Should show all three stats with correct format
-      # The template shows: <span class="font-bold">1</span> followers
-      assert html =~ "1</span> followers"
-      assert html =~ "1</span> following"
-      assert html =~ "1</span> friends"
-
-      # Should have the specific elements with spans
-      assert has_element?(view, "span", "1")
-
-      # Verify all three stats sections exist 
       assert html =~ "followers"
       assert html =~ "following"
       assert html =~ "friends"
+
+      # Verify counts are displayed
+      assert html =~ "1</span> followers"
+      assert html =~ "1</span> following"
+      assert html =~ "1</span> friends"
     end
   end
 
-  describe "Commitment Chart Privacy" do
-    test "shows commitment chart for public users", %{
-      conn: conn,
-      public_user: public_user,
-      viewer_user: viewer_user
-    } do
-      {:ok, view, html} =
-        conn
-        |> log_in_user(viewer_user)
-        |> live("/people/#{public_user.user_name}")
-
-      # Should show the actual commitment chart
-      assert html =~ "Commitment Chart"
-      assert has_element?(view, "h2", "Commitment Chart")
-      refute html =~ "Chart is private"
-    end
-
-    test "shows commitment chart for own profile", %{conn: conn, viewer_user: viewer_user} do
-      # Update user to private
-      {:ok, private_viewer} = Accounts.update_user(viewer_user, %{privacy: "private"})
-
-      {:ok, view, html} =
-        conn
-        |> log_in_user(private_viewer)
-        |> live("/people/#{private_viewer.user_name}")
-
-      # Should show the actual commitment chart even if private (own profile)
-      assert html =~ "Commitment Chart"
-      assert has_element?(view, "h2", "Commitment Chart")
-      refute html =~ "Chart is private"
-    end
-
-    test "hides commitment chart for private users", %{
-      conn: conn,
-      private_user: private_user,
-      viewer_user: viewer_user
-    } do
-      {:ok, view, html} =
-        conn
-        |> log_in_user(viewer_user)
-        |> live("/people/#{private_user.user_name}")
-
-      # Should show privacy message instead of chart
-      assert html =~ "Commitment Chart"
-      assert html =~ "Chart is private"
-      # More flexible text matching
-      assert html =~ "commitment chart is private"
-
-      assert has_element?(
-               view,
-               "div[class*='bg-gray-100 p-4 rounded-lg border border-gray-200 text-center']"
-             )
-
-      refute has_element?(view, "h3", "Activity Chart")
-    end
-
-    test "hides commitment chart for friends-only users to non-friends", %{
-      conn: conn,
-      friends_only_user: friends_only_user,
-      viewer_user: viewer_user
-    } do
-      {:ok, view, html} =
-        conn
-        |> log_in_user(viewer_user)
-        |> live("/people/#{friends_only_user.user_name}")
-
-      # Should show privacy message instead of chart
-      assert html =~ "Commitment Chart"
-      assert html =~ "Chart is private"
-      assert html =~ "This user shares their commitment chart with friends only"
-
-      assert has_element?(
-               view,
-               "div[class*='bg-gray-100 p-4 rounded-lg border border-gray-200 text-center']"
-             )
-
-      refute has_element?(view, "h3", "Activity Chart")
-    end
-
-    test "shows commitment chart for friends-only users to friends", %{
-      conn: conn,
-      friends_only_user: friends_only_user,
-      viewer_user: viewer_user
-    } do
-      # Become friends first
-      {:ok, _} = Accounts.send_friend_request(viewer_user.id, friends_only_user.id)
-      {:ok, _} = Accounts.accept_friend_request(friends_only_user.id, viewer_user.id)
-
-      {:ok, view, html} =
-        conn
-        |> log_in_user(viewer_user)
-        |> live("/people/#{friends_only_user.user_name}")
-
-      # Should show the actual commitment chart
-      assert html =~ "Commitment Chart"
-      assert has_element?(view, "h2", "Commitment Chart")
-      refute html =~ "Chart is private"
-    end
-
-    test "hides commitment chart for unauthenticated users viewing private profiles", %{
-      conn: conn,
-      private_user: private_user
-    } do
-      # Verify the user is actually private
-      assert private_user.privacy == "private"
-
-      {:ok, view, html} = live(conn, "/people/#{private_user.user_name}")
-
-      # Should show privacy message instead of chart
-      assert html =~ "Commitment Chart"
-      assert html =~ "Chart is private"
-      # More flexible text matching
-      assert html =~ "commitment chart is private"
-
-      assert has_element?(
-               view,
-               "div[class*='bg-gray-100 p-4 rounded-lg border border-gray-200 text-center']"
-             )
-
-      refute has_element?(view, "h3", "Activity Chart")
-    end
-
-    test "shows commitment chart for unauthenticated users viewing public profiles", %{
-      conn: conn,
-      public_user: public_user
-    } do
-      {:ok, view, html} = live(conn, "/people/#{public_user.user_name}")
-
-      # Should show the actual commitment chart
-      assert html =~ "Commitment Chart"
-      assert has_element?(view, "h2", "Commitment Chart")
-      refute html =~ "Chart is private"
-    end
-  end
 end

@@ -13,15 +13,11 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
         Challenges.list_public_challenges()
       end
 
-    categories = Challenges.list_active_categories()
-
     socket =
       socket
       |> assign(:templates, templates)
       |> assign(:filtered_challenges, templates)
-      |> assign(:categories, categories)
       |> assign(:filter_type, "all")
-      |> assign(:filter_category, "all")
       |> assign(:search_query, "")
       |> assign(:page_title, "Challenges")
 
@@ -34,7 +30,6 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
       filter_challenges(
         socket.assigns.templates,
         type,
-        socket.assigns.filter_category,
         socket.assigns.search_query
       )
 
@@ -45,28 +40,11 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
   end
 
   @impl true
-  def handle_event("filter_category", %{"category" => category}, socket) do
-    filtered =
-      filter_challenges(
-        socket.assigns.templates,
-        socket.assigns.filter_type,
-        category,
-        socket.assigns.search_query
-      )
-
-    {:noreply,
-     socket
-     |> assign(:filtered_challenges, filtered)
-     |> assign(:filter_category, category)}
-  end
-
-  @impl true
   def handle_event("search", %{"query" => query}, socket) do
     filtered =
       filter_challenges(
         socket.assigns.templates,
         socket.assigns.filter_type,
-        socket.assigns.filter_category,
         query
       )
 
@@ -106,26 +84,19 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
     end
   end
 
-  defp filter_challenges(challenges, type, category, query) do
+  defp filter_challenges(challenges, type, query) do
     challenges
     |> filter_by_type(type)
-    |> filter_by_category(category)
     |> filter_by_search(query)
   end
 
   defp filter_by_type(challenges, "all"), do: challenges
 
-  defp filter_by_type(challenges, "predefined"),
-    do: Enum.filter(challenges, &(&1.type == :predefined))
+  defp filter_by_type(challenges, "official"),
+    do: Enum.filter(challenges, &(&1.type == :official))
 
-  defp filter_by_type(challenges, "custom"), do: Enum.filter(challenges, &(&1.type == :custom))
-
-  defp filter_by_category(challenges, "all"), do: challenges
-
-  defp filter_by_category(challenges, category_id) do
-    {id, _} = Integer.parse(category_id)
-    Enum.filter(challenges, &(&1.category_id == id))
-  end
+  defp filter_by_type(challenges, "community"),
+    do: Enum.filter(challenges, &(&1.type == :community))
 
   defp filter_by_search(challenges, ""), do: challenges
 
@@ -185,8 +156,8 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
         <div class="flex items-center gap-3">
           <h2 class="font-['Bebas_Neue'] text-[1.6rem] tracking-[2px] text-[#f0ece6]">
             {case @filter_type do
-              "predefined" -> "Official Challenges"
-              "custom" -> "Community Challenges"
+              "official" -> "Official Challenges"
+              "community" -> "Community Challenges"
               _ -> "All Challenges"
             end}
           </h2>
@@ -199,8 +170,8 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
           <%!-- Hidden select for test compatibility --%>
           <select phx-change="filter_type" name="type" class="sr-only" id="type-filter-select">
             <option value="all" selected={@filter_type == "all"}>All Types</option>
-            <option value="predefined" selected={@filter_type == "predefined"}>Official</option>
-            <option value="custom" selected={@filter_type == "custom"}>Community</option>
+            <option value="official" selected={@filter_type == "official"}>Official</option>
+            <option value="community" selected={@filter_type == "community"}>Community</option>
           </select>
 
           <%!-- Visual Filter Pills --%>
@@ -220,10 +191,10 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
             </button>
             <button
               phx-click="filter_type"
-              phx-value-type="predefined"
+              phx-value-type="official"
               class={[
                 "px-5 py-2 rounded-xl text-sm font-bold transition-all border",
-                if(@filter_type == "predefined",
+                if(@filter_type == "official",
                   do: "bg-t66-accent text-white border-t66-accent shadow-[0_0_20px_rgba(255,77,0,0.15)]",
                   else: "bg-t66-card text-t66-text-secondary border-white/[0.06] hover:border-white/[0.12] hover:text-[#f0ece6]"
                 )
@@ -233,10 +204,10 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
             </button>
             <button
               phx-click="filter_type"
-              phx-value-type="custom"
+              phx-value-type="community"
               class={[
                 "px-5 py-2 rounded-xl text-sm font-bold transition-all border",
-                if(@filter_type == "custom",
+                if(@filter_type == "community",
                   do: "bg-t66-accent text-white border-t66-accent shadow-[0_0_20px_rgba(255,77,0,0.15)]",
                   else: "bg-t66-card text-t66-text-secondary border-white/[0.06] hover:border-white/[0.12] hover:text-[#f0ece6]"
                 )
@@ -245,22 +216,6 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
               Community
             </button>
           </div>
-
-          <%!-- Category Filter --%>
-          <%= if @categories != [] do %>
-            <select
-              phx-change="filter_category"
-              name="category"
-              class="bg-t66-card border border-white/[0.06] rounded-xl px-4 py-2 text-sm font-bold text-t66-text-secondary focus:border-[rgba(255,77,0,0.4)] focus:ring-[3px] focus:ring-[rgba(255,77,0,0.08)] cursor-pointer outline-none appearance-none"
-            >
-              <option value="all" selected={@filter_category == "all"}>All Categories</option>
-              <%= for category <- @categories do %>
-                <option value={category.id} selected={@filter_category == to_string(category.id)}>
-                  {category.name}
-                </option>
-              <% end %>
-            </select>
-          <% end %>
         </div>
       </div>
     </div>
@@ -331,7 +286,7 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
         <%!-- Top accent bar --%>
         <div class={[
           "h-[3px]",
-          if(@challenge.type == :predefined,
+          if(@challenge.type == :official,
             do: "bg-gradient-to-r from-t66-accent via-t66-accent-secondary to-t66-accent",
             else: "bg-gradient-to-r from-t66-cyan via-t66-purple to-t66-cyan"
           )
@@ -343,14 +298,14 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
         ]}>
           <div class={[
             "w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0",
-            if(@challenge.type == :predefined,
+            if(@challenge.type == :official,
               do: "bg-[rgba(255,77,0,0.15)]",
               else: "bg-[rgba(0,212,170,0.12)]"
             )
           ]}>
             <.icon name="hero-bolt-solid" class={[
               "w-5 h-5",
-              if(@challenge.type == :predefined, do: "text-t66-accent", else: "text-t66-cyan")
+              if(@challenge.type == :official, do: "text-t66-accent", else: "text-t66-cyan")
             ]} />
           </div>
           <div class="flex-1 min-w-0">
@@ -360,18 +315,13 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
             <div class="flex items-center gap-2 mt-0.5">
               <span class={[
                 "px-2 py-0.5 text-[0.6rem] font-bold rounded-full uppercase tracking-[1px]",
-                if(@challenge.type == :predefined,
+                if(@challenge.type == :official,
                   do: "bg-[rgba(255,77,0,0.15)] text-t66-accent",
                   else: "bg-[rgba(0,212,170,0.12)] text-t66-cyan"
                 )
               ]}>
-                {if @challenge.type == :predefined, do: "Official", else: "Community"}
+                {if @challenge.type == :official, do: "Official", else: "Community"}
               </span>
-              <%= if @challenge.category do %>
-                <span class="px-2 py-0.5 text-[0.6rem] font-bold rounded-full bg-white/[0.04] text-t66-text-muted uppercase tracking-[1px]">
-                  {@challenge.category.name}
-                </span>
-              <% end %>
             </div>
           </div>
         </div>

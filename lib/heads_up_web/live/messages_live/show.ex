@@ -78,12 +78,19 @@ defmodule HeadsUpWeb.MessagesLive.Show do
 
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col h-full">
+    <style>
+      @keyframes panelIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+
+    <div class="flex flex-col h-full" style="animation: panelIn 0.4s ease both;">
       <%!-- Chat Header --%>
-      <div class="flex items-center gap-4 p-4 sm:p-6 bg-white border-b border-slate-100">
+      <div class="flex items-center gap-4 px-5 sm:px-8 py-4 bg-t66-card border-b border-white/[0.06]">
         <.link
           navigate={~p"/messages"}
-          class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors"
+          class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] text-[#8a8680] hover:text-[#f0ece6] hover:border-white/[0.12] transition-colors"
         >
           <.icon name="hero-arrow-left" class="w-5 h-5" />
         </.link>
@@ -96,10 +103,10 @@ defmodule HeadsUpWeb.MessagesLive.Show do
             rounded={:xl}
           />
           <div>
-            <h2 class="text-sm font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors">
+            <h2 class="text-sm font-bold text-[#f0ece6] group-hover:text-t66-accent transition-colors">
               {@other_user.name || @other_user.user_name}
             </h2>
-            <p class="text-xs text-slate-500">@{@other_user.user_name}</p>
+            <p class="text-xs text-t66-text-muted">@{@other_user.user_name}</p>
           </div>
         </.link>
       </div>
@@ -107,16 +114,16 @@ defmodule HeadsUpWeb.MessagesLive.Show do
       <%!-- Messages Area --%>
       <div
         id="messages-container"
-        class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-[#F0F4FF]"
+        class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 bg-[#0a0a0a]"
         phx-hook="ScrollBottom"
       >
         <%= if Enum.empty?(@messages) do %>
           <div class="flex flex-col items-center justify-center h-full text-center">
-            <div class="w-16 h-16 rounded-2xl bg-white flex items-center justify-center mb-4 shadow-sm">
-              <.icon name="hero-chat-bubble-left-right" class="w-8 h-8 text-slate-400" />
+            <div class="w-14 h-14 rounded-xl bg-[rgba(255,77,0,0.15)] flex items-center justify-center mb-4">
+              <.icon name="hero-chat-bubble-left-right" class="w-7 h-7 text-t66-accent" />
             </div>
-            <h3 class="text-lg font-extrabold text-slate-700 mb-2">Start the conversation</h3>
-            <p class="text-slate-500 text-sm max-w-sm">
+            <h3 class="text-lg font-bold text-[#f0ece6] mb-2">Start the conversation</h3>
+            <p class="text-t66-text-muted text-sm max-w-sm">
               Send a message to {@other_user.name || @other_user.user_name}
             </p>
           </div>
@@ -127,18 +134,18 @@ defmodule HeadsUpWeb.MessagesLive.Show do
               if(message.sender_id == @current_user.id, do: "justify-end", else: "justify-start")
             ]}>
               <div class={[
-                "max-w-[75%] sm:max-w-[60%] px-4 py-3 rounded-2xl shadow-sm",
+                "max-w-[75%] sm:max-w-[60%] px-4 py-3 rounded-2xl",
                 if(message.sender_id == @current_user.id,
-                  do: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-br-md",
-                  else: "bg-white text-slate-900 rounded-bl-md"
+                  do: "bg-t66-accent text-white rounded-br-md",
+                  else: "bg-t66-card border border-white/[0.06] text-[#f0ece6] rounded-bl-md"
                 )
               ]}>
                 <p class="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                 <p class={[
                   "text-[10px] mt-1",
                   if(message.sender_id == @current_user.id,
-                    do: "text-blue-200",
-                    else: "text-slate-400"
+                    do: "text-white/60",
+                    else: "text-t66-text-muted"
                   )
                 ]}>
                   {format_message_time(message.inserted_at)}
@@ -150,7 +157,7 @@ defmodule HeadsUpWeb.MessagesLive.Show do
       </div>
 
       <%!-- Message Input --%>
-      <div class="p-4 sm:p-6 bg-white border-t border-slate-100">
+      <div class="px-4 sm:px-6 py-4 bg-t66-card border-t border-white/[0.06]">
         <%= if @can_send do %>
           <.form for={@message_form} phx-submit="send_message" class="flex items-end gap-3">
             <div class="flex-1">
@@ -158,21 +165,21 @@ defmodule HeadsUpWeb.MessagesLive.Show do
                 name="content"
                 rows="1"
                 placeholder="Type a message..."
-                class="w-full px-4 py-3 bg-slate-50 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 text-slate-900 placeholder:text-slate-400 resize-none text-sm"
+                class="w-full px-4 py-3 bg-[#0f0f0f] border border-white/[0.08] rounded-xl text-[#f0ece6] placeholder-[#5a5754] text-sm outline-none transition-all focus:border-[rgba(255,77,0,0.4)] focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)] resize-none"
                 phx-hook="AutoResize"
                 id="message-input"
               ></textarea>
             </div>
             <button
               type="submit"
-              class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:scale-105 transition-transform shadow-lg shadow-blue-500/20 flex-shrink-0"
+              class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-t66-accent text-white hover:bg-[#e64400] transition-all shadow-[0_0_20px_rgba(255,77,0,0.2)] hover:shadow-[0_0_30px_rgba(255,77,0,0.35)] hover:-translate-y-0.5 flex-shrink-0"
             >
               <.icon name="hero-paper-airplane" class="w-5 h-5" />
             </button>
           </.form>
         <% else %>
-          <div class="text-center py-3 px-4 bg-slate-50 rounded-2xl">
-            <p class="text-slate-500 text-sm font-medium">
+          <div class="text-center py-3 px-4 bg-[#0f0f0f] border border-white/[0.08] rounded-xl">
+            <p class="text-t66-text-muted text-sm font-medium">
               <.icon name="hero-lock-closed" class="w-4 h-4 inline" />
               You must be friends to send messages
             </p>
