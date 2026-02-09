@@ -46,11 +46,6 @@ defmodule HeadsUp.FeedService do
         where: a.user_id in ^all_user_ids,
         where:
           a.activity_type in [
-            "goal_created",
-            "goal_completed",
-            "goal_failed",
-            "goal_updated",
-            "goal_step_completed",
             "post_created",
             "post_liked",
             "challenge_created",
@@ -66,7 +61,7 @@ defmodule HeadsUp.FeedService do
         order_by: [desc: a.inserted_at],
         limit: ^fetch_limit,
         offset: ^offset,
-        preload: [:user, :goal, :post, :challenge],
+        preload: [:user, :challenge],
         select: a
       )
       |> Repo.all()
@@ -81,15 +76,6 @@ defmodule HeadsUp.FeedService do
         activity.user_id == user_id ->
           true
 
-        # Goal-related: check goal privacy
-        activity.goal_id && activity.goal ->
-          case activity.goal.privacy do
-            :public -> true
-            :friends -> MapSet.member?(friend_id_set, activity.goal.user_id)
-            :private -> false
-            _ -> true
-          end
-
         # Challenge-related: check challenge visibility
         activity.challenge_id && activity.challenge ->
           case activity.challenge.visibility do
@@ -99,7 +85,7 @@ defmodule HeadsUp.FeedService do
             _ -> true
           end
 
-        # Non-goal/non-challenge activities (follows, friend accepts) always visible
+        # Non-challenge activities (follows, friend accepts) always visible
         true ->
           true
       end
@@ -213,43 +199,19 @@ defmodule HeadsUp.FeedService do
       description: activity.description,
       xp_change: activity.xp_change,
       inserted_at: activity.inserted_at,
-      goal: activity.goal,
-      post: activity.post,
       challenge: challenge
     }
 
     # Generate user-friendly description
-    goal_title = if activity.goal, do: activity.goal.title, else: nil
     challenge_title = if challenge, do: challenge.title, else: nil
 
     user_friendly_description =
       case activity.activity_type do
-        "goal_created" ->
-          if goal_title, do: "created a new goal: \"#{goal_title}\"", else: "created a new goal"
-
-        "goal_completed" ->
-          if goal_title, do: "completed their goal: \"#{goal_title}\"", else: "completed a goal"
-
-        "goal_failed" ->
-          if goal_title, do: "failed their goal: \"#{goal_title}\"", else: "failed a goal"
-
-        "goal_updated" ->
-          if goal_title, do: "updated their goal: \"#{goal_title}\"", else: "updated a goal"
-
-        "goal_step_completed" ->
-          if goal_title,
-            do: "completed a step in \"#{goal_title}\"",
-            else: "completed a goal step"
-
         "post_created" ->
-          if activity.post && goal_title do
-            "posted an update in \"#{goal_title}\""
-          else
-            "created a new post"
-          end
+          "created a new post"
 
         "post_liked" ->
-          if goal_title, do: "liked a post in \"#{goal_title}\"", else: "liked a post"
+          "liked a post"
 
         "challenge_created" ->
           if challenge_title,
@@ -322,17 +284,14 @@ defmodule HeadsUp.FeedService do
       where: a.inserted_at >= ^seven_days_ago,
       where:
         a.activity_type in [
-          "goal_created",
-          "goal_completed",
-          "post_created",
           "challenge_created",
           "challenge_completed"
         ],
-      group_by: [a.goal_id, a.challenge_id, a.activity_type],
+      group_by: [a.challenge_id, a.activity_type],
       having: count(a.id) > 1,
       order_by: [desc: count(a.id)],
       limit: ^limit,
-      preload: [:user, :goal, :post, :challenge],
+      preload: [:user, :challenge],
       select: a
     )
     |> Repo.all()

@@ -322,15 +322,15 @@ defmodule HeadsUpWeb.ConnectionsLive.Index do
               <.icon name="hero-chevron-right" class="w-4 h-4 text-slate-400 ml-auto" />
             </.link>
             <.link
-              navigate={~p"/my-goals"}
+              navigate={~p"/my-challenges"}
               class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"
             >
               <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
-                <.icon name="hero-flag" class="w-5 h-5 text-indigo-600" />
+                <.icon name="hero-bolt" class="w-5 h-5 text-indigo-600" />
               </div>
               <div>
-                <p class="text-sm font-bold text-slate-900">My Goals</p>
-                <p class="text-xs text-slate-500">View your goals</p>
+                <p class="text-sm font-bold text-slate-900">My Challenges</p>
+                <p class="text-xs text-slate-500">View your challenges</p>
               </div>
               <.icon name="hero-chevron-right" class="w-4 h-4 text-slate-400 ml-auto" />
             </.link>

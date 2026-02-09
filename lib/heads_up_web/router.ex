@@ -34,11 +34,6 @@ defmodule HeadsUpWeb.Router do
     # Public pages - accessible to everyone (guests and authenticated users)
     live_session :public,
       on_mount: [{HeadsUpWeb.UserAuth, :mount_current_user}] do
-      live "/goals/new", GoalLive.New
-      live "/goals/:id", GoalLive.Show
-      live "/goals-category", GoalCategoryLive.Index
-      live "/goals-category/:id", GoalCategoryLive.Show
-      live "/all-goals", AllGoalsLive.Index
       live "/people", UsersLive.Index
       live "/people/:username", UsersLive.Show
       # Challenges - browsing and viewing (new/edit require auth in LiveView)
@@ -55,8 +50,6 @@ defmodule HeadsUpWeb.Router do
     # Authenticated-only pages
     live_session :authenticated,
       on_mount: [{HeadsUpWeb.UserAuth, :ensure_authenticated}] do
-      live "/goals/:id/edit", GoalLive.Edit
-      live "/my-goals", MyGoalsLive.Index
       live "/my-challenges", ChallengeLive.MyChallenges
       live "/connections", ConnectionsLive.Index
       live "/feed", FeedLive.Index
@@ -88,7 +81,6 @@ defmodule HeadsUpWeb.Router do
         {HeadsUpWeb.UserAuth, :ensure_authenticated},
         {HeadsUpWeb.AdminAuth, :ensure_admin}
       ] do
-      live "/categories", Admin.GroupsLive.Index
       live "/challenge-categories", Admin.ChallengeCategoriesLive.Index
     end
   end
@@ -97,16 +89,6 @@ defmodule HeadsUpWeb.Router do
   scope "/api", HeadsUpWeb.Api, as: :api do
     pipe_through :api
 
-    # Public category endpoints
-    scope "/categories" do
-      # GET /api/categories - List main categories
-      get "/", CategoryController, :index
-      # GET /api/categories/:id - Get category details
-      get "/:id", CategoryController, :show
-      # GET /api/categories/:id/subcategories - List subcategories
-      get "/:id/subcategories", CategoryController, :subcategories
-    end
-
     # Public auth endpoints for mobile clients
     scope "/auth" do
       # POST /api/auth/register - Register new user
@@ -114,11 +96,6 @@ defmodule HeadsUpWeb.Router do
       # POST /api/auth/login - Login with JSON credentials
       post "/login", AuthController, :login
     end
-  end
-
-  scope "/api", HeadsUpWeb do
-    pipe_through :api
-    post "/groups", GroupController, :create
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
@@ -182,12 +159,6 @@ defmodule HeadsUpWeb.Router do
   scope "/api", HeadsUpWeb.Api, as: :api do
     pipe_through :api
 
-    # Public Goals API endpoints
-    scope "/goals" do
-      get "/", GoalController, :index
-      get "/category/:category_id", GoalController, :by_category
-    end
-
     # Public User endpoints
     scope "/users" do
       get "/", UserController, :index
@@ -244,56 +215,6 @@ defmodule HeadsUpWeb.Router do
       delete "/:id", UserController, :remove_friend
     end
 
-    # Goals API endpoints
-    scope "/goals" do
-      get "/my", GoalController, :my_goals
-      get "/deleted", GoalController, :deleted_goals
-      post "/", GoalController, :create
-      put "/:id", GoalController, :update
-      patch "/:id", GoalController, :update
-      delete "/:id", GoalController, :delete
-
-      # Goal interactions
-      post "/:id/like", GoalController, :like
-      delete "/:id/like", GoalController, :unlike
-      post "/:id/subscribe", GoalController, :subscribe
-      delete "/:id/subscribe", GoalController, :unsubscribe
-      post "/:id/restore", GoalController, :restore
-      post "/:id/fail", GoalController, :fail
-      post "/:id/freeze", GoalController, :freeze
-      post "/:id/unfreeze", GoalController, :unfreeze
-
-      # Goal steps (nested)
-      get "/:goal_id/steps", GoalStepController, :index
-      post "/:goal_id/steps", GoalStepController, :create
-      put "/:goal_id/steps/:id", GoalStepController, :update
-      patch "/:goal_id/steps/:id", GoalStepController, :update
-      delete "/:goal_id/steps/:id", GoalStepController, :delete
-      post "/:goal_id/steps/:id/toggle", GoalStepController, :toggle
-
-      # Goal posts (nested)
-      get "/:goal_id/posts", GoalPostController, :index
-      post "/:goal_id/posts", GoalPostController, :create
-      put "/:goal_id/posts/:id", GoalPostController, :update
-      patch "/:goal_id/posts/:id", GoalPostController, :update
-      delete "/:goal_id/posts/:id", GoalPostController, :delete
-      post "/:goal_id/posts/:id/like", GoalPostController, :like
-      delete "/:goal_id/posts/:id/like", GoalPostController, :unlike
-
-      # Goal reporting
-      post "/:id/report", ReportController, :report_goal
-    end
-
-    # Post comments
-    scope "/posts" do
-      get "/:post_id/comments", GoalCommentController, :index
-      post "/:post_id/comments", GoalCommentController, :create
-      delete "/:post_id/comments/:id", GoalCommentController, :delete
-
-      # Post reporting
-      post "/:id/report", ReportController, :report_post
-    end
-
     # Challenges API endpoints
     scope "/challenges" do
       get "/my", ChallengeController, :my_challenges
@@ -331,14 +252,6 @@ defmodule HeadsUpWeb.Router do
       post "/:id/comments", ChallengeController, :create_check_in_comment
     end
 
-    # Admin-only category management
-    scope "/admin/categories" do
-      post "/", CategoryController, :create
-      put "/:id", CategoryController, :update
-      patch "/:id", CategoryController, :update
-      delete "/:id", CategoryController, :delete
-    end
-
     # Activity and feed endpoints
     scope "/activities" do
       get "/:user_id", ActivityController, :user_activities
@@ -360,10 +273,6 @@ defmodule HeadsUpWeb.Router do
   # Public API Routes with catch-all :id (must be last)
   scope "/api", HeadsUpWeb.Api, as: :api do
     pipe_through :api
-
-    scope "/goals" do
-      get "/:id", GoalController, :show
-    end
 
     scope "/users" do
       get "/:id", UserController, :show

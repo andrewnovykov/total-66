@@ -4,7 +4,10 @@ defmodule HeadsUpWeb.UsersLive.Index do
   import Ecto.Query
 
   def mount(_params, _session, socket) do
-    users = Accounts.list_users() |> add_challenge_counts()
+    users = Accounts.list_users() |> add_challenge_stats()
+
+    finisher_count = Enum.count(users, & &1.is_finisher)
+    total_attempts = Enum.reduce(users, 0, fn u, acc -> acc + u.challenge_count end)
 
     socket =
       socket
@@ -12,8 +15,10 @@ defmodule HeadsUpWeb.UsersLive.Index do
       |> assign(:filtered_users, users)
       |> assign(:search_query, "")
       |> assign(:filter_type, "all")
+      |> assign(:finisher_count, finisher_count)
+      |> assign(:total_attempts, total_attempts)
 
-    {:ok, socket}
+    {:ok, socket, layout: {HeadsUpWeb.Layouts, :public}}
   end
 
   def handle_event("search", %{"search" => %{"query" => query}}, socket) do
@@ -38,296 +43,260 @@ defmodule HeadsUpWeb.UsersLive.Index do
     {:noreply, socket}
   end
 
-  defp filter_users(users, query, _type) when query == "", do: users
+  defp filter_users(users, query, type) do
+    users
+    |> filter_by_search(query)
+    |> filter_by_type(type)
+  end
 
-  defp filter_users(users, query, _type) do
+  defp filter_by_search(users, ""), do: users
+
+  defp filter_by_search(users, query) do
     search_term = String.downcase(query)
 
     Enum.filter(users, fn user ->
       name_match = String.contains?(String.downcase(user.name || ""), search_term)
       username_match = String.contains?(String.downcase(user.user_name || ""), search_term)
-      bio_match = String.contains?(String.downcase(user.bio || ""), search_term)
-
-      name_match || username_match || bio_match
+      name_match || username_match
     end)
   end
 
+  defp filter_by_type(users, "finisher"), do: Enum.filter(users, & &1.is_finisher)
+  defp filter_by_type(users, "active"), do: Enum.filter(users, &(!&1.is_finisher))
+  defp filter_by_type(users, _), do: users
+
   def render(assigns) do
     ~H"""
-    <div class="flex gap-0 h-full">
-      <%!-- Center Content --%>
-      <div class="flex-grow min-w-0 p-5 sm:p-8 lg:p-10 overflow-y-auto custom-scrollbar">
-        <%!-- Hero Banner --%>
-        <div class="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[40px] shadow-lg p-8 sm:p-10 lg:p-12 mb-8">
-          <div class="relative z-10">
-            <span class="inline-block px-4 py-1.5 bg-blue-500/50 text-blue-100 text-xs font-bold uppercase tracking-wider rounded-full mb-4">
-              Community
-            </span>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-3">
-              Members
-            </h1>
-            <p class="text-blue-100 text-lg max-w-xl mb-6">
-              Find members to follow and collaborate with
-            </p>
-
-            <%!-- Search Bar in Hero --%>
-            <.form for={%{}} phx-change="search" class="max-w-lg">
-              <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <.icon name="hero-magnifying-glass" class="w-5 h-5 text-slate-400" />
-                </div>
-                <input
-                  name="search[query]"
-                  placeholder="Search by name, username, or bio..."
-                  class="w-full bg-white/95 backdrop-blur-sm text-slate-900 placeholder:text-slate-400 pl-12 pr-4 py-4 rounded-2xl border-0 focus:ring-2 focus:ring-white/50 text-base font-medium shadow-lg"
-                  value={@search_query}
-                />
-              </div>
-            </.form>
-          </div>
-          <div class="absolute top-6 right-6 opacity-10">
-            <.icon name="hero-users" class="w-32 h-32 text-white" />
-          </div>
+    <div class="min-h-screen">
+      <%!-- PAGE HEADER with watermark --%>
+      <div class="relative pt-10 pb-10 lg:pt-16 lg:pb-14 px-5 sm:px-10 max-w-[1200px] mx-auto">
+        <%!-- Watermark --%>
+        <div
+          class="absolute top-2 left-5 sm:left-10 pointer-events-none select-none font-display leading-none tracking-[10px]"
+          style="font-size: clamp(120px, 18vw, 280px); color: rgba(255, 77, 0, 0.03);"
+        >
+          MEMBERS
         </div>
 
-        <%!-- Filter Pills + Results Header --%>
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h2 class="text-2xl font-extrabold text-slate-900">
-              <%= if @search_query != "" do %>
-                Search Results
-              <% else %>
-                Top Goal Setters
-              <% end %>
-            </h2>
-            <p class="text-slate-400 text-sm mt-1">{length(@filtered_users)} members</p>
-          </div>
-          <div class="flex gap-3 flex-wrap">
-            <button
-              phx-click="filter"
-              phx-value-type="all"
-              class={[
-                "px-6 py-2.5 rounded-xl text-sm font-bold transition-all",
-                if(@filter_type == "all",
-                  do: "bg-slate-900 text-white shadow-sm",
-                  else: "bg-white text-slate-500 shadow-sm hover:bg-slate-50"
-                )
-              ]}
-            >
-              All
-            </button>
-            <button
-              phx-click="filter"
-              phx-value-type="following"
-              class={[
-                "px-6 py-2.5 rounded-xl text-sm font-bold transition-all",
-                if(@filter_type == "following",
-                  do: "bg-slate-900 text-white shadow-sm",
-                  else: "bg-white text-slate-500 shadow-sm hover:bg-slate-50"
-                )
-              ]}
-            >
-              Following
-            </button>
-            <button
-              phx-click="filter"
-              phx-value-type="recommended"
-              class={[
-                "px-6 py-2.5 rounded-xl text-sm font-bold transition-all",
-                if(@filter_type == "recommended",
-                  do: "bg-slate-900 text-white shadow-sm",
-                  else: "bg-white text-slate-500 shadow-sm hover:bg-slate-50"
-                )
-              ]}
-            >
-              Recommended
-            </button>
-          </div>
+        <div class="relative z-10">
+          <p class="text-[0.7rem] tracking-[4px] uppercase text-t66-accent font-bold mb-4">
+            Community
+          </p>
+          <h1
+            class="font-display tracking-[3px] mb-3 leading-[1.1] text-t66-text"
+            style="font-size: clamp(2.5rem, 5vw, 4rem);"
+          >
+            Our Members
+          </h1>
+          <p class="text-t66-text-secondary max-w-[500px] text-[1.05rem]">
+            Meet the warriors who committed to transforming their lives. 66 days. No excuses.
+          </p>
         </div>
+      </div>
 
-        <%!-- Members Feed --%>
-        <%= if Enum.empty?(@filtered_users) do %>
-          <div class="bg-white rounded-[40px] shadow-sm p-10 text-center">
-            <div class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-4">
-              <.icon name="hero-users" class="w-8 h-8 text-slate-400" />
+      <%!-- STATS BAR --%>
+      <div class="max-w-[1200px] mx-auto mb-10 px-5 sm:px-10 flex gap-6 flex-wrap">
+        <div class="flex items-center gap-2.5 px-5 py-3 bg-t66-card border border-t66 rounded-full">
+          <span class="font-display text-[1.5rem] leading-none text-t66-accent">
+            {length(@users)}
+          </span>
+          <span class="text-[0.75rem] uppercase tracking-[1px] text-t66-text-muted">Members</span>
+        </div>
+        <div class="flex items-center gap-2.5 px-5 py-3 bg-t66-card border border-t66 rounded-full">
+          <span class="font-display text-[1.5rem] leading-none text-t66-accent">
+            {@finisher_count}
+          </span>
+          <span class="text-[0.75rem] uppercase tracking-[1px] text-t66-text-muted">
+            Finishers
+          </span>
+        </div>
+        <div class="flex items-center gap-2.5 px-5 py-3 bg-t66-card border border-t66 rounded-full">
+          <span class="font-display text-[1.5rem] leading-none text-t66-accent">
+            {@total_attempts}
+          </span>
+          <span class="text-[0.75rem] uppercase tracking-[1px] text-t66-text-muted">
+            Total Attempts
+          </span>
+        </div>
+      </div>
+
+      <%!-- TOOLBAR: Search + Filters --%>
+      <div class="max-w-[1200px] mx-auto mb-10 px-5 sm:px-10 flex gap-3 flex-wrap items-center">
+        <%!-- Search --%>
+        <div class="flex-1 min-w-[220px] relative">
+          <.form for={%{}} phx-change="search">
+            <div class="relative">
+              <span class="absolute left-[18px] top-1/2 -translate-y-1/2 text-[0.9rem] pointer-events-none">
+                <.icon name="hero-magnifying-glass" class="w-4 h-4 text-t66-text-muted" />
+              </span>
+              <input
+                name="search[query]"
+                placeholder="Search members..."
+                class="w-full py-3.5 pl-12 pr-5 bg-t66-card border border-t66 rounded-xl text-t66-text font-body text-[0.9rem] outline-none transition-colors focus:border-[rgba(255,77,0,0.4)] placeholder:text-t66-text-muted"
+                value={@search_query}
+              />
             </div>
-            <div class="text-lg font-extrabold text-slate-900 mb-2">
+          </.form>
+        </div>
+        <%!-- Filter Buttons --%>
+        <button
+          phx-click="filter"
+          phx-value-type="all"
+          class={[
+            "py-3.5 px-5 border rounded-xl text-[0.8rem] tracking-[1px] uppercase cursor-pointer transition-all font-body font-medium",
+            if(@filter_type == "all",
+              do: "border-t66-accent text-t66-accent bg-t66-accent-glow",
+              else: "bg-t66-card border-t66 text-t66-text-secondary hover:border-[rgba(255,255,255,0.15)] hover:text-t66-text"
+            )
+          ]}
+        >
+          All
+        </button>
+        <button
+          phx-click="filter"
+          phx-value-type="finisher"
+          class={[
+            "py-3.5 px-5 border rounded-xl text-[0.8rem] tracking-[1px] uppercase cursor-pointer transition-all font-body font-medium",
+            if(@filter_type == "finisher",
+              do: "border-t66-accent text-t66-accent bg-t66-accent-glow",
+              else: "bg-t66-card border-t66 text-t66-text-secondary hover:border-[rgba(255,255,255,0.15)] hover:text-t66-text"
+            )
+          ]}
+        >
+          Finishers
+        </button>
+        <button
+          phx-click="filter"
+          phx-value-type="active"
+          class={[
+            "py-3.5 px-5 border rounded-xl text-[0.8rem] tracking-[1px] uppercase cursor-pointer transition-all font-body font-medium",
+            if(@filter_type == "active",
+              do: "border-t66-accent text-t66-accent bg-t66-accent-glow",
+              else: "bg-t66-card border-t66 text-t66-text-secondary hover:border-[rgba(255,255,255,0.15)] hover:text-t66-text"
+            )
+          ]}
+        >
+          In Progress
+        </button>
+      </div>
+
+      <%!-- MEMBERS GRID --%>
+      <%= if Enum.empty?(@filtered_users) do %>
+        <div class="max-w-[1200px] mx-auto px-5 sm:px-10 pb-24">
+          <div class="bg-t66-card border border-t66 rounded-2xl p-10 text-center">
+            <div class="w-14 h-14 rounded-xl bg-[rgba(255,255,255,0.03)] flex items-center justify-center mx-auto mb-4">
+              <.icon name="hero-users" class="w-7 h-7 text-t66-text-muted" />
+            </div>
+            <p class="text-t66-text font-bold mb-2">
               <%= if @search_query != "" do %>
                 No members found matching "{@search_query}"
               <% else %>
                 No members to display
               <% end %>
-            </div>
-            <p class="text-sm text-slate-500 max-w-sm mx-auto">
+            </p>
+            <p class="text-t66-text-muted text-sm">
               Try adjusting your search or filters
             </p>
           </div>
-        <% else %>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            <%= for user <- @filtered_users do %>
-              <.link
-                navigate={~p"/people/#{user.user_name || "user-#{user.id}"}"}
-                class="block bg-white rounded-3xl shadow-sm p-5 hover:shadow-md transition-all group text-center"
-              >
-                <%!-- Avatar / Privacy Icon --%>
-                <div class="flex justify-center mb-3">
-                  <%= if user.privacy == "private" do %>
-                    <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
-                      <.icon name="hero-lock-closed-solid" class="w-7 h-7 text-slate-400" />
-                    </div>
-                  <% else %>
-                    <HeadsUpWeb.Components.UI.Avatar.avatar
-                      name={user.name || user.user_name || "U"}
-                      src={user.image_path}
-                      size={:xl}
-                    />
-                  <% end %>
+        </div>
+      <% else %>
+        <div class="max-w-[1200px] mx-auto px-5 sm:px-10 pb-24 grid gap-5" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
+          <%= for user <- @filtered_users do %>
+            <.link
+              navigate={~p"/people/#{user.user_name || "user-#{user.id}"}"}
+              class={[
+                "bg-t66-card border rounded-2xl p-8 pb-7 flex flex-col items-center text-center transition-all duration-[400ms] relative overflow-hidden group",
+                "hover:-translate-y-1.5 hover:shadow-t66-card",
+                if(user.is_finisher,
+                  do: "border-[rgba(255,198,66,0.12)] hover:border-[rgba(255,198,66,0.25)]",
+                  else: "border-t66 hover:border-[rgba(255,77,0,0.15)]"
+                )
+              ]}
+            >
+              <%!-- Top accent line --%>
+              <div class={[
+                "absolute top-0 left-0 right-0 h-[3px] transition-all duration-[400ms]",
+                if(user.is_finisher,
+                  do: "bg-gradient-to-r from-transparent via-t66-gold to-transparent",
+                  else: "bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.06)] to-transparent group-hover:via-t66-accent"
+                )
+              ]} />
+
+              <%!-- Avatar (initials only) --%>
+              <div class="relative mb-5">
+                <div class={[
+                  "w-20 h-20 rounded-full border-[3px] flex items-center justify-center font-display text-[1.6rem] tracking-[2px] text-t66-text-muted bg-[rgba(255,255,255,0.03)] transition-colors duration-300",
+                  if(user.is_finisher,
+                    do: "border-[rgba(255,198,66,0.3)] group-hover:border-t66-gold",
+                    else: "border-t66 group-hover:border-t66-accent"
+                  )
+                ]}>
+                  {get_initials(user.name || user.user_name || "U")}
                 </div>
-
-                <%!-- Name + Badge --%>
-                <%= if user.privacy == "private" do %>
-                  <h3 class="text-sm font-extrabold text-slate-400 truncate mb-1">Private</h3>
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-full">
-                    <.icon name="hero-lock-closed" class="w-3 h-3" /> Private
-                  </span>
-                <% else %>
-                  <h3 class="text-sm font-extrabold text-slate-900 truncate group-hover:text-blue-600 transition-colors mb-0.5">
-                    {user.name || user.user_name || "Anonymous"}
-                  </h3>
-                  <p class="text-xs text-slate-400 truncate mb-2">@{user.user_name || "unknown"}</p>
-
-                  <%!-- Privacy / Level Badge --%>
-                  <%= if user.privacy == "friends_only" do %>
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-full mb-2">
-                      <.icon name="hero-user-group" class="w-3 h-3" /> Friends Only
-                    </span>
-                  <% else %>
-                    <%= if (user.level || 1) >= 5 do %>
-                      <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-full mb-2">
-                        <.icon name="hero-star-solid" class="w-3 h-3" /> Lvl {user.level}
-                      </span>
-                    <% end %>
-                  <% end %>
-
-                  <%!-- Stats Row --%>
-                  <div class="flex items-center justify-center gap-3 text-xs">
-                    <span class="flex items-center gap-1 text-slate-500 font-bold">
-                      <.icon name="hero-flag" class="w-3.5 h-3.5 text-blue-500" />
-                      {user.goal_amount || 0}
-                    </span>
-                    <span class="flex items-center gap-1 text-slate-500 font-bold">
-                      <.icon name="hero-trophy" class="w-3.5 h-3.5 text-indigo-500" />
-                      {Map.get(user, :challenge_count, 0)}
-                    </span>
-                    <span class="flex items-center gap-1 text-slate-500 font-bold">
-                      <.icon name="hero-arrow-trending-up" class="w-3.5 h-3.5 text-green-500" />
-                      Lvl {user.level || 1}
-                    </span>
+                <%!-- Finisher badge on avatar --%>
+                <%= if user.is_finisher do %>
+                  <div class="absolute -bottom-1 -right-1 w-[30px] h-[30px] bg-t66-gold rounded-full flex items-center justify-center text-[0.8rem] shadow-t66-gold border-[3px] border-t66-card">
+                    <span>&#127942;</span>
                   </div>
                 <% end %>
-              </.link>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
+              </div>
 
-      <%!-- Right Sidebar (Desktop Only) --%>
-      <div class="hidden xl:flex flex-col w-[420px] flex-shrink-0 bg-white border-l border-slate-100 p-8 overflow-y-auto custom-scrollbar gap-10">
-        <%!-- Community Stats --%>
-        <div>
-          <h3 class="text-lg font-extrabold text-slate-900 mb-4">Community Stats</h3>
-          <div class="space-y-3">
-            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
-                  <.icon name="hero-users" class="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <p class="text-sm font-bold text-slate-900">Total Members</p>
-                  <p class="text-xs text-slate-500">Active community</p>
-                </div>
-              </div>
-              <span class="text-xl font-extrabold text-slate-900">{length(@users)}</span>
-            </div>
-            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-                  <.icon name="hero-flag" class="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <p class="text-sm font-bold text-slate-900">Goals Created</p>
-                  <p class="text-xs text-slate-500">Across all members</p>
-                </div>
-              </div>
-              <span class="text-xl font-extrabold text-slate-900">
-                {Enum.reduce(@users, 0, fn u, acc -> acc + (u.goal_amount || 0) end)}
-              </span>
-            </div>
-          </div>
-        </div>
+              <%!-- Name & Nickname --%>
+              <p class="font-bold text-[1.05rem] text-t66-text mb-0.5 truncate max-w-full">
+                {user.name || user.user_name || "Anonymous"}
+              </p>
+              <p class="text-t66-text-muted text-[0.85rem] mb-4">
+                @{user.user_name || "unknown"}
+              </p>
 
-        <%!-- Quick Links --%>
-        <div>
-          <h3 class="text-lg font-extrabold text-slate-900 mb-4">Quick Links</h3>
-          <div class="space-y-3">
-            <.link
-              navigate={~p"/connections"}
-              class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"
-            >
-              <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
-                <.icon name="hero-link" class="w-5 h-5 text-indigo-600" />
-              </div>
-              <div>
-                <p class="text-sm font-bold text-slate-900">My Connections</p>
-                <p class="text-xs text-slate-500">Manage your network</p>
-              </div>
-              <.icon name="hero-chevron-right" class="w-4 h-4 text-slate-400 ml-auto" />
-            </.link>
-            <.link
-              navigate={~p"/all-goals"}
-              class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"
-            >
-              <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-                <.icon name="hero-flag" class="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p class="text-sm font-bold text-slate-900">Browse Goals</p>
-                <p class="text-xs text-slate-500">Explore all goals</p>
-              </div>
-              <.icon name="hero-chevron-right" class="w-4 h-4 text-slate-400 ml-auto" />
-            </.link>
-          </div>
-        </div>
+              <%!-- Finisher / In Progress Tag --%>
+              <%= if user.is_finisher do %>
+                <span class="inline-flex items-center gap-1.5 mb-4 px-3 py-1 rounded-full text-[0.65rem] uppercase tracking-[2px] font-bold text-t66-gold bg-t66-gold-glow">
+                  <span>&#127942;</span> Finisher
+                </span>
+              <% else %>
+                <span class="inline-flex items-center gap-1.5 mb-4 px-3 py-1 rounded-full text-[0.65rem] uppercase tracking-[2px] font-bold text-t66-text-muted bg-[rgba(255,255,255,0.03)]">
+                  In Progress
+                </span>
+              <% end %>
 
-        <%!-- Connect Promo --%>
-        <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[32px] p-8">
-          <div class="relative z-10">
-            <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
-              <.icon name="hero-user-plus" class="w-7 h-7 text-white" />
-            </div>
-            <h4 class="text-xl font-extrabold text-white mb-2">Build Your Network</h4>
-            <p class="text-blue-100 text-sm mb-6">
-              Follow members, send friend requests, and grow together
-            </p>
-            <.link
-              navigate={~p"/connections"}
-              class="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-xl font-bold text-sm hover:scale-105 transition-transform"
-            >
-              <.icon name="hero-link" class="w-4 h-4" /> My Connections
+              <%!-- Stats --%>
+              <div class="flex gap-5 w-full justify-center pt-4 border-t border-t66">
+                <div class="flex flex-col items-center">
+                  <span class={[
+                    "font-display text-[1.5rem] leading-[1.1]",
+                    if(user.is_finisher, do: "text-t66-gold", else: "text-t66-accent")
+                  ]}>
+                    {user.challenge_count}
+                  </span>
+                  <span class="text-[0.65rem] uppercase tracking-[1.5px] text-t66-text-muted">
+                    Attempts
+                  </span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <span class={[
+                    "font-display text-[1.5rem] leading-[1.1]",
+                    if(user.is_finisher, do: "text-t66-gold", else: "text-t66-accent")
+                  ]}>
+                    <%= if user.best_day > 0, do: user.best_day, else: raw("&mdash;") %>
+                  </span>
+                  <span class="text-[0.65rem] uppercase tracking-[1.5px] text-t66-text-muted">
+                    Best Day
+                  </span>
+                </div>
+              </div>
             </.link>
-          </div>
-          <div class="absolute -bottom-4 -right-4 opacity-10">
-            <.icon name="hero-user-group" class="w-32 h-32 text-white" />
-          </div>
+          <% end %>
         </div>
-      </div>
+      <% end %>
     </div>
     """
   end
 
-  defp add_challenge_counts(users) do
+  defp add_challenge_stats(users) do
     user_ids = Enum.map(users, & &1.id)
 
+    # Get challenge participation counts per user
     counts =
       from(cp in HeadsUp.Challenges.ChallengeParticipant,
         where: cp.user_id in ^user_ids,
@@ -337,24 +306,40 @@ defmodule HeadsUpWeb.UsersLive.Index do
       |> Repo.all()
       |> Map.new()
 
+    # Get finisher status (completed any challenge)
+    finishers =
+      from(cp in HeadsUp.Challenges.ChallengeParticipant,
+        where: cp.user_id in ^user_ids and cp.status == :completed,
+        distinct: cp.user_id,
+        select: cp.user_id
+      )
+      |> Repo.all()
+      |> MapSet.new()
+
+    # Get best day (max check-in day number) per user
+    best_days =
+      from(ci in HeadsUp.Challenges.DailyCheckIn,
+        where: ci.user_id in ^user_ids,
+        group_by: ci.user_id,
+        select: {ci.user_id, max(ci.day_number)}
+      )
+      |> Repo.all()
+      |> Map.new()
+
     Enum.map(users, fn user ->
-      Map.put(user, :challenge_count, Map.get(counts, user.id, 0))
+      user
+      |> Map.put(:challenge_count, Map.get(counts, user.id, 0))
+      |> Map.put(:is_finisher, MapSet.member?(finishers, user.id))
+      |> Map.put(:best_day, Map.get(best_days, user.id, 0))
     end)
   end
 
-  defp user_avatar_bg_class(name) do
-    colors = [
-      "bg-gradient-to-br from-blue-400 to-indigo-500",
-      "bg-gradient-to-br from-green-400 to-emerald-500",
-      "bg-gradient-to-br from-purple-400 to-violet-500",
-      "bg-gradient-to-br from-amber-400 to-orange-500",
-      "bg-gradient-to-br from-pink-400 to-rose-500",
-      "bg-gradient-to-br from-cyan-400 to-blue-500",
-      "bg-gradient-to-br from-red-400 to-pink-500",
-      "bg-gradient-to-br from-indigo-400 to-purple-500"
-    ]
-
-    hash = :erlang.phash2(name || "")
-    Enum.at(colors, rem(hash, length(colors)))
+  defp get_initials(name) do
+    name
+    |> String.split(" ", trim: true)
+    |> Enum.take(2)
+    |> Enum.map(&String.first/1)
+    |> Enum.join()
+    |> String.upcase()
   end
 end

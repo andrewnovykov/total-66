@@ -8,7 +8,6 @@ defmodule HeadsUp.Repo.Migrations.CreateUsers do
       add :bio, :string
       add :level, :integer
       add :image_path, :string
-      add :goal_amount, :integer
 
       timestamps(type: :utc_datetime)
     end

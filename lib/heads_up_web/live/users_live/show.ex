@@ -1,7 +1,6 @@
 defmodule HeadsUpWeb.UsersLive.Show do
   use HeadsUpWeb, :live_view
-  alias HeadsUp.{Accounts, Challenges, Goals, Messaging, Reports}
-  import HeadsUpWeb.Components.GoalCard
+  alias HeadsUp.{Accounts, Challenges, Messaging, Reports}
   import HeadsUpWeb.Helpers.AvatarHelper
   import HeadsUpWeb.Components.CommitmentChart
 
@@ -33,7 +32,6 @@ defmodule HeadsUpWeb.UsersLive.Show do
       followers_count_task = Task.async(fn -> Accounts.get_followers_count(user.id) end)
       following_count_task = Task.async(fn -> Accounts.get_following_count(user.id) end)
       friends_count_task = Task.async(fn -> Accounts.get_friends_count(user.id) end)
-      user_goals_task = Task.async(fn -> Goals.list_goals_by_user(user.id) end)
 
       user_challenges_task =
         Task.async(fn -> Challenges.list_participating_challenges(user.id) end)
@@ -41,7 +39,6 @@ defmodule HeadsUpWeb.UsersLive.Show do
       followers_count = Task.await(followers_count_task)
       following_count = Task.await(following_count_task)
       friends_count = Task.await(friends_count_task)
-      user_goals = Task.await(user_goals_task)
       user_challenges = Task.await(user_challenges_task)
 
       {is_following, friendship_status, can_follow} =
@@ -102,7 +99,6 @@ defmodule HeadsUpWeb.UsersLive.Show do
         |> assign(:followers_count, followers_count)
         |> assign(:following_count, following_count)
         |> assign(:friends_count, friends_count)
-        |> assign(:user_goals, user_goals)
         |> assign(:user_challenges, user_challenges)
         |> assign(:is_following, is_following)
         |> assign(:friendship_status, friendship_status)
@@ -134,7 +130,7 @@ defmodule HeadsUpWeb.UsersLive.Show do
           assign(socket, :chart_stats, nil)
         end
 
-      {:ok, socket}
+      {:ok, socket, layout: {HeadsUpWeb.Layouts, :public}}
     else
       {:ok,
        socket
@@ -380,10 +376,6 @@ defmodule HeadsUpWeb.UsersLive.Show do
     end
   end
 
-  def handle_event("view_goal", %{"goal-id" => goal_id}, socket) do
-    {:noreply, push_navigate(socket, to: ~p"/goals/#{goal_id}")}
-  end
-
   def handle_event("view_user", %{"user-id" => user_id}, socket) do
     user = Accounts.get_user(user_id)
 
@@ -392,14 +384,6 @@ defmodule HeadsUpWeb.UsersLive.Show do
     else
       {:noreply, socket}
     end
-  end
-
-  def handle_event("toggle_like", %{"goal-id" => _goal_id}, socket) do
-    {:noreply, put_flash(socket, :info, "Like functionality coming soon!")}
-  end
-
-  def handle_event("toggle_subscribe", %{"goal-id" => _goal_id}, socket) do
-    {:noreply, put_flash(socket, :info, "Subscribe functionality coming soon!")}
   end
 
   def handle_event("save_avatar", _params, socket) do
@@ -1018,33 +1002,6 @@ defmodule HeadsUpWeb.UsersLive.Show do
             </div>
           </div>
 
-          <%!-- Goals Section --%>
-          <div class="bg-white rounded-[32px] shadow-sm p-8 mb-6">
-            <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2 mb-6">
-              <.icon name="hero-flag" class="w-5 h-5 text-blue-600" /> Goals ({length(@user_goals)})
-            </h2>
-            <%= if Enum.empty?(@user_goals) do %>
-              <div class="text-center py-8">
-                <div class="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mx-auto mb-3">
-                  <.icon name="hero-flag" class="w-7 h-7 text-slate-400" />
-                </div>
-                <p class="text-slate-500 font-medium">No goals yet.</p>
-              </div>
-            <% else %>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div :for={goal <- @user_goals}>
-                  <.goal_card
-                    goal={goal}
-                    show_category={true}
-                    show_creator={false}
-                    clickable={true}
-                    current_user_id={if @current_user, do: @current_user.id, else: nil}
-                  />
-                </div>
-              </div>
-            <% end %>
-          </div>
-
           <%!-- Challenges Section --%>
           <div class="bg-white rounded-[32px] shadow-sm p-8 mb-6">
             <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2 mb-6">
@@ -1202,15 +1159,6 @@ defmodule HeadsUpWeb.UsersLive.Show do
                 <p class="text-sm font-bold text-slate-900">friends</p>
               </div>
               <span class="text-xl font-extrabold text-slate-900">{@friends_count}</span>
-            </div>
-            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                  <.icon name="hero-flag" class="w-5 h-5 text-amber-600" />
-                </div>
-                <p class="text-sm font-bold text-slate-900">goals</p>
-              </div>
-              <span class="text-xl font-extrabold text-slate-900">{length(@user_goals)}</span>
             </div>
             <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
               <div class="flex items-center gap-3">

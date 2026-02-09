@@ -25,7 +25,7 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
       |> assign(:search_query, "")
       |> assign(:page_title, "Challenges")
 
-    {:ok, socket}
+    {:ok, socket, layout: {HeadsUpWeb.Layouts, :public}}
   end
 
   @impl true
@@ -141,264 +141,168 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex gap-0 h-full">
-      <%!-- ===== CENTER CONTENT ===== --%>
-      <div class="flex-grow p-5 sm:p-8 lg:p-10 overflow-y-auto custom-scrollbar">
-        <%!-- Hero Banner --%>
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[40px] p-8 sm:p-10 lg:p-12 mb-10 relative overflow-hidden text-white soft-shadow">
-          <div class="relative z-10">
-            <span class="bg-blue-500/50 text-blue-100 text-xs font-bold px-4 py-1.5 rounded-full mb-4 inline-block uppercase tracking-wider">
-              Browse
-            </span>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight">
-              Challenges
-            </h1>
-            <p class="text-blue-100 text-lg leading-relaxed max-w-xl mb-8">
-              Browse challenge templates and start your journey toward personal growth.
-            </p>
+    <%!-- Page Header --%>
+    <div class="pt-[60px] pb-[40px] sm:pb-[60px] px-5 sm:px-10 max-w-[1300px] mx-auto relative bg-[#0a0a0a]">
+      <%!-- "CHALLENGES" watermark --%>
+      <div class="absolute top-[80px] left-5 sm:left-10 font-['Bebas_Neue'] text-[clamp(80px,15vw,240px)] text-[rgba(255,77,0,0.03)] pointer-events-none leading-none tracking-[10px] select-none">CHALLENGES</div>
 
-            <%!-- Search Bar --%>
-            <div class="flex flex-col sm:flex-row gap-3 max-w-2xl">
-              <div class="flex-1 relative">
-                <.icon
-                  name="hero-magnifying-glass"
-                  class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  type="text"
-                  phx-keyup="search"
-                  phx-debounce="300"
-                  name="query"
-                  value={@search_query}
-                  placeholder="Search challenges..."
-                  class="w-full pl-12 pr-5 py-4 bg-white/15 backdrop-blur-sm text-white placeholder-blue-200 border border-white/20 rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-white/30 focus:bg-white/20 transition"
-                />
-              </div>
-              <%= if @current_user do %>
-                <.link
-                  navigate={~p"/challenges/new"}
-                  class="inline-flex items-center justify-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-base hover:scale-105 transition-all duration-200 soft-shadow flex-shrink-0"
-                >
-                  <.icon name="hero-plus" class="w-5 h-5" /> Create Challenge
-                </.link>
-              <% end %>
-            </div>
-          </div>
-          <div class="absolute right-0 top-0 h-full w-1/3 opacity-10 pointer-events-none flex items-center justify-center">
-            <.icon name="hero-bolt" class="w-48 h-48 lg:w-64 lg:h-64" />
-          </div>
+      <p class="text-[0.7rem] tracking-[4px] uppercase text-t66-accent mb-4 relative">Browse & Explore</p>
+      <h1 class="font-['Bebas_Neue'] text-[clamp(2.5rem,5vw,4rem)] tracking-[3px] leading-[1.1] mb-3 text-[#f0ece6] relative">Challenges</h1>
+      <p class="text-t66-text-secondary text-[1.05rem] max-w-[600px] relative">
+        Browse challenge templates and start your journey toward personal growth. Pick an official challenge or explore community creations.
+      </p>
+    </div>
+
+    <%!-- Search + Actions Bar --%>
+    <div class="max-w-[1300px] mx-auto px-5 sm:px-10 mb-10">
+      <div class="flex flex-col sm:flex-row gap-3 max-w-3xl">
+        <div class="flex-1 relative">
+          <.icon name="hero-magnifying-glass" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-t66-text-muted" />
+          <input
+            type="text"
+            phx-keyup="search"
+            phx-debounce="300"
+            name="query"
+            value={@search_query}
+            placeholder="Search challenges..."
+            class="w-full pl-12 pr-5 py-3.5 bg-t66-input border border-white/[0.08] rounded-xl text-[#f0ece6] text-[0.9rem] placeholder:text-t66-text-muted focus:border-[rgba(255,77,0,0.4)] focus:ring-[3px] focus:ring-[rgba(255,77,0,0.08)] outline-none transition-all"
+          />
         </div>
-
-        <%!-- Filter Row --%>
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div class="flex items-center gap-3">
-            <h2 class="text-2xl font-extrabold text-slate-900">
-              {case @filter_type do
-                "predefined" -> "Official Challenges"
-                "custom" -> "Community Challenges"
-                _ -> "All Challenges"
-              end}
-            </h2>
-            <span class="text-slate-400 text-sm font-medium">
-              {length(@filtered_challenges)} challenges
-            </span>
-          </div>
-
-          <div class="flex items-center gap-3 flex-wrap">
-            <%!-- Type Filter - hidden select for test compat, visible as pills --%>
-            <select phx-change="filter_type" name="type" class="sr-only" id="type-filter-select">
-              <option value="all" selected={@filter_type == "all"}>All Types</option>
-              <option value="predefined" selected={@filter_type == "predefined"}>Official</option>
-              <option value="custom" selected={@filter_type == "custom"}>Community</option>
-            </select>
-
-            <%!-- Visual Type Pills --%>
-            <div class="flex gap-2">
-              <button
-                phx-click="filter_type"
-                phx-value-type="all"
-                class={[
-                  "px-5 py-2.5 rounded-xl text-sm font-bold transition-all",
-                  if(@filter_type == "all",
-                    do: "bg-slate-900 text-white",
-                    else: "bg-white text-slate-500 soft-shadow hover:bg-slate-50"
-                  )
-                ]}
-              >
-                All
-              </button>
-              <button
-                phx-click="filter_type"
-                phx-value-type="predefined"
-                class={[
-                  "px-5 py-2.5 rounded-xl text-sm font-bold transition-all",
-                  if(@filter_type == "predefined",
-                    do: "bg-slate-900 text-white",
-                    else: "bg-white text-slate-500 soft-shadow hover:bg-slate-50"
-                  )
-                ]}
-              >
-                Official
-              </button>
-              <button
-                phx-click="filter_type"
-                phx-value-type="custom"
-                class={[
-                  "px-5 py-2.5 rounded-xl text-sm font-bold transition-all",
-                  if(@filter_type == "custom",
-                    do: "bg-slate-900 text-white",
-                    else: "bg-white text-slate-500 soft-shadow hover:bg-slate-50"
-                  )
-                ]}
-              >
-                Community
-              </button>
-            </div>
-
-            <%!-- Category Filter --%>
-            <%= if @categories != [] do %>
-              <select
-                phx-change="filter_category"
-                name="category"
-                class="bg-white border-0 rounded-xl px-5 py-2.5 text-sm font-bold text-slate-600 soft-shadow focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
-              >
-                <option value="all" selected={@filter_category == "all"}>All Categories</option>
-                <%= for category <- @categories do %>
-                  <option value={category.id} selected={@filter_category == to_string(category.id)}>
-                    {category.name}
-                  </option>
-                <% end %>
-              </select>
-            <% end %>
-          </div>
-        </div>
-
-        <%!-- My Challenges Link --%>
         <%= if @current_user do %>
-          <div class="mb-6">
-            <.link
-              navigate={~p"/my-challenges"}
-              class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-bold text-sm transition-colors"
-            >
-              <.icon name="hero-folder" class="w-4 h-4" /> View My Challenges
-              <.icon name="hero-chevron-right" class="w-4 h-4" />
-            </.link>
-          </div>
+          <.link
+            navigate={~p"/challenges/new"}
+            class="inline-flex items-center justify-center gap-2 bg-t66-accent text-white px-6 py-3.5 rounded-xl font-bold text-[0.85rem] tracking-[1px] uppercase hover:-translate-y-0.5 hover:shadow-[0_0_50px_rgba(255,77,0,0.35)] transition-all shadow-[0_0_30px_rgba(255,77,0,0.2)] no-underline flex-shrink-0"
+          >
+            <.icon name="hero-plus" class="w-5 h-5" /> Create Challenge
+          </.link>
         <% end %>
+      </div>
+    </div>
 
-        <%!-- Challenges Grid --%>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <%= for challenge <- @filtered_challenges do %>
-            <.challenge_card challenge={challenge} current_user={@current_user} />
+    <%!-- Filter Row --%>
+    <div class="max-w-[1300px] mx-auto px-5 sm:px-10 mb-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <h2 class="font-['Bebas_Neue'] text-[1.6rem] tracking-[2px] text-[#f0ece6]">
+            {case @filter_type do
+              "predefined" -> "Official Challenges"
+              "custom" -> "Community Challenges"
+              _ -> "All Challenges"
+            end}
+          </h2>
+          <span class="text-t66-text-muted text-sm font-medium">
+            {length(@filtered_challenges)} challenges
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <%!-- Hidden select for test compatibility --%>
+          <select phx-change="filter_type" name="type" class="sr-only" id="type-filter-select">
+            <option value="all" selected={@filter_type == "all"}>All Types</option>
+            <option value="predefined" selected={@filter_type == "predefined"}>Official</option>
+            <option value="custom" selected={@filter_type == "custom"}>Community</option>
+          </select>
+
+          <%!-- Visual Filter Pills --%>
+          <div class="flex gap-2">
+            <button
+              phx-click="filter_type"
+              phx-value-type="all"
+              class={[
+                "px-5 py-2 rounded-xl text-sm font-bold transition-all border",
+                if(@filter_type == "all",
+                  do: "bg-t66-accent text-white border-t66-accent shadow-[0_0_20px_rgba(255,77,0,0.15)]",
+                  else: "bg-t66-card text-t66-text-secondary border-white/[0.06] hover:border-white/[0.12] hover:text-[#f0ece6]"
+                )
+              ]}
+            >
+              All
+            </button>
+            <button
+              phx-click="filter_type"
+              phx-value-type="predefined"
+              class={[
+                "px-5 py-2 rounded-xl text-sm font-bold transition-all border",
+                if(@filter_type == "predefined",
+                  do: "bg-t66-accent text-white border-t66-accent shadow-[0_0_20px_rgba(255,77,0,0.15)]",
+                  else: "bg-t66-card text-t66-text-secondary border-white/[0.06] hover:border-white/[0.12] hover:text-[#f0ece6]"
+                )
+              ]}
+            >
+              Official
+            </button>
+            <button
+              phx-click="filter_type"
+              phx-value-type="custom"
+              class={[
+                "px-5 py-2 rounded-xl text-sm font-bold transition-all border",
+                if(@filter_type == "custom",
+                  do: "bg-t66-accent text-white border-t66-accent shadow-[0_0_20px_rgba(255,77,0,0.15)]",
+                  else: "bg-t66-card text-t66-text-secondary border-white/[0.06] hover:border-white/[0.12] hover:text-[#f0ece6]"
+                )
+              ]}
+            >
+              Community
+            </button>
+          </div>
+
+          <%!-- Category Filter --%>
+          <%= if @categories != [] do %>
+            <select
+              phx-change="filter_category"
+              name="category"
+              class="bg-t66-card border border-white/[0.06] rounded-xl px-4 py-2 text-sm font-bold text-t66-text-secondary focus:border-[rgba(255,77,0,0.4)] focus:ring-[3px] focus:ring-[rgba(255,77,0,0.08)] cursor-pointer outline-none appearance-none"
+            >
+              <option value="all" selected={@filter_category == "all"}>All Categories</option>
+              <%= for category <- @categories do %>
+                <option value={category.id} selected={@filter_category == to_string(category.id)}>
+                  {category.name}
+                </option>
+              <% end %>
+            </select>
           <% end %>
         </div>
+      </div>
+    </div>
 
-        <%!-- Empty State --%>
-        <%= if @filtered_challenges == [] do %>
-          <HeadsUpWeb.Components.UI.Card.card padding={:lg} class="text-center">
-            <div class="py-8">
-              <div class="w-16 h-16 mx-auto bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
-                <.icon name="hero-bolt" class="w-8 h-8 text-slate-400" />
-              </div>
-              <h3 class="text-xl font-extrabold text-slate-900 mb-2">No challenges found</h3>
-              <p class="text-slate-500 mb-6">Try adjusting your filters or search query.</p>
-              <button
-                phx-click="filter_type"
-                phx-value-type="all"
-                class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-2xl font-bold hover:scale-105 transition-all"
-              >
-                Show All Challenges
-              </button>
-            </div>
-          </HeadsUpWeb.Components.UI.Card.card>
+    <%!-- My Challenges Link --%>
+    <%= if @current_user do %>
+      <div class="max-w-[1300px] mx-auto px-5 sm:px-10 mb-6">
+        <.link
+          navigate={~p"/my-challenges"}
+          class="inline-flex items-center gap-2 text-t66-accent hover:text-t66-accent-secondary font-bold text-sm transition-colors no-underline"
+        >
+          <.icon name="hero-folder" class="w-4 h-4" /> View My Challenges
+          <.icon name="hero-chevron-right" class="w-4 h-4" />
+        </.link>
+      </div>
+    <% end %>
+
+    <%!-- Challenges Grid --%>
+    <div class="max-w-[1300px] mx-auto px-5 sm:px-10 pb-20">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <%= for challenge <- @filtered_challenges do %>
+          <.challenge_card challenge={challenge} current_user={@current_user} />
         <% end %>
       </div>
 
-      <%!-- ===== RIGHT SIDEBAR ===== --%>
-      <aside class="hidden xl:flex flex-col w-[420px] flex-shrink-0 bg-white border-l border-slate-100 p-8 overflow-y-auto custom-scrollbar gap-10">
-        <%!-- Categories --%>
-        <%= if @categories != [] do %>
-          <div>
-            <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Categories</h3>
-            <div class="space-y-3">
-              <%= for category <- @categories do %>
-                <button
-                  phx-click="filter_category"
-                  phx-value-category={category.id}
-                  class={[
-                    "w-full flex items-center gap-4 p-4 rounded-2xl transition-colors text-left",
-                    if(@filter_category == to_string(category.id),
-                      do: "bg-blue-50 border border-blue-200",
-                      else: "bg-slate-50 hover:bg-slate-100"
-                    )
-                  ]}
-                >
-                  <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <.icon name="hero-tag" class="w-5 h-5 text-indigo-600" />
-                  </div>
-                  <span class={[
-                    "font-bold text-sm",
-                    if(@filter_category == to_string(category.id),
-                      do: "text-blue-700",
-                      else: "text-slate-700"
-                    )
-                  ]}>
-                    {category.name}
-                  </span>
-                </button>
-              <% end %>
-            </div>
+      <%!-- Empty State --%>
+      <%= if @filtered_challenges == [] do %>
+        <div class="bg-t66-card border border-white/[0.06] rounded-2xl p-12 text-center">
+          <div class="w-16 h-16 mx-auto bg-white/[0.04] rounded-2xl flex items-center justify-center mb-4">
+            <.icon name="hero-bolt" class="w-8 h-8 text-t66-text-muted" />
           </div>
-        <% end %>
-
-        <%!-- Quick Links --%>
-        <div>
-          <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Quick Links</h3>
-          <div class="space-y-3">
-            <%= if @current_user do %>
-              <.link
-                navigate={~p"/my-challenges"}
-                class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
-              >
-                <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                  <.icon name="hero-folder" class="w-5 h-5 text-blue-600" />
-                </div>
-                <span class="font-bold text-slate-700 group-hover:text-slate-900">My Challenges</span>
-                <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
-              </.link>
-            <% end %>
-            <.link
-              navigate={~p"/all-goals"}
-              class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
-            >
-              <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-fire" class="w-5 h-5 text-indigo-600" />
-              </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">Browse Goals</span>
-              <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
-            </.link>
-          </div>
+          <h3 class="text-xl font-bold text-[#f0ece6] mb-2">No challenges found</h3>
+          <p class="text-t66-text-muted mb-6">Try adjusting your filters or search query.</p>
+          <button
+            phx-click="filter_type"
+            phx-value-type="all"
+            class="inline-flex items-center gap-2 bg-t66-accent text-white px-6 py-3 rounded-xl font-bold text-sm tracking-[1px] uppercase hover:-translate-y-0.5 transition-all shadow-[0_0_30px_rgba(255,77,0,0.2)]"
+          >
+            Show All Challenges
+          </button>
         </div>
-
-        <%!-- Start Challenge Promo --%>
-        <%= if @current_user do %>
-          <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[32px] p-8 text-white">
-            <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
-              <.icon name="hero-rocket-launch" class="w-7 h-7 text-white" />
-            </div>
-            <h4 class="text-xl font-extrabold mb-2">Ready for a challenge?</h4>
-            <p class="text-blue-100 text-sm mb-6">
-              Create your own challenge and invite friends to join.
-            </p>
-            <.link
-              navigate={~p"/challenges/new"}
-              class="inline-flex items-center gap-2 bg-white text-blue-600 px-6 py-3 rounded-2xl font-bold text-sm hover:scale-105 transition-all"
-            >
-              <.icon name="hero-plus" class="w-4 h-4" /> Create Challenge
-            </.link>
-          </div>
-        <% end %>
-      </aside>
+      <% end %>
     </div>
     """
   end
@@ -422,79 +326,86 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
       |> Map.put(:has_completions, finished > 0)
 
     ~H"""
-    <.link navigate={~p"/challenges/#{@challenge.id}"} class="block cursor-pointer group">
-      <HeadsUpWeb.Components.UI.Card.card hover padding={:none} class="overflow-hidden h-full">
-        <%!-- Challenge Image/Gradient --%>
-        <div class="w-full h-36 bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center relative">
-          <.icon name="hero-bolt" class="w-10 h-10 text-white/80" />
-          <%!-- Type Badge Overlay --%>
-          <span class={[
-            "absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full backdrop-blur-sm",
+    <.link navigate={~p"/challenges/#{@challenge.id}"} class="block cursor-pointer group no-underline">
+      <div class="bg-t66-card border border-white/[0.06] rounded-2xl overflow-hidden h-full transition-all hover:border-white/[0.12] hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(0,0,0,0.3)]">
+        <%!-- Top accent bar --%>
+        <div class={[
+          "h-[3px]",
+          if(@challenge.type == :predefined,
+            do: "bg-gradient-to-r from-t66-accent via-t66-accent-secondary to-t66-accent",
+            else: "bg-gradient-to-r from-t66-cyan via-t66-purple to-t66-cyan"
+          )
+        ]}></div>
+
+        <%!-- Card header with icon --%>
+        <div class={[
+          "px-5 pt-5 pb-3 flex items-center gap-3",
+        ]}>
+          <div class={[
+            "w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0",
             if(@challenge.type == :predefined,
-              do: "bg-purple-500/90 text-white",
-              else: "bg-blue-400/90 text-white"
+              do: "bg-[rgba(255,77,0,0.15)]",
+              else: "bg-[rgba(0,212,170,0.12)]"
             )
           ]}>
-            {if @challenge.type == :predefined, do: "Official", else: "Community"}
-          </span>
+            <.icon name="hero-bolt-solid" class={[
+              "w-5 h-5",
+              if(@challenge.type == :predefined, do: "text-t66-accent", else: "text-t66-cyan")
+            ]} />
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-[0.95rem] font-bold text-[#f0ece6] truncate group-hover:text-t66-accent transition-colors">
+              {@challenge.title}
+            </h3>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span class={[
+                "px-2 py-0.5 text-[0.6rem] font-bold rounded-full uppercase tracking-[1px]",
+                if(@challenge.type == :predefined,
+                  do: "bg-[rgba(255,77,0,0.15)] text-t66-accent",
+                  else: "bg-[rgba(0,212,170,0.12)] text-t66-cyan"
+                )
+              ]}>
+                {if @challenge.type == :predefined, do: "Official", else: "Community"}
+              </span>
+              <%= if @challenge.category do %>
+                <span class="px-2 py-0.5 text-[0.6rem] font-bold rounded-full bg-white/[0.04] text-t66-text-muted uppercase tracking-[1px]">
+                  {@challenge.category.name}
+                </span>
+              <% end %>
+            </div>
+          </div>
         </div>
 
-        <%!-- Content --%>
-        <div class="p-5">
-          <%!-- Badges --%>
-          <div class="flex flex-wrap items-center gap-2 mb-2">
-            <%= if @challenge.is_template do %>
-              <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-amber-50 text-amber-600">
-                Template
-              </span>
-            <% else %>
-              <HeadsUpWeb.Components.UI.StatusBadge.status_badge
-                status={@challenge.status}
-                size={:sm}
-              />
-            <% end %>
-            <%= if @challenge.category do %>
-              <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-slate-100 text-slate-600">
-                {@challenge.category.name}
-              </span>
-            <% end %>
-          </div>
-
-          <%!-- Title --%>
-          <h3 class="text-base font-extrabold text-slate-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors">
-            {@challenge.title}
-          </h3>
-
-          <%!-- Description --%>
-          <%= if @challenge.description do %>
-            <p class="text-slate-500 text-sm mb-3 line-clamp-2 leading-relaxed">
+        <%!-- Description --%>
+        <%= if @challenge.description do %>
+          <div class="px-5 pb-3">
+            <p class="text-t66-text-muted text-[0.8rem] leading-relaxed line-clamp-2">
               {@challenge.description}
             </p>
-          <% end %>
+          </div>
+        <% end %>
 
-          <%!-- Stats Bar --%>
-          <div class="flex items-center gap-3 pt-3 border-t border-slate-100">
+        <%!-- Stats Bar --%>
+        <div class="px-5 pb-5 pt-2">
+          <div class="flex items-center gap-4 pt-3 border-t border-white/[0.06]">
             <%= if @challenge.duration_days do %>
-              <span class="flex items-center gap-1 text-xs text-slate-500 font-semibold">
-                <.icon name="hero-clock" class="w-3.5 h-3.5 text-blue-400" />
+              <span class="flex items-center gap-1.5 text-[0.75rem] text-t66-text-muted font-semibold">
+                <.icon name="hero-clock" class="w-3.5 h-3.5 text-t66-accent" />
                 {@challenge.duration_days}d
               </span>
             <% end %>
-            <span class="flex items-center gap-1 text-xs text-slate-500 font-semibold">
-              <.icon name="hero-user-group" class="w-3.5 h-3.5 text-indigo-400" />
+            <span class="flex items-center gap-1.5 text-[0.75rem] text-t66-text-muted font-semibold">
+              <.icon name="hero-user-group" class="w-3.5 h-3.5 text-t66-purple" />
               {@total_started} started
             </span>
             <span class={[
-              "flex items-center gap-1 text-xs font-semibold",
-              if(@has_completions, do: "text-green-600", else: "text-slate-400")
+              "flex items-center gap-1.5 text-[0.75rem] font-semibold",
+              if(@has_completions, do: "text-green-500", else: "text-t66-text-muted")
             ]}>
-              <.icon
-                name="hero-trophy"
-                class={[
-                  "w-3.5 h-3.5",
-                  if(@has_completions, do: "text-green-500", else: "text-slate-300")
-                ]}
-              />
+              <.icon name="hero-trophy" class={[
+                "w-3.5 h-3.5",
+                if(@has_completions, do: "text-t66-gold", else: "text-t66-text-muted")
+              ]} />
               <%= if @has_completions do %>
                 {trunc(@success_rate)}%
               <% else %>
@@ -503,7 +414,7 @@ defmodule HeadsUpWeb.ChallengeLive.Index do
             </span>
           </div>
         </div>
-      </HeadsUpWeb.Components.UI.Card.card>
+      </div>
     </.link>
     """
   end

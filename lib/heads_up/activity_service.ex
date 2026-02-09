@@ -46,12 +46,6 @@ defmodule HeadsUp.ActivityService do
   }
 
   @xp_rewards %{
-    "goal_created" => 50,
-    "goal_completed" => 1000,
-    "goal_failed" => -200,
-    "goal_frozen" => -50,
-    "goal_deleted" => -100,
-    "goal_updated" => 10,
     "post_created" => 25,
     "post_liked" => 2,
     "post_received_like" => 3,
@@ -59,8 +53,7 @@ defmodule HeadsUp.ActivityService do
     "user_received_follow" => 5,
     "friend_request_sent" => 5,
     "friend_request_accepted" => 10,
-    "daily_login" => 5,
-    "goal_step_completed" => 15
+    "daily_login" => 5
   }
 
   def track_activity(user_id, activity_type, opts \\ []) do
@@ -71,8 +64,6 @@ defmodule HeadsUp.ActivityService do
       activity_type: activity_type,
       xp_change: xp_change,
       description: Keyword.get(opts, :description),
-      goal_id: Keyword.get(opts, :goal_id),
-      post_id: Keyword.get(opts, :post_id),
       challenge_id: Keyword.get(opts, :challenge_id),
       like_id: Keyword.get(opts, :like_id),
       follow_id: Keyword.get(opts, :follow_id),
@@ -219,7 +210,7 @@ defmodule HeadsUp.ActivityService do
       order_by: [desc: a.inserted_at],
       limit: ^limit,
       offset: ^offset,
-      preload: [:user, :goal, :post]
+      preload: [:user]
     )
     |> Repo.all()
   end
@@ -231,20 +222,6 @@ defmodule HeadsUp.ActivityService do
         %UserLevel{level: 1, xp: 0, level_name: "Seastar"}
 
     # Get various statistics
-    total_goals =
-      from(a in UserActivity,
-        where: a.user_id == ^user_id and a.activity_type == "goal_created",
-        select: count(a.id)
-      )
-      |> Repo.one()
-
-    completed_goals =
-      from(a in UserActivity,
-        where: a.user_id == ^user_id and a.activity_type == "goal_completed",
-        select: count(a.id)
-      )
-      |> Repo.one()
-
     total_posts =
       from(a in UserActivity,
         where: a.user_id == ^user_id and a.activity_type == "post_created",
@@ -266,14 +243,6 @@ defmodule HeadsUp.ActivityService do
       )
       |> Repo.one()
 
-    # Calculate completion rate
-    completion_rate =
-      if total_goals > 0 do
-        Float.round(completed_goals / total_goals * 100, 1)
-      else
-        0.0
-      end
-
     # Get current streak (consecutive days with activity)
     current_streak = calculate_current_streak(user_id)
 
@@ -285,9 +254,6 @@ defmodule HeadsUp.ActivityService do
       level_name: user_level.level_name,
       xp: user_level.xp,
       next_level_xp: get_next_level_xp(user_level.level),
-      total_goals: total_goals,
-      completed_goals: completed_goals,
-      completion_rate: completion_rate,
       total_posts: total_posts,
       total_likes_given: total_likes_given,
       total_likes_received: total_likes_received,

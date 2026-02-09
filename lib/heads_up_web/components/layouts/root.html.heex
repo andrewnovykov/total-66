@@ -4,14 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title suffix=" · HeadsUp">
-      {assigns[:page_title] || "HeadsUp"}
+    <.live_title suffix=" · Total 66">
+      {assigns[:page_title] || "Total 66"}
     </.live_title>
     <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
       rel="stylesheet"
-      as="style"
-      onload="this.rel='stylesheet'"
-      href="https://fonts.googleapis.com/css2?display=swap&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900"
     />
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
 
@@ -22,15 +20,85 @@
     </script>
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
-    <style type="text/tailwindcss">
-      body { font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', 'Noto Sans', sans-serif; }
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              't66': {
+                'bg': '#0a0a0a',
+                'card': '#131313',
+                'card-hover': '#1a1a1a',
+                'elevated': '#1c1c1c',
+                'input': '#0f0f0f',
+                'accent': '#ff4d00',
+                'accent-secondary': '#ff8a50',
+                'gold': '#ffc642',
+                'cyan': '#00d4aa',
+                'purple': '#a855f7',
+                'text': '#f0ece6',
+                'text-secondary': '#8a8680',
+                'text-muted': '#5a5754',
+              }
+            },
+            fontFamily: {
+              'display': ["'Bebas Neue'", 'sans-serif'],
+              'body': ["'DM Sans'", 'sans-serif'],
+            },
+            borderColor: {
+              't66': 'rgba(255, 255, 255, 0.06)',
+              't66-input': 'rgba(255, 255, 255, 0.08)',
+            },
+            backgroundColor: {
+              't66-accent-glow': 'rgba(255, 77, 0, 0.15)',
+              't66-gold-glow': 'rgba(255, 198, 66, 0.15)',
+              't66-cyan-glow': 'rgba(0, 212, 170, 0.12)',
+              't66-purple-glow': 'rgba(168, 85, 247, 0.12)',
+              't66-green-glow': 'rgba(34, 197, 94, 0.12)',
+              't66-red-glow': 'rgba(239, 68, 68, 0.12)',
+              't66-blue-glow': 'rgba(59, 130, 246, 0.12)',
+            },
+            boxShadow: {
+              't66-card': '0 16px 40px rgba(0, 0, 0, 0.3)',
+              't66-accent': '0 0 40px rgba(255, 77, 0, 0.2)',
+              't66-accent-hover': '0 0 60px rgba(255, 77, 0, 0.35)',
+              't66-gold': '0 2px 10px rgba(255, 198, 66, 0.4)',
+              't66-dropdown': '0 20px 60px rgba(0, 0, 0, 0.6)',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'DM Sans', sans-serif;
+        background: #0a0a0a;
+        color: #f0ece6;
+        line-height: 1.7;
+      }
+      /* Noise texture overlay */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 9999;
+      }
+      /* Dark scrollbar */
       .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-      .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-      .soft-shadow { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05); }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+      /* Font classes */
+      .font-display { font-family: 'Bebas Neue', sans-serif; }
+      .font-body { font-family: 'DM Sans', sans-serif; }
     </style>
   </head>
-  <body class="bg-[#F0F4FF] antialiased min-h-screen">
+  <body class="bg-t66-bg antialiased min-h-screen overflow-x-hidden">
     <div class="relative flex size-full min-h-screen flex-col overflow-x-hidden">
       {@inner_content}
     </div>

@@ -4,23 +4,32 @@ defmodule HeadsUpWeb.NavigationRoleTest do
   import Phoenix.LiveViewTest
   import HeadsUp.AuthFixtures
 
-  describe "navigation links based on role" do
-    test "guest user does not see Coach Center or Admin links", %{conn: conn} do
-      {:ok, _lv, html} = live(conn, ~p"/all-goals")
+  describe "topnav navigation links" do
+    test "guest user sees Login link in topnav", %{conn: conn} do
+      {:ok, _lv, html} = live(conn, ~p"/people")
 
-      refute html =~ "Coach Center"
-      refute html =~ ~r/href="\/admin\/categories"/
-      refute html =~ ~r/href="\/admin\/challenge-categories"/
+      assert html =~ "Login"
     end
 
-    test "regular user does not see Coach Center or Admin links", %{conn: conn} do
+    test "logged-in user sees avatar link in topnav", %{conn: conn} do
       user = user_fixture()
       conn = log_in_user(conn, user)
 
-      {:ok, _lv, html} = live(conn, ~p"/all-goals")
+      {:ok, _lv, html} = live(conn, ~p"/people")
+
+      # Avatar circle links to My Hub
+      assert html =~ ~r/href="\/my-challenges"/
+    end
+  end
+
+  describe "sidebar navigation links based on role" do
+    test "regular user does not see Admin links in sidebar", %{conn: conn} do
+      user = user_fixture()
+      conn = log_in_user(conn, user)
+
+      {:ok, _lv, html} = live(conn, ~p"/my-challenges")
 
       refute html =~ "Coach Center"
-      refute html =~ ~r/href="\/admin\/categories"/
       refute html =~ ~r/href="\/admin\/challenge-categories"/
     end
 
@@ -29,43 +38,30 @@ defmodule HeadsUpWeb.NavigationRoleTest do
       coach = coach_fixture()
       conn = log_in_user(conn, coach)
 
-      {:ok, _lv, html} = live(conn, ~p"/all-goals")
+      {:ok, _lv, html} = live(conn, ~p"/my-challenges")
 
       refute html =~ "Coach Center"
-      refute html =~ ~r/href="\/admin\/categories"/
       refute html =~ ~r/href="\/admin\/challenge-categories"/
     end
 
-    test "admin user sees Admin links but not Coach Center (hidden for now)", %{conn: conn} do
+    test "admin user sees Admin links in sidebar", %{conn: conn} do
       admin = admin_fixture()
       conn = log_in_user(conn, admin)
 
-      {:ok, _lv, html} = live(conn, ~p"/all-goals")
+      {:ok, _lv, html} = live(conn, ~p"/my-challenges")
 
       refute html =~ "Coach Center"
-      # Admin has two links: Goal Categories and Challenge Categories
-      assert html =~ "Goal Categories"
-      assert html =~ ~r/href="\/admin\/categories"/
       assert html =~ "Challenge Categories"
       assert html =~ ~r/href="\/admin\/challenge-categories"/
     end
-  end
 
-  describe "authenticated user navigation" do
-    test "shows user name in navigation when logged in", %{conn: conn} do
+    test "sidebar shows user name when logged in", %{conn: conn} do
       user = user_fixture()
       conn = log_in_user(conn, user)
 
-      {:ok, _lv, html} = live(conn, ~p"/all-goals")
+      {:ok, _lv, html} = live(conn, ~p"/my-challenges")
 
       assert html =~ user.name
-    end
-
-    test "shows login/register links when not logged in", %{conn: conn} do
-      {:ok, _lv, html} = live(conn, ~p"/all-goals")
-
-      assert html =~ "Log in"
-      assert html =~ "Register"
     end
   end
 end

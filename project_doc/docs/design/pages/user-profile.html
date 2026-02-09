@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total 66 – User Profile</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #131313;
+            --bg-card-hover: #1a1a1a;
+            --bg-elevated: #1c1c1c;
+            --accent: #ff4d00;
+            --accent-glow: rgba(255, 77, 0, 0.15);
+            --accent-secondary: #ff8a50;
+            --gold: #ffc642;
+            --gold-glow: rgba(255, 198, 66, 0.15);
+            --cyan: #00d4aa;
+            --cyan-glow: rgba(0, 212, 170, 0.12);
+            --green: #22c55e;
+            --green-dim: rgba(34, 197, 94, 0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239, 68, 68, 0.12);
+            --blue: #3b82f6;
+            --blue-dim: rgba(59, 130, 246, 0.12);
+            --text-primary: #f0ece6;
+            --text-secondary: #8a8680;
+            --text-muted: #5a5754;
+            --border: rgba(255, 255, 255, 0.06);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 10, 0.7);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.6rem;
+            letter-spacing: 4px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ── PROFILE HERO BANNER ── */
+        .profile-banner {
+            height: 220px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a0a00 0%, #0a0a0a 40%, #0a1510 100%);
+        }
+
+        .profile-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 80%, rgba(255, 77, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 20%, rgba(0, 212, 170, 0.05) 0%, transparent 50%);
+            animation: bannerShift 15s ease infinite alternate;
+        }
+
+        @keyframes bannerShift {
+            from {
+                transform: translate(0, 0);
+            }
+
+            to {
+                transform: translate(-5%, 3%);
+            }
+        }
+
+        .profile-banner::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to top, var(--bg-primary), transparent);
+        }
+
+        /* ── PROFILE LAYOUT ── */
+        .profile-container {
+            max-width: 1000px;
+            margin: -80px auto 0;
+            padding: 0 40px 100px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ── PROFILE HEADER ── */
+        .profile-header {
+            display: flex;
+            gap: 30px;
+            align-items: flex-end;
+            margin-bottom: 40px;
+        }
+
+        .profile-avatar-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 4px solid var(--bg-primary);
+            box-shadow: 0 0 0 2px rgba(255, 77, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.5);
+            object-fit: cover;
+            background: var(--bg-card);
+        }
+
+        .profile-avatar-placeholder {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 4px solid var(--bg-primary);
+            box-shadow: 0 0 0 2px rgba(255, 77, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.5);
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.8rem;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+        }
+
+        .profile-finisher-badge {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 12px rgba(255, 198, 66, 0.5);
+            border: 3px solid var(--bg-primary);
+        }
+
+        .profile-info {
+            flex: 1;
+            padding-bottom: 6px;
+        }
+
+        .profile-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            letter-spacing: 3px;
+            line-height: 1.1;
+            margin-bottom: 2px;
+        }
+
+        .profile-nickname {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .profile-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .meta-icon {
+            font-size: 1rem;
+        }
+
+        .finisher-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            color: var(--gold);
+            background: var(--gold-glow);
+        }
+
+        /* ── ACTION BUTTONS ── */
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .action-btn .btn-icon {
+            font-size: 1rem;
+        }
+
+        .btn-follow {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 30px rgba(255, 77, 0, 0.2);
+        }
+
+        .btn-follow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(255, 77, 0, 0.35);
+        }
+
+        .btn-follow.following {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid rgba(255, 77, 0, 0.3);
+            box-shadow: none;
+        }
+
+        .btn-follow.following:hover {
+            background: var(--accent-glow);
+        }
+
+        .btn-friend {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-friend:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-friend.friends {
+            border-color: rgba(34, 197, 94, 0.3);
+            color: var(--green);
+        }
+
+        .btn-friend.friends:hover {
+            background: var(--green-dim);
+        }
+
+        .btn-message {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-message:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            color: var(--blue);
+            background: var(--blue-dim);
+            transform: translateY(-2px);
+        }
+
+        /* ── STATS ROW ── */
+        .profile-stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 50px;
+        }
+
+        .profile-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .profile-stat:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .profile-stat-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.4rem;
+            line-height: 1;
+        }
+
+        .profile-stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .profile-stat.attempts .profile-stat-value {
+            color: var(--accent);
+        }
+
+        .profile-stat.finished .profile-stat-value {
+            color: var(--green);
+        }
+
+        .profile-stat.failed .profile-stat-value {
+            color: var(--red);
+        }
+
+        .profile-stat.rate .profile-stat-value {
+            color: var(--gold);
+        }
+
+        /* ── SECTION DIVIDER ── */
+        .section-divider {
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 50px;
+        }
+
+        .section-heading {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .section-sub {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 28px;
+        }
+
+        /* ── CHALLENGE HISTORY ── */
+        .challenge-history {
+            margin-bottom: 60px;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .history-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 22px 26px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: var(--bg-card-hover);
+        }
+
+        .history-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .history-card.completed::before {
+            background: var(--green);
+        }
+
+        .history-card.in-progress::before {
+            background: var(--accent);
+        }
+
+        .history-card.failed-card::before {
+            background: var(--red);
+        }
+
+        .history-challenge-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .history-challenge-icon.classic {
+            background: var(--accent-glow);
+        }
+
+        .history-challenge-icon.evo {
+            background: var(--cyan-glow);
+        }
+
+        .history-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-type-tag {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .history-type-tag.classic {
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .history-type-tag.evo {
+            color: var(--cyan);
+            background: var(--cyan-glow);
+        }
+
+        .history-dates {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .history-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Progress ring */
+        .progress-ring-wrapper {
+            position: relative;
+            width: 52px;
+            height: 52px;
+        }
+
+        .progress-ring-wrapper svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 4;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+
+        .history-card.completed .progress-ring-fill {
+            stroke: var(--green);
+        }
+
+        .history-card.in-progress .progress-ring-fill {
+            stroke: var(--accent);
+        }
+
+        .history-card.failed-card .progress-ring-fill {
+            stroke: var(--red);
+        }
+
+        .progress-ring-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            line-height: 1;
+        }
+
+        .history-card.completed .progress-ring-text {
+            color: var(--green);
+        }
+
+        .history-card.in-progress .progress-ring-text {
+            color: var(--accent);
+        }
+
+        .history-card.failed-card .progress-ring-text {
+            color: var(--red);
+        }
+
+        .history-status {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 100px;
+            white-space: nowrap;
+        }
+
+        .history-status.status-completed {
+            color: var(--green);
+            background: var(--green-dim);
+        }
+
+        .history-status.status-progress {
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .history-status.status-failed {
+            color: var(--red);
+            background: var(--red-dim);
+        }
+
+        /* ── ABOUT SECTION ── */
+        .about-section {
+            margin-bottom: 60px;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .about-item {
+            padding: 20px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .about-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
+        }
+
+        .about-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+        }
+
+        .about-value {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .animate-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            nav {
+                padding: 16px 20px;
+            }
+
+            .profile-container {
+                padding: 0 20px 80px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .profile-meta {
+                justify-content: center;
+            }
+
+            .profile-actions {
+                justify-content: center;
+            }
+
+            .profile-stats-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .history-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 14px;
+            }
+
+            .history-right {
+                justify-content: center;
+            }
+
+            .history-title {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .profile-banner {
+                height: 160px;
+            }
+
+            .profile-avatar,
+            .profile-avatar-placeholder {
+                width: 110px;
+                height: 110px;
+            }
+
+            .profile-avatar-placeholder {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .profile-stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                justify-content: center;
+            }
+
+            .nav-links a {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <a href="/" class="nav-logo">TOTAL <span>66</span></a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/challenges">Challenges</a>
+            <a href="/members">Members</a>
+            <a href="/auth" style="color:var(--text-muted);font-size:0.7rem;padding:4px 10px;">Login</a>
+            <a href="/hub"
+                style="color:var(--accent);border:1px solid rgba(255,77,0,0.3);border-radius:8px;padding:6px 16px;">My
+                Hub</a>
+        </div>
+    </nav>
+
+    <!-- BANNER -->
+    <div class="profile-banner"></div>
+
+    <!-- PROFILE CONTENT -->
+    <div class="profile-container">
+
+        <!-- HEADER: Avatar + Name + Meta -->
+        <div class="profile-header animate-in" id="profileHeader">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="profile-actions animate-in" id="profileActions">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- STATS ROW -->
+        <div class="profile-stats-row" id="profileStats">
+            <!-- Injected by JS -->
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- ABOUT -->
+        <div class="about-section animate-in">
+            <div class="section-heading">About</div>
+            <div class="section-sub">Personal details</div>
+            <div class="about-grid" id="aboutGrid">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- CHALLENGE HISTORY -->
+        <div class="challenge-history animate-in">
+            <div class="section-heading">Challenge History</div>
+            <div class="section-sub">All attempts, victories, and lessons learned</div>
+            <div class="history-list" id="historyList">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ══════════════════════════════════════════════
+        //  SAMPLE USER DATA — Replace with your backend
+        // ══════════════════════════════════════════════
+        const user = {
+            name: "Andrew Kovach",
+            nickname: "@andrewk",
+            avatar: "",          // URL or empty for initials
+            country: "United States",
+            countryFlag: "🇺🇸",
+            city: "Los Angeles",
+            joinedDate: "March 2023",
+            isFinisher: true,
+            isFollowing: false,
+            isFriend: false,
+            challenges: [
+                {
+                    type: "classic",       // "classic" | "evolution"
+                    title: "Total 66 — Attempt #3",
+                    startDate: "Jan 6, 2025",
+                    endDate: "Mar 12, 2025",
+                    daysCompleted: 66,
+                    status: "completed"    // "completed" | "in-progress" | "failed"
+                },
+                {
+                    type: "evolution",
+                    title: "Total 66 Evolution — Attempt #1",
+                    startDate: "Apr 1, 2025",
+                    endDate: null,
+                    daysCompleted: 34,
+                    status: "in-progress"
+                },
+                {
+                    type: "classic",
+                    title: "Total 66 — Attempt #2",
+                    startDate: "Sep 10, 2024",
+                    endDate: "Oct 22, 2024",
+                    daysCompleted: 42,
+                    status: "failed"
+                },
+                {
+                    type: "classic",
+                    title: "Total 66 — Attempt #1",
+                    startDate: "Jun 1, 2024",
+                    endDate: "Jun 19, 2024",
+                    daysCompleted: 18,
+                    status: "failed"
+                },
+            ]
+        };
+
+        // ── HELPERS ──
+        function getInitials(name) {
+            return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        // ── RENDER HEADER ──
+        function renderHeader() {
+            const el = document.getElementById('profileHeader');
+            const avatarHTML = user.avatar
+                ? `<img class="profile-avatar" src="${user.avatar}" alt="${user.name}">`
+                : `<div class="profile-avatar-placeholder">${getInitials(user.name)}</div>`;
+            const badgeHTML = user.isFinisher
+                ? `<div class="profile-finisher-badge">🏆</div>` : '';
+            const finisherTag = user.isFinisher
+                ? `<span class="finisher-label">🏆 Finisher</span>` : '';
+
+            el.innerHTML = `
+        <div class="profile-avatar-wrapper">
+          ${avatarHTML}
+          ${badgeHTML}
+        </div>
+        <div class="profile-info">
+          <div class="profile-name">${user.name}</div>
+          <div class="profile-nickname">${user.nickname}</div>
+          <div class="profile-meta">
+            <span class="meta-item"><span class="meta-icon">${user.countryFlag}</span> ${user.country}</span>
+            <span class="meta-item"><span class="meta-icon">📍</span> ${user.city}</span>
+            <span class="meta-item"><span class="meta-icon">📅</span> Joined ${user.joinedDate}</span>
+            ${finisherTag}
+          </div>
+        </div>`;
+        }
+
+        // ── RENDER ACTION BUTTONS ──
+        function renderActions() {
+            const el = document.getElementById('profileActions');
+            const followText = user.isFollowing ? '✓ Following' : 'Follow';
+            const followClass = user.isFollowing ? 'following' : '';
+            const friendText = user.isFriend ? '✓ Friends' : 'Add Friend';
+            const friendClass = user.isFriend ? 'friends' : '';
+
+            el.innerHTML = `
+        <button class="action-btn btn-follow ${followClass}" onclick="toggleFollow(this)">
+          <span class="btn-icon">${user.isFollowing ? '✓' : '➕'}</span> ${followText}
+        </button>
+        <button class="action-btn btn-friend ${friendClass}" onclick="toggleFriend(this)">
+          <span class="btn-icon">${user.isFriend ? '🤝' : '👤'}</span> ${friendText}
+        </button>
+        <button class="action-btn btn-message" onclick="openMessage()">
+          <span class="btn-icon">💬</span> Message
+        </button>`;
+        }
+
+        // ── RENDER STATS ──
+        function renderStats() {
+            const el = document.getElementById('profileStats');
+            const total = user.challenges.length;
+            const completed = user.challenges.filter(c => c.status === 'completed').length;
+            const failed = user.challenges.filter(c => c.status === 'failed').length;
+            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            el.innerHTML = `
+        <div class="profile-stat attempts animate-in">
+          <div class="profile-stat-value">${total}</div>
+          <div class="profile-stat-label">Attempts</div>
+        </div>
+        <div class="profile-stat finished animate-in">
+          <div class="profile-stat-value">${completed}</div>
+          <div class="profile-stat-label">Completed</div>
+        </div>
+        <div class="profile-stat failed animate-in">
+          <div class="profile-stat-value">${failed}</div>
+          <div class="profile-stat-label">Didn't Finish</div>
+        </div>
+        <div class="profile-stat rate animate-in">
+          <div class="profile-stat-value">${rate}%</div>
+          <div class="profile-stat-label">Success Rate</div>
+        </div>`;
+        }
+
+        // ── RENDER ABOUT ──
+        function renderAbout() {
+            const el = document.getElementById('aboutGrid');
+            el.innerHTML = `
+        <div class="about-item">
+          <div class="about-icon">${user.countryFlag}</div>
+          <div>
+            <div class="about-label">Country</div>
+            <div class="about-value">${user.country}</div>
+          </div>
+        </div>
+        <div class="about-item">
+          <div class="about-icon">📍</div>
+          <div>
+            <div class="about-label">City</div>
+            <div class="about-value">${user.city}</div>
+          </div>
+        </div>
+        <div class="about-item">
+          <div class="about-icon">📅</div>
+          <div>
+            <div class="about-label">Member Since</div>
+            <div class="about-value">${user.joinedDate}</div>
+          </div>
+        </div>
+        <div class="about-item">
+          <div class="about-icon">🏆</div>
+          <div>
+            <div class="about-label">Status</div>
+            <div class="about-value">${user.isFinisher ? 'Finisher' : 'Challenger'}</div>
+          </div>
+        </div>`;
+        }
+
+        // ── RENDER CHALLENGE HISTORY ──
+        function renderHistory() {
+            const el = document.getElementById('historyList');
+            el.innerHTML = user.challenges.map(c => {
+                const pct = Math.round((c.daysCompleted / 66) * 100);
+                const circumference = 2 * Math.PI * 22;
+                const offset = circumference - (pct / 100) * circumference;
+
+                const cardClass = c.status === 'completed' ? 'completed'
+                    : c.status === 'in-progress' ? 'in-progress' : 'failed-card';
+
+                const statusClass = c.status === 'completed' ? 'status-completed'
+                    : c.status === 'in-progress' ? 'status-progress' : 'status-failed';
+
+                const statusLabel = c.status === 'completed' ? '✓ Completed'
+                    : c.status === 'in-progress' ? '● In Progress' : '✕ Didn\'t Finish';
+
+                const typeTag = c.type === 'classic'
+                    ? `<span class="history-type-tag classic">Classic</span>`
+                    : `<span class="history-type-tag evo">Evolution</span>`;
+
+                const iconClass = c.type === 'classic' ? 'classic' : 'evo';
+                const icon = c.type === 'classic' ? '🔥' : '⚡';
+
+                const dateRange = c.endDate
+                    ? `${c.startDate} → ${c.endDate}`
+                    : `${c.startDate} → Present`;
+
+                return `
+          <div class="history-card ${cardClass} animate-in">
+            <div class="history-challenge-icon ${iconClass}">${icon}</div>
+            <div class="history-info">
+              <div class="history-title">${c.title} ${typeTag}</div>
+              <div class="history-dates">${dateRange} · ${c.daysCompleted} / 66 days</div>
+            </div>
+            <div class="history-right">
+              <div class="progress-ring-wrapper">
+                <svg width="52" height="52">
+                  <circle class="progress-ring-bg" cx="26" cy="26" r="22" />
+                  <circle class="progress-ring-fill" cx="26" cy="26" r="22"
+                    stroke-dasharray="${circumference}"
+                    stroke-dashoffset="${offset}" />
+                </svg>
+                <div class="progress-ring-text">${pct}%</div>
+              </div>
+              <span class="history-status ${statusClass}">${statusLabel}</span>
+            </div>
+          </div>`;
+            }).join('');
+        }
+
+        // ── BUTTON INTERACTIONS ──
+        function toggleFollow(btn) {
+            user.isFollowing = !user.isFollowing;
+            renderActions();
+        }
+
+        function toggleFriend(btn) {
+            user.isFriend = !user.isFriend;
+            renderActions();
+        }
+
+        function openMessage() {
+            alert(`Message ${user.name} — feature coming soon!`);
+        }
+
+        // ── INIT ──
+        renderHeader();
+        renderActions();
+        renderStats();
+        renderAbout();
+        renderHistory();
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.05 });
+
+        document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+    </script>
+
+</body>
+
+</html>

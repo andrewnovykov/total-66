@@ -9,8 +9,6 @@ defmodule HeadsUp.Repo.Migrations.CreateUserActivities do
       add :metadata, :map, default: %{}
 
       add :user_id, references(:users, on_delete: :delete_all), null: false
-      add :goal_id, references(:goals, on_delete: :nilify_all)
-      add :post_id, references(:goal_posts, on_delete: :nilify_all)
       add :like_id, :bigint
       add :follow_id, :bigint
 

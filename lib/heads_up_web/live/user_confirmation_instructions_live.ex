@@ -29,7 +29,7 @@ defmodule HeadsUpWeb.UserConfirmationInstructionsLive do
   end
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, form: to_form(%{}, as: "user"))}
+    {:ok, assign(socket, form: to_form(%{}, as: "user")), layout: {HeadsUpWeb.Layouts, :public}}
   end
 
   def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do

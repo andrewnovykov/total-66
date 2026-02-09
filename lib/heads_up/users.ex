@@ -9,7 +9,6 @@ defmodule HeadsUp.Users do
     field :bio, :string
     field :about, :string
     field :image_path, :string
-    field :goal_amount, :integer
     # public, private, friends_only
     field :privacy, :string, default: "public"
     # XP field for activity tracking
@@ -26,8 +25,6 @@ defmodule HeadsUp.Users do
     field :subscription_type, :string, default: "free"
     field :report_count, :integer, default: 0
     field :moderation_status, :string, default: "clean"
-
-    has_many :goals, HeadsUp.Goal, foreign_key: :user_id
 
     # Activity tracking relationships
     has_one :user_level, HeadsUp.UserLevel, foreign_key: :user_id
@@ -57,7 +54,6 @@ defmodule HeadsUp.Users do
       :about,
       :level,
       :image_path,
-      :goal_amount,
       :subscription_type,
       :privacy,
       :role,
@@ -105,7 +101,6 @@ defmodule HeadsUp.Users do
       :about,
       :level,
       :image_path,
-      :goal_amount,
       :role
     ])
     |> validate_email(opts)

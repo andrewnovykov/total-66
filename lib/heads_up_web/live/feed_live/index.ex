@@ -166,41 +166,8 @@ defmodule HeadsUpWeb.FeedLive.Index do
                       {item.user_friendly_description}
                     </p>
 
-                    <%!-- Goal Card --%>
-                    <%= if item.goal do %>
-                      <.link
-                        navigate={~p"/goals/#{item.goal.id}"}
-                        class="block mt-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
-                      >
-                        <div class="flex items-center gap-3">
-                          <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <.icon name="hero-flag" class="w-5 h-5 text-indigo-600" />
-                          </div>
-                          <div class="min-w-0 flex-1">
-                            <p class="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors">
-                              {item.goal.title}
-                            </p>
-                            <%= if item.goal.description do %>
-                              <p class="text-slate-400 text-sm mt-0.5 truncate">
-                                {String.slice(item.goal.description, 0, 100)}{if String.length(
-                                                                                   item.goal.description ||
-                                                                                     ""
-                                                                                 ) > 100,
-                                                                                 do: "...",
-                                                                                 else: ""}
-                              </p>
-                            <% end %>
-                          </div>
-                          <.icon
-                            name="hero-chevron-right"
-                            class="w-4 h-4 text-slate-400 flex-shrink-0"
-                          />
-                        </div>
-                      </.link>
-                    <% end %>
-
                     <%!-- Challenge Card --%>
-                    <%= if item[:challenge] && !item.goal do %>
+                    <%= if item[:challenge] do %>
                       <.link
                         navigate={~p"/challenges/#{item.challenge.id}"}
                         class="block mt-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
@@ -232,10 +199,10 @@ defmodule HeadsUpWeb.FeedLive.Index do
                       </.link>
                     <% end %>
 
-                    <%!-- Post Content --%>
-                    <%= if item.post && item.post.content do %>
+                    <%!-- Description Content --%>
+                    <%= if item[:description] do %>
                       <div class="mt-4 p-4 bg-blue-50 rounded-2xl border-l-4 border-blue-400">
-                        <p class="text-slate-700 text-sm leading-relaxed">{item.post.content}</p>
+                        <p class="text-slate-700 text-sm leading-relaxed">{item.description}</p>
                       </div>
                     <% end %>
                   </div>
@@ -296,13 +263,13 @@ defmodule HeadsUpWeb.FeedLive.Index do
               <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
             </.link>
             <.link
-              navigate={~p"/my-goals"}
+              navigate={~p"/my-challenges"}
               class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
             >
               <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-flag" class="w-5 h-5 text-indigo-600" />
+                <.icon name="hero-bolt" class="w-5 h-5 text-indigo-600" />
               </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">My Goals</span>
+              <span class="font-bold text-slate-700 group-hover:text-slate-900">My Challenges</span>
               <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
             </.link>
             <.link
@@ -316,13 +283,13 @@ defmodule HeadsUpWeb.FeedLive.Index do
               <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
             </.link>
             <.link
-              navigate={~p"/all-goals"}
+              navigate={~p"/challenges"}
               class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
             >
               <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
                 <.icon name="hero-fire" class="w-5 h-5 text-amber-600" />
               </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">Browse Goals</span>
+              <span class="font-bold text-slate-700 group-hover:text-slate-900">Browse Challenges</span>
               <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
             </.link>
           </div>

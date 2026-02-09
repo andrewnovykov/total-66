@@ -23,8 +23,6 @@ defmodule HeadsUpWeb.Api.ReportJSON do
       id: report.id,
       reason: report.reason,
       description: report.description,
-      goal_id: report.goal_id,
-      post_id: report.post_id,
       reported_user_id: report.reported_user_id,
       challenge_id: report.challenge_id,
       inserted_at: report.inserted_at

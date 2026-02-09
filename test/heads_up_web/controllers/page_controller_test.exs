@@ -3,6 +3,6 @@ defmodule HeadsUpWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "HeadsUp"
+    assert html_response(conn, 200) =~ "Total 66"
   end
 end

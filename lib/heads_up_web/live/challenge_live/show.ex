@@ -106,7 +106,7 @@ defmodule HeadsUpWeb.ChallengeLive.Show do
           |> assign(:report_reason, "")
           |> assign(:report_description, "")
 
-        {:ok, socket}
+        {:ok, socket, layout: {HeadsUpWeb.Layouts, :public}}
       else
         {:ok,
          socket

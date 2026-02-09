@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total 66 – My Hub</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #131313;
+            --bg-card-hover: #1a1a1a;
+            --bg-elevated: #1c1c1c;
+            --bg-input: #0f0f0f;
+            --bg-sidebar: #0e0e0e;
+            --accent: #ff4d00;
+            --accent-glow: rgba(255, 77, 0, 0.15);
+            --accent-secondary: #ff8a50;
+            --gold: #ffc642;
+            --gold-glow: rgba(255, 198, 66, 0.15);
+            --cyan: #00d4aa;
+            --cyan-glow: rgba(0, 212, 170, 0.12);
+            --green: #22c55e;
+            --green-dim: rgba(34, 197, 94, 0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239, 68, 68, 0.12);
+            --blue: #3b82f6;
+            --blue-dim: rgba(59, 130, 246, 0.12);
+            --text-primary: #f0ece6;
+            --text-secondary: #8a8680;
+            --text-muted: #5a5754;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-input: rgba(255, 255, 255, 0.08);
+            --radius: 16px;
+            --sidebar-w: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* TOP NAV */
+        .topnav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            height: 64px;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 10, 0.85);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topnav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .topnav-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .topnav-logo span {
+            color: var(--accent);
+        }
+
+        .topnav-links {
+            display: flex;
+            gap: 4px;
+        }
+
+        .topnav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .topnav-links a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .topnav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .notif-btn {
+            position: relative;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .notif-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .notif-dot {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .topnav-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .topnav-avatar:hover {
+            border-color: var(--accent);
+        }
+
+        /* LAYOUT */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 64px;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-w);
+            position: fixed;
+            top: 64px;
+            bottom: 0;
+            left: 0;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 150;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-user {
+            padding: 28px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .sidebar-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid rgba(255, 77, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .sidebar-user-info {
+            min-width: 0;
+        }
+
+        .sidebar-user-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar-user-nick {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 12px;
+        }
+
+        .sidebar-section-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            padding: 16px 12px 8px;
+            font-weight: 700;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            font-family: 'DM Sans', sans-serif;
+            text-align: left;
+            position: relative;
+        }
+
+        .sidebar-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-link.active {
+            color: var(--accent);
+            background: var(--accent-glow);
+            font-weight: 600;
+        }
+
+        .sidebar-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            bottom: 8px;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+            background: var(--accent);
+        }
+
+        .sidebar-icon {
+            font-size: 1.15rem;
+            width: 22px;
+            text-align: center;
+        }
+
+        .sidebar-badge {
+            margin-left: auto;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .sidebar-footer {
+            padding: 16px 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .sidebar-logout {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            color: var(--red);
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: background 0.2s;
+        }
+
+        .sidebar-logout:hover {
+            background: var(--red-dim);
+        }
+
+        /* MAIN */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-w);
+            padding: 40px;
+            max-width: 900px;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+            animation: panelIn 0.4s ease both;
+        }
+
+        @keyframes panelIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .panel-header {
+            margin-bottom: 32px;
+        }
+
+        .panel-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2rem, 4vw, 2.6rem);
+            letter-spacing: 3px;
+            line-height: 1.1;
+        }
+
+        .panel-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 6px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* PROFILE */
+        .profile-summary {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .profile-big-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 77, 0, 0.3);
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .profile-big-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border: 3px solid var(--bg-card);
+            box-shadow: 0 2px 8px rgba(255, 198, 66, 0.4);
+        }
+
+        .profile-details {
+            flex: 1;
+        }
+
+        .profile-big-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            line-height: 1.1;
+        }
+
+        .profile-big-nick {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .profile-meta-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .profile-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .profile-mini-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .mini-stat {
+            text-align: center;
+            padding: 18px 12px;
+        }
+
+        .mini-stat-val {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            line-height: 1;
+        }
+
+        .mini-stat-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .mini-stat.orange .mini-stat-val {
+            color: var(--accent);
+        }
+
+        .mini-stat.green .mini-stat-val {
+            color: var(--green);
+        }
+
+        .mini-stat.red .mini-stat-val {
+            color: var(--red);
+        }
+
+        .mini-stat.gold .mini-stat-val {
+            color: var(--gold);
+        }
+
+        .edit-profile-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            border-radius: 10px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .edit-profile-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* CHALLENGES */
+        .challenge-row {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 22px 24px;
+        }
+
+        .ch-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .ch-icon.classic {
+            background: var(--accent-glow);
+        }
+
+        .ch-icon.evo {
+            background: var(--cyan-glow);
+        }
+
+        .ch-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ch-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .ch-dates {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        .ch-tag {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .ch-tag.classic {
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .ch-tag.evo {
+            color: var(--cyan);
+            background: var(--cyan-glow);
+        }
+
+        .ch-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+
+        .ch-progress {
+            width: 48px;
+            height: 48px;
+            position: relative;
+        }
+
+        .ch-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .ch-ring-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.05);
+            stroke-width: 4;
+        }
+
+        .ch-ring-fill {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+        }
+
+        .ch-pct {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.75rem;
+        }
+
+        .ch-status {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 100px;
+            white-space: nowrap;
+        }
+
+        .ch-status.completed {
+            color: var(--green);
+            background: var(--green-dim);
+        }
+
+        .ch-status.progress {
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .ch-status.failed {
+            color: var(--red);
+            background: var(--red-dim);
+        }
+
+        .start-new-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            background: var(--accent);
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(255, 77, 0, 0.2);
+            margin-top: 16px;
+        }
+
+        .start-new-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px rgba(255, 77, 0, 0.35);
+        }
+
+        /* CONNECTIONS */
+        .conn-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+
+        .conn-tab {
+            padding: 8px 18px;
+            border-radius: 8px;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .conn-tab:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--text-secondary);
+        }
+
+        .conn-tab.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .conn-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conn-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+        }
+
+        .conn-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .conn-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .conn-name {
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .conn-nick {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        .conn-btn {
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid;
+            background: none;
+        }
+
+        .conn-btn.following {
+            border-color: rgba(255, 77, 0, 0.3);
+            color: var(--accent);
+        }
+
+        .conn-btn.following:hover {
+            background: var(--accent-glow);
+        }
+
+        .conn-btn.friends {
+            border-color: rgba(34, 197, 94, 0.3);
+            color: var(--green);
+        }
+
+        .conn-btn.friends:hover {
+            background: var(--green-dim);
+        }
+
+        .conn-btn.pending {
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+
+        /* MESSAGES */
+        .msg-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .msg-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 20px;
+            cursor: pointer;
+        }
+
+        .msg-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .msg-item.unread {
+            border-left: 3px solid var(--accent);
+        }
+
+        .msg-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .msg-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .msg-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .msg-name {
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .msg-time {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        .msg-preview {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .msg-item.unread .msg-name {
+            color: var(--accent);
+        }
+
+        .msg-item.unread .msg-preview {
+            color: var(--text-secondary);
+        }
+
+        .msg-unread-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+
+        /* FEED */
+        .feed-item {
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .feed-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .feed-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .feed-user-name {
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .feed-time {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+        }
+
+        .feed-body {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 14px;
+            line-height: 1.7;
+        }
+
+        .feed-achievement {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .feed-achievement.completed {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .feed-achievement.started {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        .feed-achievement.milestone {
+            background: var(--gold-glow);
+            color: var(--gold);
+        }
+
+        .feed-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .feed-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 4px 0;
+        }
+
+        .feed-action-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .feed-action-btn.liked {
+            color: var(--accent);
+        }
+
+        /* SETTINGS */
+        .settings-group {
+            margin-bottom: 32px;
+        }
+
+        .settings-group-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .setting-desc {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-track {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            transition: background 0.3s;
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            left: 3px;
+            bottom: 3px;
+            background: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .toggle input:checked+.toggle-track {
+            background: var(--accent);
+        }
+
+        .toggle input:checked+.toggle-track::after {
+            transform: translateX(20px);
+            background: #fff;
+        }
+
+        .settings-input {
+            padding: 10px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-input);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            width: 220px;
+            transition: border-color 0.3s;
+        }
+
+        .settings-input:focus {
+            border-color: rgba(255, 77, 0, 0.4);
+        }
+
+        .settings-select {
+            padding: 10px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-input);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+            width: 180px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%235a5754'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+
+        .settings-select option {
+            background: var(--bg-card);
+        }
+
+        .save-settings-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            background: var(--accent);
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .save-settings-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(255, 77, 0, 0.25);
+        }
+
+        .danger-zone {
+            border-color: rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .danger-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            background: none;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--red);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .danger-btn:hover {
+            background: var(--red-dim);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 140;
+        }
+
+        .sidebar-overlay.visible {
+            display: block;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 30px 20px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .topnav-links {
+                display: none;
+            }
+
+            .profile-mini-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .challenge-row {
+                flex-wrap: wrap;
+            }
+
+            .ch-right {
+                width: 100%;
+                justify-content: flex-start;
+                margin-top: 8px;
+            }
+
+            .setting-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topnav">
+        <div class="topnav-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <a href="/" class="topnav-logo">TOTAL <span>66</span></a>
+        </div>
+        <div class="topnav-links">
+            <a href="/">Home</a>
+            <a href="/challenges">Challenges</a>
+            <a href="/members">Members</a>
+        </div>
+        <div class="topnav-right">
+            <button class="notif-btn">🔔<span class="notif-dot"></span></button>
+            <div class="topnav-avatar" onclick="navigateTo('profile')">AK</div>
+        </div>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">AK</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name">Andrew Kovach</div>
+                    <div class="sidebar-user-nick">@andrewk</div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="sidebar-section-label">Main</div>
+                <button class="sidebar-link active" onclick="navigateTo('feed')"><span class="sidebar-icon">📰</span>
+                    Feed</button>
+                <button class="sidebar-link" onclick="navigateTo('challenges')"><span class="sidebar-icon">🔥</span> My
+                    Challenges</button>
+                <button class="sidebar-link" onclick="navigateTo('messages')"><span class="sidebar-icon">💬</span>
+                    Messages<span class="sidebar-badge">3</span></button>
+                <div class="sidebar-section-label">Social</div>
+                <button class="sidebar-link" onclick="navigateTo('connections')"><span class="sidebar-icon">👥</span>
+                    Connections</button>
+                <div class="sidebar-section-label">Account</div>
+                <button class="sidebar-link" onclick="navigateTo('profile')"><span class="sidebar-icon">👤</span>
+                    Profile</button>
+                <button class="sidebar-link" onclick="navigateTo('settings')"><span class="sidebar-icon">⚙️</span>
+                    Settings</button>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="sidebar-logout" onclick="alert('Logged out!')"><span class="sidebar-icon">🚪</span> Log
+                    Out</button>
+            </div>
+        </aside>
+        <main class="main-content">
+
+            <!-- FEED -->
+            <div class="panel active" id="panel-feed">
+                <div class="panel-header">
+                    <div class="panel-title">Feed</div>
+                    <div class="panel-desc">Latest from your community</div>
+                </div>
+                <div id="feedList"></div>
+            </div>
+
+            <!-- PROFILE -->
+            <div class="panel" id="panel-profile">
+                <div class="panel-header">
+                    <div class="panel-title">My Profile</div>
+                    <div class="panel-desc">How others see you</div>
+                </div>
+                <div class="card profile-summary">
+                    <div class="profile-big-avatar">AK<div class="profile-big-badge">🏆</div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="profile-big-name">Andrew Kovach</div>
+                        <div class="profile-big-nick">@andrewk</div>
+                        <div class="profile-meta-row">
+                            <span class="profile-meta-item">🇺🇸 United States</span>
+                            <span class="profile-meta-item">📍 Los Angeles</span>
+                            <span class="profile-meta-item">📅 Joined Mar 2023</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-mini-stats">
+                    <div class="card mini-stat orange">
+                        <div class="mini-stat-val">4</div>
+                        <div class="mini-stat-label">Attempts</div>
+                    </div>
+                    <div class="card mini-stat green">
+                        <div class="mini-stat-val">1</div>
+                        <div class="mini-stat-label">Completed</div>
+                    </div>
+                    <div class="card mini-stat red">
+                        <div class="mini-stat-val">2</div>
+                        <div class="mini-stat-label">Failed</div>
+                    </div>
+                    <div class="card mini-stat gold">
+                        <div class="mini-stat-val">25%</div>
+                        <div class="mini-stat-label">Rate</div>
+                    </div>
+                </div>
+                <button class="edit-profile-btn" onclick="navigateTo('settings')">✏️ Edit Profile</button>
+            </div>
+
+            <!-- MY CHALLENGES -->
+            <div class="panel" id="panel-challenges">
+                <div class="panel-header">
+                    <div class="panel-title">My Challenges</div>
+                    <div class="panel-desc">Your history of grit and growth</div>
+                </div>
+                <div id="myChallengesList"></div>
+                <button class="start-new-btn" onclick="alert('Start new challenge!')">🔥 Start New Challenge</button>
+            </div>
+
+            <!-- CONNECTIONS -->
+            <div class="panel" id="panel-connections">
+                <div class="panel-header">
+                    <div class="panel-title">Connections</div>
+                    <div class="panel-desc">Friends, followers, and people you follow</div>
+                </div>
+                <div class="conn-tabs">
+                    <button class="conn-tab active" onclick="switchConnTab(this,'friends')">Friends</button>
+                    <button class="conn-tab" onclick="switchConnTab(this,'followers')">Followers</button>
+                    <button class="conn-tab" onclick="switchConnTab(this,'following')">Following</button>
+                </div>
+                <div class="conn-list" id="connList"></div>
+            </div>
+
+            <!-- MESSAGES -->
+            <div class="panel" id="panel-messages">
+                <div class="panel-header">
+                    <div class="panel-title">Messages</div>
+                    <div class="panel-desc">Your conversations</div>
+                </div>
+                <div class="msg-list" id="msgList"></div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div class="panel" id="panel-settings">
+                <div class="panel-header">
+                    <div class="panel-title">Settings</div>
+                    <div class="panel-desc">Manage your account and preferences</div>
+                </div>
+                <div class="settings-group">
+                    <div class="settings-group-title">Profile</div>
+                    <div class="card">
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Display Name</div>
+                            </div><input class="settings-input" value="Andrew Kovach">
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Nickname</div>
+                            </div><input class="settings-input" value="@andrewk">
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Email</div>
+                            </div><input class="settings-input" value="andrew@example.com" type="email">
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Country</div>
+                            </div><select class="settings-select">
+                                <option selected>🇺🇸 United States</option>
+                                <option>🇬🇧 United Kingdom</option>
+                                <option>🇨🇦 Canada</option>
+                                <option>🇩🇪 Germany</option>
+                                <option>🇺🇦 Ukraine</option>
+                                <option>🌍 Other</option>
+                            </select>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">City</div>
+                            </div><input class="settings-input" value="Los Angeles">
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <div class="settings-group-title">Notifications</div>
+                    <div class="card">
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Push Notifications</div>
+                                <div class="setting-desc">Get notified about challenge updates</div>
+                            </div><label class="toggle"><input type="checkbox" checked><span
+                                    class="toggle-track"></span></label>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Email Notifications</div>
+                                <div class="setting-desc">Weekly progress reports</div>
+                            </div><label class="toggle"><input type="checkbox" checked><span
+                                    class="toggle-track"></span></label>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Friend Requests</div>
+                                <div class="setting-desc">Notify on new requests</div>
+                            </div><label class="toggle"><input type="checkbox" checked><span
+                                    class="toggle-track"></span></label>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">New Messages</div>
+                                <div class="setting-desc">Notify for incoming messages</div>
+                            </div><label class="toggle"><input type="checkbox" checked><span
+                                    class="toggle-track"></span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <div class="settings-group-title">Privacy</div>
+                    <div class="card">
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Public Profile</div>
+                                <div class="setting-desc">Let others find and view your profile</div>
+                            </div><label class="toggle"><input type="checkbox" checked><span
+                                    class="toggle-track"></span></label>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Show Challenge History</div>
+                                <div class="setting-desc">Display attempts on your profile</div>
+                            </div><label class="toggle"><input type="checkbox" checked><span
+                                    class="toggle-track"></span></label>
+                        </div>
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Show in Members</div>
+                                <div class="setting-desc">Appear in public directory</div>
+                            </div><label class="toggle"><input type="checkbox" checked><span
+                                    class="toggle-track"></span></label>
+                        </div>
+                    </div>
+                </div>
+                <button class="save-settings-btn">💾 Save Changes</button>
+                <div class="settings-group" style="margin-top:48px;">
+                    <div class="settings-group-title" style="color:var(--red);">Danger Zone</div>
+                    <div class="card danger-zone">
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <div class="setting-name">Delete Account</div>
+                                <div class="setting-desc">Permanently remove your account</div>
+                            </div><button class="danger-btn">Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const myChallenges = [
+            { type: 'evolution', name: 'Total 66 Evolution — Attempt #1', dates: 'Apr 1, 2025 → Present', days: 34, status: 'progress' },
+            { type: 'classic', name: 'Total 66 — Attempt #3', dates: 'Jan 6 → Mar 12, 2025', days: 66, status: 'completed' },
+            { type: 'classic', name: 'Total 66 — Attempt #2', dates: 'Sep 10 → Oct 22, 2024', days: 42, status: 'failed' },
+            { type: 'classic', name: 'Total 66 — Attempt #1', dates: 'Jun 1 → Jun 19, 2024', days: 18, status: 'failed' },
+        ];
+        const connections = {
+            friends: [
+                { name: 'Maria Santos', nick: '@mariasantos', initials: 'MS', btnClass: 'friends', btnText: '✓ Friends' },
+                { name: 'David Kim', nick: '@dkim66', initials: 'DK', btnClass: 'friends', btnText: '✓ Friends' },
+                { name: 'Emma Müller', nick: '@emmamuller', initials: 'EM', btnClass: 'friends', btnText: '✓ Friends' },
+            ],
+            followers: [
+                { name: 'Jake Thompson', nick: '@jakethompson', initials: 'JT', btnClass: 'following', btnText: 'Follow Back' },
+                { name: 'Sophia Rivera', nick: '@sophiar', initials: 'SR', btnClass: 'following', btnText: 'Follow Back' },
+                { name: 'Carlos Ruiz', nick: '@carlosr66', initials: 'CR', btnClass: 'pending', btnText: 'Follow Back' },
+                { name: 'Aya Tanaka', nick: '@ayatanaka', initials: 'AT', btnClass: 'pending', btnText: 'Follow Back' },
+                { name: 'Nina Petrova', nick: '@ninap', initials: 'NP', btnClass: 'following', btnText: 'Follow Back' },
+            ],
+            following: [
+                { name: 'Maria Santos', nick: '@mariasantos', initials: 'MS', btnClass: 'following', btnText: '✓ Following' },
+                { name: 'David Kim', nick: '@dkim66', initials: 'DK', btnClass: 'following', btnText: '✓ Following' },
+                { name: 'Jake Thompson', nick: '@jakethompson', initials: 'JT', btnClass: 'following', btnText: '✓ Following' },
+                { name: 'Liam O\'Brien', nick: '@liamob', initials: 'LO', btnClass: 'following', btnText: '✓ Following' },
+            ],
+        };
+        const messages = [
+            { name: 'Maria Santos', initials: 'MS', preview: 'Congrats on finishing the challenge! 🎉', time: '2m ago', unread: true },
+            { name: 'David Kim', initials: 'DK', preview: 'Want to start Evolution together next week?', time: '1h ago', unread: true },
+            { name: 'Emma Müller', initials: 'EM', preview: 'Thanks for the tips on the workout routine!', time: '3h ago', unread: true },
+            { name: 'Jake Thompson', initials: 'JT', preview: 'Hey, how\'s day 34 going?', time: 'Yesterday', unread: false },
+            { name: 'Sophia Rivera', initials: 'SR', preview: 'Can you share your meal plan?', time: '2 days ago', unread: false },
+        ];
+        const feedItems = [
+            { user: 'Maria Santos', initials: 'MS', time: '2 hours ago', text: 'Just completed Day 66! This journey has been incredible. Thank you everyone! 💪', achievement: { type: 'completed', text: '🏆 Completed Total 66' } },
+            { user: 'You', initials: 'AK', time: '5 hours ago', text: 'Day 34 of Evolution done. The daily walks have been a game changer for mental clarity.', achievement: { type: 'milestone', text: '⭐ Halfway Milestone' } },
+            { user: 'David Kim', initials: 'DK', time: 'Yesterday', text: 'Starting Total 66 Evolution tomorrow! Who\'s joining me?', achievement: { type: 'started', text: '🔥 Started Evolution' } },
+            { user: 'Emma Müller', initials: 'EM', time: '2 days ago', text: 'Survived the Destruction phase. Days 1-22 were brutal but I feel different already. Onto Installation! 🚀', achievement: null },
+            { user: 'Jake Thompson', initials: 'JT', time: '3 days ago', text: 'Morning journaling has become my favorite part. Writing goals every day keeps me laser focused.', achievement: null },
+        ];
+
+        function renderChallenges() {
+            const el = document.getElementById('myChallengesList');
+            const circ = 2 * Math.PI * 20;
+            el.innerHTML = myChallenges.map(c => {
+                const pct = Math.round((c.days / 66) * 100);
+                const offset = circ - (pct / 100) * circ;
+                const colorMap = { completed: 'var(--green)', progress: 'var(--accent)', failed: 'var(--red)' };
+                const labelMap = { completed: '✓ Completed', progress: '● In Progress', failed: '✕ Didn\'t Finish' };
+                return `<div class="card challenge-row">
+          <div class="ch-icon ${c.type === 'classic' ? 'classic' : 'evo'}">${c.type === 'classic' ? '🔥' : '⚡'}</div>
+          <div class="ch-info"><div class="ch-name">${c.name} <span class="ch-tag ${c.type === 'classic' ? 'classic' : 'evo'}">${c.type === 'classic' ? 'Classic' : 'Evolution'}</span></div><div class="ch-dates">${c.dates} · ${c.days}/66 days</div></div>
+          <div class="ch-right">
+            <div class="ch-progress"><svg width="48" height="48"><circle class="ch-ring-bg" cx="24" cy="24" r="20"/><circle class="ch-ring-fill" cx="24" cy="24" r="20" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke="${colorMap[c.status]}"/></svg><div class="ch-pct" style="color:${colorMap[c.status]}">${pct}%</div></div>
+            <span class="ch-status ${c.status}">${labelMap[c.status]}</span>
+          </div>
+        </div>`;
+            }).join('');
+        }
+
+        function renderConnections(tab = 'friends') {
+            const el = document.getElementById('connList');
+            const data = connections[tab] || [];
+            el.innerHTML = data.length ? data.map(c => `<div class="card conn-item"><div class="conn-avatar">${c.initials}</div><div class="conn-info"><div class="conn-name">${c.name}</div><div class="conn-nick">${c.nick}</div></div><button class="conn-btn ${c.btnClass}">${c.btnText}</button></div>`).join('') : '<div class="card" style="text-align:center;color:var(--text-muted);padding:40px">No connections yet</div>';
+        }
+
+        function renderMessages() {
+            const el = document.getElementById('msgList');
+            el.innerHTML = messages.map(m => `<div class="card msg-item ${m.unread ? 'unread' : ''}"><div class="msg-avatar">${m.initials}</div><div class="msg-content"><div class="msg-top"><span class="msg-name">${m.name}</span><span class="msg-time">${m.time}</span></div><div class="msg-preview">${m.preview}</div></div>${m.unread ? '<div class="msg-unread-dot"></div>' : ''}</div>`).join('');
+        }
+
+        function renderFeed() {
+            const el = document.getElementById('feedList');
+            el.innerHTML = feedItems.map(f => {
+                const ach = f.achievement ? `<div class="feed-achievement ${f.achievement.type}">${f.achievement.text}</div>` : '';
+                return `<div class="card feed-item"><div class="feed-header"><div class="feed-avatar">${f.initials}</div><div><div class="feed-user-name">${f.user}</div><div class="feed-time">${f.time}</div></div></div><div class="feed-body">${f.text}</div>${ach}<div class="feed-actions"><button class="feed-action-btn" onclick="this.classList.toggle('liked')">❤️ Like</button><button class="feed-action-btn">💬 Comment</button><button class="feed-action-btn">🔗 Share</button></div></div>`;
+            }).join('');
+        }
+
+        function navigateTo(panel) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + panel).classList.add('active');
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+            const map = { feed: 0, challenges: 1, messages: 2, connections: 3, profile: 4, settings: 5 };
+            const links = document.querySelectorAll('.sidebar-link');
+            if (map[panel] !== undefined && links[map[panel]]) links[map[panel]].classList.add('active');
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('visible');
+        }
+
+        function switchConnTab(btn, tab) {
+            document.querySelectorAll('.conn-tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            renderConnections(tab);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('visible');
+        }
+
+        renderChallenges();
+        renderConnections('friends');
+        renderMessages();
+        renderFeed();
+    </script>
+</body>
+
+</html>

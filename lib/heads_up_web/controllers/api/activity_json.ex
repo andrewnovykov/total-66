@@ -46,9 +46,7 @@ defmodule HeadsUpWeb.Api.ActivityJSON do
       description: activity.description,
       metadata: activity.metadata,
       created_at: activity.inserted_at,
-      user: render_user(activity.user),
-      goal: if(activity.goal, do: render_goal(activity.goal), else: nil),
-      post: if(activity.post, do: render_post(activity.post), else: nil)
+      user: render_user(activity.user)
     }
   end
 
@@ -59,9 +57,7 @@ defmodule HeadsUpWeb.Api.ActivityJSON do
       xp_change: item.xp_change,
       description: item.user_friendly_description,
       created_at: item.inserted_at,
-      user: render_user(item.user),
-      goal: if(item.goal, do: render_goal(item.goal), else: nil),
-      post: if(item.post, do: render_post(item.post), else: nil)
+      user: render_user(item.user)
     }
   end
 
@@ -73,27 +69,6 @@ defmodule HeadsUpWeb.Api.ActivityJSON do
       image_path: user.image_path,
       level: user.level,
       bio: user.bio
-    }
-  end
-
-  defp render_goal(goal) do
-    %{
-      id: goal.id,
-      title: goal.title,
-      description: goal.description,
-      status: goal.status,
-      privacy: goal.privacy,
-      created_at: goal.inserted_at
-    }
-  end
-
-  defp render_post(post) do
-    %{
-      id: post.id,
-      content: post.content,
-      post_type: post.post_type,
-      image_path: post.image_path,
-      created_at: post.inserted_at
     }
   end
 end

@@ -1,1180 +1,278 @@
-# HeadsUp Activity Tracking & Social Feed Implementation Plan
+# Plan: Remove Goals & Groups from Total 66
 
-## 🎉 IMPLEMENTATION STATUS: COMPLETED ✅
-
-**Implementation Date:** July 10, 2025  
-**Status:** All core features implemented and tested  
-**Total Development Time:** ~8-10 hours
-
-### ✅ What's Been Completed:
-
-1. **Database Schema & Core Activity Tracking**
-
-    - ✅ Added `xp` field to `users` table
-    - ✅ Created `user_levels` table with ocean-themed progression
-    - ✅ Created `user_activities` table with comprehensive activity tracking
-    - ✅ All migrations created and applied successfully
-
-2. **Core Services & Logic**
-
-    - ✅ `ActivityService` - handles all activity tracking, XP management, and level progression
-    - ✅ `FeedService` - generates social feeds and commitment chart data
-    - ✅ Ocean-themed level system (Seastar → Shark) with 40 levels
-    - ✅ Comprehensive XP rewards system for all user actions
-
-3. **Activity Integration**
-
-    - ✅ Goal creation, completion, failure, deletion, freezing, and updates
-    - ✅ Post creation and liking (both giving and receiving)
-    - ✅ User following and friend request system
-    - ✅ All activities automatically tracked with appropriate XP rewards
-
-4. **User Interface Components**
-
-    - ✅ `FeedLive` - social activity feed with lazy loading and infinite scroll
-    - ✅ `CommitmentChart` - GitHub-style activity heatmap component with blue color scheme
-    - ✅ User profile integration with activity summary and level display
-    - ✅ Navigation link added for Feed access
-    - ✅ **Real level display** - User profile pages now show actual level from database
-
-5. **UI/UX Improvements**
-
-    - ✅ **Commitment Chart Grid Layout** - Fixed to display as proper 7×53 grid (GitHub-style)
-    - ✅ **Blue Color Scheme** - Updated from green to blue shades (light blue → dark blue)
-    - ✅ **Real Level Data** - User profile `/people/username` shows real level from DB, not placeholder
-
-6. **API Endpoints**
-
-    - ✅ `GET /api/activities/:user_id` - user activity history with pagination
-    - ✅ `GET /api/feed` - social feed with friend/following activities
-    - ✅ `GET /api/chart/:user_id` - commitment chart data by year
-    - ✅ `GET /api/users/:user_id/stats` - comprehensive user statistics
-    - ✅ All endpoints include proper authentication and privacy controls
-
-7. **Testing & Quality Assurance**
-    - ✅ Comprehensive activity service tests (5 tests passing)
-    - ✅ API endpoint tests (20 tests passing)
-    - ✅ LiveView component tests fixed and passing
-    - ✅ All existing tests continue to pass
-    - ✅ Code compiles without errors
-
-### 🚀 Key Features:
-
--   **Real-time Activity Tracking**: All user actions automatically tracked
--   **Ocean-themed Leveling**: Progressive system from Seastar (Level 1) to Legendary Shark (Level 40)
--   **Social Feed**: Activity updates from friends and followed users
--   **Commitment Chart**: Visual representation of daily activity levels
--   **API-ready**: Full REST API for mobile apps and integrations
--   **Privacy-aware**: Respects user friendship and following relationships
--   **Performance-optimized**: Lazy loading, pagination, and efficient queries
-
-### 📊 Statistics Tracked:
-
--   Total goals created/completed
--   Goal completion rate percentage
--   Posts created and likes given/received
--   Current and longest activity streaks
--   XP progression and level achievements
--   Daily, weekly, and yearly activity patterns
+## Context
+Total 66 is a **new project** (66-day challenge platform), not HeadsUp. The codebase was bootstrapped from HeadsUp but goals and goal groups are not part of Total 66. We need to surgically remove all goal/group code while keeping: challenges, social features, auth, gamification, messaging, and reporting (for users/challenges only).
 
 ---
 
-## Overview
+## Phase 1: Delete Goal/Group Files (~51 files)
 
-Implementation plan for user activity tracking, XP/level system, commitment chart, and social feed with lazy loading. This builds upon the existing user following, goals, posts, and likes system.
-
----
-
-## Phase 1: Database Schema & Core Activity Tracking (1-2 weeks)
-
-### 1.1 Database Tables
-
-#### User Level & XP Table
-
-```sql
-CREATE TABLE user_levels (
-  id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  level INTEGER NOT NULL DEFAULT 1,
-  xp INTEGER NOT NULL DEFAULT 0,
-  level_name VARCHAR(50) NOT NULL DEFAULT 'Seastar',
-
-  inserted_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-
-  UNIQUE(user_id)
-);
-
-CREATE INDEX idx_user_levels_user_id ON user_levels(user_id);
-CREATE INDEX idx_user_levels_level ON user_levels(level);
-CREATE INDEX idx_user_levels_xp ON user_levels(xp);
+### Schemas (8 files)
+```
+rm lib/heads_up/goal.ex
+rm lib/heads_up/goal_step.ex
+rm lib/heads_up/goal_like.ex
+rm lib/heads_up/goal_subscription.ex
+rm lib/heads_up/goal_post_like.ex
+rm lib/heads_up/goals/goal_post.ex
+rm lib/heads_up/goals/goal_comment.ex
+rm lib/heads_up/group.ex
 ```
 
-#### User Activities Table
-
-```sql
-CREATE TABLE user_activities (
-  id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  activity_type VARCHAR(50) NOT NULL,
-  xp_change INTEGER NOT NULL DEFAULT 0,
-  description TEXT,
-
-  -- Related entity information
-  goal_id BIGINT REFERENCES goals(id) ON DELETE SET NULL,
-  post_id BIGINT REFERENCES goal_posts(id) ON DELETE SET NULL,
-  like_id BIGINT,
-  follow_id BIGINT,
-
-  -- Metadata
-  metadata JSONB,
-
-  inserted_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX idx_user_activities_user_id ON user_activities(user_id);
-CREATE INDEX idx_user_activities_type ON user_activities(activity_type);
-CREATE INDEX idx_user_activities_date ON user_activities(inserted_at);
-CREATE INDEX idx_user_activities_user_date ON user_activities(user_id, inserted_at);
+### Contexts (3 files)
+```
+rm lib/heads_up/goals.ex
+rm lib/heads_up/groups.ex
+rm lib/heads_up/goal_groups.ex
 ```
 
-#### Activity Types Enum
-
--   `goal_created` (+50 XP)
--   `goal_completed` (+1000 XP)
--   `goal_failed` (-200 XP)
--   `goal_frozen` (-50 XP)
--   `goal_deleted` (-100 XP)
--   `goal_updated` (+10 XP)
--   `post_created` (+25 XP)
--   `post_liked` (+2 XP)
--   `post_received_like` (+3 XP)
--   `user_followed` (+5 XP)
--   `user_received_follow` (+5 XP)
--   `friend_request_sent` (+5 XP)
--   `friend_request_accepted` (+10 XP)
--   `daily_login` (+5 XP)
--   `goal_step_completed` (+15 XP)
-
-### 1.2 Schema Files
-
-#### UserLevel Schema
-
-```elixir
-# lib/heads_up/user_level.ex
-defmodule HeadsUp.UserLevel do
-  use Ecto.Schema
-  import Ecto.Changeset
-
-  schema "user_levels" do
-    field :level, :integer, default: 1
-    field :xp, :integer, default: 0
-    field :level_name, :string, default: "Seastar"
-
-    belongs_to :user, HeadsUp.Users
-
-    timestamps(type: :utc_datetime)
-  end
-
-  def changeset(user_level, attrs) do
-    user_level
-    |> cast(attrs, [:level, :xp, :level_name, :user_id])
-    |> validate_required([:level, :xp, :level_name, :user_id])
-    |> validate_number(:level, greater_than: 0, less_than_or_equal_to: 40)
-    |> validate_number(:xp, greater_than_or_equal_to: 0)
-    |> foreign_key_constraint(:user_id)
-    |> unique_constraint(:user_id)
-  end
-end
+### LiveViews (5 directories)
+```
+rm -rf lib/heads_up_web/live/goal_live/
+rm -rf lib/heads_up_web/live/my_goals_live/
+rm -rf lib/heads_up_web/live/all_goals_live/
+rm -rf lib/heads_up_web/live/goal_category_live/
+rm -rf lib/heads_up_web/live/admin/groups_live/
 ```
 
-#### UserActivity Schema
-
-```elixir
-# lib/heads_up/user_activity.ex
-defmodule HeadsUp.UserActivity do
-  use Ecto.Schema
-  import Ecto.Changeset
-
-  @activity_types [
-    "goal_created", "goal_completed", "goal_failed", "goal_frozen", "goal_deleted",
-    "goal_updated", "post_created", "post_liked", "post_received_like",
-    "user_followed", "user_received_follow", "friend_request_sent",
-    "friend_request_accepted", "daily_login", "goal_step_completed"
-  ]
-
-  schema "user_activities" do
-    field :activity_type, :string
-    field :xp_change, :integer, default: 0
-    field :description, :string
-    field :metadata, :map, default: %{}
-
-    belongs_to :user, HeadsUp.Users
-    belongs_to :goal, HeadsUp.Goal
-    belongs_to :post, HeadsUp.Goals.GoalPost
-    field :like_id, :integer
-    field :follow_id, :integer
-
-    timestamps(type: :utc_datetime, updated_at: false)
-  end
-
-  def changeset(user_activity, attrs) do
-    user_activity
-    |> cast(attrs, [:activity_type, :xp_change, :description, :metadata, :user_id, :goal_id, :post_id, :like_id, :follow_id])
-    |> validate_required([:activity_type, :user_id])
-    |> validate_inclusion(:activity_type, @activity_types)
-    |> foreign_key_constraint(:user_id)
-    |> foreign_key_constraint(:goal_id)
-    |> foreign_key_constraint(:post_id)
-  end
-
-  def activity_types, do: @activity_types
-end
+### API Controllers (5 files)
+```
+rm lib/heads_up_web/controllers/api/goal_controller.ex
+rm lib/heads_up_web/controllers/api/goal_step_controller.ex
+rm lib/heads_up_web/controllers/api/goal_post_controller.ex
+rm lib/heads_up_web/controllers/api/goal_comment_controller.ex
+rm lib/heads_up_web/controllers/group_controller.ex
 ```
 
-### 1.3 Migration Files
-
-#### Add XP field to Users table
-
-```elixir
-# priv/repo/migrations/TIMESTAMP_add_xp_to_users.exs
-defmodule HeadsUp.Repo.Migrations.AddXpToUsers do
-  use Ecto.Migration
-
-  def change do
-    alter table(:users) do
-      add :xp, :integer, default: 0
-    end
-
-    create index(:users, [:xp])
-  end
-end
+### API JSON Views (4 files)
+```
+rm lib/heads_up_web/controllers/api/goal_json.ex
+rm lib/heads_up_web/controllers/api/goal_step_json.ex
+rm lib/heads_up_web/controllers/api/goal_post_json.ex
+rm lib/heads_up_web/controllers/api/goal_comment_json.ex
 ```
 
-#### Create user_levels table
-
-```elixir
-# priv/repo/migrations/TIMESTAMP_create_user_levels.exs
-defmodule HeadsUp.Repo.Migrations.CreateUserLevels do
-  use Ecto.Migration
-
-  def change do
-    create table(:user_levels) do
-      add :level, :integer, null: false, default: 1
-      add :xp, :integer, null: false, default: 0
-      add :level_name, :string, null: false, default: "Seastar"
-      add :user_id, references(:users, on_delete: :delete_all), null: false
-
-      timestamps(type: :utc_datetime)
-    end
-
-    create unique_index(:user_levels, [:user_id])
-    create index(:user_levels, [:level])
-    create index(:user_levels, [:xp])
-  end
-end
+### Components (1 file)
+```
+rm lib/heads_up_web/components/goal_card.ex
 ```
 
-#### Create user_activities table
+### Helpers (1 file — entirely goal-specific)
+```
+rm lib/heads_up_web/helpers/subscription_helper.ex
+```
 
-```elixir
-# priv/repo/migrations/TIMESTAMP_create_user_activities.exs
-defmodule HeadsUp.Repo.Migrations.CreateUserActivities do
-  use Ecto.Migration
+### Tests (19 files)
+```
+rm test/heads_up/goal_ownership_test.exs
+rm test/heads_up/goal_status_test.exs
+rm test/heads_up/goal_deletion_test.exs
+rm test/heads_up/goal_failure_test.exs
+rm test/heads_up/goal_subscription_test.exs
+rm test/heads_up/goals_comment_test.exs
+rm test/heads_up/goal_freeze_test.exs
+rm test/heads_up_web/live/my_goals_clickable_test.exs
+rm test/heads_up_web/live/goal_ownership_liveview_test.exs
+rm test/heads_up_web/live/goal_privacy_test.exs
+rm test/heads_up_web/live/goal_post_likes_and_image_test.exs
+rm test/heads_up_web/live/bug3_failed_goal_post_edit_test.exs
+rm test/heads_up_web/live/bug2_failed_goal_restrictions_test.exs
+rm test/heads_up_web/live/goal_creation_integration_test.exs
+rm test/heads_up_web/live/goal_comment_live_test.exs
+rm test/heads_up_web/live/goal_category_live_test.exs
+rm test/heads_up_web/controllers/api/goal_controller_test.exs
+rm test/heads_up_web/controllers/api/goal_api_test.exs
+rm test/heads_up_web/live/admin/groups_live_test.exs
+```
 
-  def change do
-    create table(:user_activities) do
-      add :activity_type, :string, null: false
-      add :xp_change, :integer, null: false, default: 0
-      add :description, :text
-      add :metadata, :map, default: %{}
+### Test Fixtures (2 files)
+```
+rm test/support/fixtures/goals_fixtures.ex
+rm test/support/fixtures/groups_fixtures.ex
+```
 
-      add :user_id, references(:users, on_delete: :delete_all), null: false
-      add :goal_id, references(:goals, on_delete: :nilify_all)
-      add :post_id, references(:goal_posts, on_delete: :nilify_all)
-      add :like_id, :bigint
-      add :follow_id, :bigint
-
-      timestamps(type: :utc_datetime, updated_at: false)
-    end
-
-    create index(:user_activities, [:user_id])
-    create index(:user_activities, [:activity_type])
-    create index(:user_activities, [:inserted_at])
-    create index(:user_activities, [:user_id, :inserted_at])
-  end
-end
+### Old Migrations (16 files — delete, will be replaced by drop migration)
+```
+rm priv/repo/migrations/20250524200041_create_groups.exs
+rm priv/repo/migrations/20250705080710_create_goals.exs
+rm priv/repo/migrations/20250705081401_add_privacy_to_goals.exs
+rm priv/repo/migrations/20250705081547_add_image_to_goals.exs
+rm priv/repo/migrations/20250705153638_create_goal_likes.exs
+rm priv/repo/migrations/20250705153639_create_goal_subscriptions.exs
+rm priv/repo/migrations/20250705155909_create_goal_posts.exs
+rm priv/repo/migrations/20250705165145_add_big_description_to_goals.exs
+rm priv/repo/migrations/20250705165158_create_goal_steps.exs
+rm priv/repo/migrations/20250705170839_add_step_id_to_goal_posts.exs
+rm priv/repo/migrations/20250706171939_create_goal_post_likes.exs
+rm priv/repo/migrations/20250706180218_add_goal_tracking_fields.exs
+rm priv/repo/migrations/20250708191847_add_parent_id_to_groups.exs
+rm priv/repo/migrations/20260205221726_create_goal_comments.exs
 ```
 
 ---
 
-## Phase 2: Activity Service & Level System (1-2 weeks)
+## Phase 2: Modify Shared Files (~15 files)
 
-### 2.1 Activity Service
+### 2.1 `lib/heads_up/users.ex`
+- **Line 12**: Remove `field :goal_amount, :integer`
+- **Line 30**: Remove `has_many :goals, HeadsUp.Goal, foreign_key: :user_id`
+- **Line 60**: Remove `:goal_amount` from changeset cast list
+- **Line 108**: Remove `:goal_amount` from registration_changeset cast list
 
-```elixir
-# lib/heads_up/activity_service.ex
-defmodule HeadsUp.ActivityService do
-  alias HeadsUp.{Repo, UserActivity, UserLevel, Users}
-  import Ecto.Query
+### 2.2 `lib/heads_up/business_rules.ex`
+- **Lines 33-34**: Update doc — remove "goals +" from description
+- **Lines 38-42**: Simplify `count_active_items/1` to just return `count_active_challenges(user_id)`
+- **Lines 72-77**: Delete entire `count_active_goals/1` function
 
-  @level_thresholds %{
-    1 => {0, 100, "Seastar"},
-    2 => {100, 250, "Seastar"},
-    3 => {250, 400, "Seastar"},
-    4 => {400, 600, "Seastar"},
-    5 => {600, 850, "Seastar"},
-    6 => {850, 1150, "Hermit Crab"},
-    7 => {1150, 1500, "Hermit Crab"},
-    8 => {1500, 1900, "Hermit Crab"},
-    9 => {1900, 2350, "Hermit Crab"},
-    10 => {2350, 2850, "Hermit Crab"},
-    11 => {2850, 3400, "Jellyfish"},
-    12 => {3400, 4000, "Jellyfish"},
-    13 => {4000, 4650, "Jellyfish"},
-    14 => {4650, 5350, "Jellyfish"},
-    15 => {5350, 6100, "Jellyfish"},
-    16 => {6100, 6900, "Sea Turtle"},
-    17 => {6900, 7750, "Sea Turtle"},
-    18 => {7750, 8650, "Sea Turtle"},
-    19 => {8650, 9600, "Sea Turtle"},
-    20 => {9600, 10600, "Sea Turtle"},
-    21 => {10600, 11650, "Dolphin"},
-    22 => {11650, 12750, "Dolphin"},
-    23 => {12750, 13900, "Dolphin"},
-    24 => {13900, 15100, "Dolphin"},
-    25 => {15100, 16350, "Dolphin"},
-    26 => {16350, 17650, "Octopus"},
-    27 => {17650, 19000, "Octopus"},
-    28 => {19000, 20400, "Octopus"},
-    29 => {20400, 21850, "Octopus"},
-    30 => {21850, 23350, "Octopus"},
-    31 => {23350, 24900, "Whale"},
-    32 => {24900, 26500, "Whale"},
-    33 => {26500, 28150, "Whale"},
-    34 => {28150, 29850, "Whale"},
-    35 => {29850, 31600, "Whale"},
-    36 => {31600, 33400, "Shark"},
-    37 => {33400, 35250, "Shark"},
-    38 => {35250, 37150, "Shark"},
-    39 => {37150, 39100, "Shark"},
-    40 => {39100, 999999, "Legendary Shark"}
-  }
+### 2.3 `lib/heads_up/user_activity.ex`
+- **Lines 6-11,20**: Remove 7 goal activity types from `@activity_types`: `"goal_created"`, `"goal_completed"`, `"goal_failed"`, `"goal_frozen"`, `"goal_deleted"`, `"goal_updated"`, `"goal_step_completed"`
+- **Line 41**: Remove `belongs_to :goal, HeadsUp.Goal`
+- **Line 42**: Remove `belongs_to :post, HeadsUp.Goals.GoalPost`
+- **Lines 58-59**: Remove `:goal_id`, `:post_id` from changeset cast
+- **Lines 67-68**: Remove `foreign_key_constraint(:goal_id)` and `foreign_key_constraint(:post_id)`
 
-  @xp_rewards %{
-    "goal_created" => 50,
-    "goal_completed" => 1000,
-    "goal_failed" => -200,
-    "goal_frozen" => -50,
-    "goal_deleted" => -100,
-    "goal_updated" => 10,
-    "post_created" => 25,
-    "post_liked" => 2,
-    "post_received_like" => 3,
-    "user_followed" => 5,
-    "user_received_follow" => 5,
-    "friend_request_sent" => 5,
-    "friend_request_accepted" => 10,
-    "daily_login" => 5,
-    "goal_step_completed" => 15
-  }
+### 2.4 `lib/heads_up/activity_service.ex`
+- **Lines 49-54,63**: Remove 7 goal XP entries from `@xp_rewards`
+- **Line 74**: Remove `goal_id: Keyword.get(opts, :goal_id)`
+- **Line 75**: Remove `post_id: Keyword.get(opts, :post_id)`
+- **Line 222**: Change preload from `[:user, :goal, :post]` to `[:user]`
+- **Lines 234-246**: Remove `total_goals` and `completed_goals` queries from `get_user_stats/1`
+- **Lines 270-275**: Remove `completion_rate` calculation (uses total_goals)
+- **Lines 288-290**: Remove `:total_goals`, `:completed_goals`, `:completion_rate` from stats map
 
-  def track_activity(user_id, activity_type, opts \\ []) do
-    xp_change = Map.get(@xp_rewards, activity_type, 0)
+### 2.5 `lib/heads_up/feed_service.ex`
+- **Lines 49-53**: Remove 5 goal activity types from feed query
+- **Line 69**: Change preload from `[:user, :goal, :post, :challenge]` to `[:user, :challenge]`
+- **Lines 84-91**: Remove entire goal privacy filtering block
+- **Line 102**: Update comment "Non-goal/non-challenge" → "Non-challenge"
+- **Lines 216-217**: Remove `goal:` and `post:` from `base_data` map in `format_activity_for_feed/1`
+- **Line 222**: Remove `goal_title` assignment
+- **Lines 227-252**: Remove all goal-related case clauses (goal_created, goal_completed, goal_failed, goal_updated, goal_step_completed, post_created with goal ref, post_liked with goal ref)
+- **Lines 325-327**: Remove `"goal_created"`, `"goal_completed"`, `"post_created"` from trending query
+- **Line 331**: Remove `a.goal_id` from group_by
+- **Line 335**: Change preload from `[:user, :goal, :post, :challenge]` to `[:user, :challenge]`
 
-    activity_attrs = %{
-      user_id: user_id,
-      activity_type: activity_type,
-      xp_change: xp_change,
-      description: Keyword.get(opts, :description),
-      goal_id: Keyword.get(opts, :goal_id),
-      post_id: Keyword.get(opts, :post_id),
-      like_id: Keyword.get(opts, :like_id),
-      follow_id: Keyword.get(opts, :follow_id),
-      metadata: Keyword.get(opts, :metadata, %{})
-    }
+### 2.6 `lib/heads_up/reports/report.ex`
+- **Lines 11-12**: Remove `belongs_to :goal` and `belongs_to :post`
+- **Line 25**: Remove `:goal_id, :post_id` from changeset cast
+- **Lines 30-31**: Remove `foreign_key_constraint(:goal_id)` and `foreign_key_constraint(:post_id)`
+- **Lines 35-36**: Remove unique constraints for goal_id and post_id
+- **Lines 41-51**: Update `validate_has_target/1` — remove goal_id/post_id checks, only check reported_user_id and challenge_id
 
-    Repo.transaction(fn ->
-      # Create activity record
-      {:ok, activity} =
-        %UserActivity{}
-        |> UserActivity.changeset(activity_attrs)
-        |> Repo.insert()
+### 2.7 `lib/heads_up/reports.ex`
+- **Lines 5-6**: Remove `alias HeadsUp.Goal` and `alias HeadsUp.Goals.GoalPost`
+- **Lines 16-32**: Remove entire `report_goal/3` function
+- **Lines 34-50**: Remove entire `report_post/3` function
+- **Lines 92-95**: Remove `has_reported_goal?/2`
+- **Lines 97-100**: Remove `has_reported_post?/2`
+- **Lines 112-115**: Remove `goal_report_count/1`
+- **Lines 117-120**: Remove `post_report_count/1`
+- **Line 132**: Remove `goal_hidden?/1`
+- **Line 133**: Remove `post_hidden?/1`
+- **Lines 141-147**: Remove `update_goal_report_count/1`
+- **Lines 149-155**: Remove `update_post_report_count/1`
+- **Lines 204-205**: Remove `:goal` and `:post` cases from `list_reports/1`
+- **Line 213**: Change preload to `[:user, :reported_user, :challenge]`
+- **Line 218**: Change preload to `[:user, :reported_user, :challenge]`
 
-      # Update user XP and level
-      update_user_xp_and_level(user_id, xp_change)
+### 2.8 `lib/heads_up_web/router.ex`
+Remove these route blocks:
+- **Lines 37-41**: Goal public LiveView routes (GoalLive.New/Show, GoalCategoryLive, AllGoalsLive)
+- **Lines 58-59**: Authenticated goal routes (GoalLive.Edit, MyGoalsLive.Index)
+- **Line 91**: Admin groups route (Admin.GroupsLive.Index)
+- **Lines 119-122**: Group API scope (post "/groups")
+- **Lines 186-189**: Public goals API scope
+- **Lines 247-285**: Authenticated goals API scope (all goal CRUD + interactions + steps + posts)
+- **Lines 287-295**: Post comments API scope
+- **Line 284**: Goal report route
+- **Line 294**: Post report route
+- **Lines 364-366**: Public goal catch-all API route
 
-      activity
-    end)
-  end
+### 2.9 `lib/heads_up_web/controllers/page_controller.ex`
+- **Line 8**: Remove `get_trending_goals()` call
+- **Line 11**: Remove `get_popular_groups()` call
+- **Lines 20-21**: Remove `trending_goals` and `popular_groups` assigns
+- **Lines 27-48**: Delete entire `get_trending_goals/0` function
+- **Lines 50-67**: Delete entire `get_popular_groups/0` function
+- **Lines 78-79**: Remove `latest_achievement` mapping from user spotlights
+- **Lines 83-91**: Delete entire `get_user_latest_achievement/1` function
 
-  def update_user_xp_and_level(user_id, xp_change) do
-    user = Repo.get!(Users, user_id)
-    current_xp = user.xp || 0
-    new_xp = max(0, current_xp + xp_change)
+### 2.10 `lib/heads_up_web/controllers/page_html.ex`
+- **Lines 11-13**: Remove `get_default_goal_image/0` function
+- **Lines 15-17**: Remove `get_default_group_image/0` function
 
-    # Calculate new level
-    {new_level, level_name} = calculate_level_from_xp(new_xp)
+### 2.11 `lib/heads_up_web/controllers/page_html/home.html.heex`
+- **Lines 11,14,18-22**: Remove "Set fewer goals" hero text, "goal-first social network" description, and "Create Your Goal" CTA
+- **Lines 37-65**: Remove entire "Goal Categories" section
+- **Lines 97-143**: Remove "Top Goal-Setters" section (rename to keep users, just remove goal language)
+- **Lines 146-257**: Remove entire "Active Goals" feed section
+- **Lines 262-289**: Remove "Popular Groups" right sidebar section
+- **Lines 374-376**: Remove "Trending Goals" quick stat
 
-    # Update user
-    user
-    |> Users.changeset(%{xp: new_xp, level: new_level})
-    |> Repo.update!()
+### 2.12 `lib/heads_up_web/components/layouts/app.html.heex`
+**Desktop sidebar:**
+- **Line 73**: Remove Goals sidebar link (`/all-goals`)
+- **Line 75**: Remove Groups sidebar link (`/goals-category`)
+- **Line 85**: Remove My Goals sidebar link (`/my-goals`)
+- **Line 90**: Remove Create Goal sidebar link (`/goals/new`)
+- **Lines 113-117**: Remove admin "Goal Categories" link (`/admin/categories`)
+- **Lines 162-177**: Remove "Create a Goal" bottom promo card
 
-    # Update or create user_level record
-    case Repo.get_by(UserLevel, user_id: user_id) do
-      nil ->
-        %UserLevel{}
-        |> UserLevel.changeset(%{
-          user_id: user_id,
-          level: new_level,
-          xp: new_xp,
-          level_name: level_name
-        })
-        |> Repo.insert!()
+**Mobile header:**
+- **Lines 205-211**: Remove Create button linking to `/goals/new`
 
-      user_level ->
-        user_level
-        |> UserLevel.changeset(%{
-          level: new_level,
-          xp: new_xp,
-          level_name: level_name
-        })
-        |> Repo.update!()
-    end
+**Mobile drawer:**
+- **Lines 317-322**: Remove Goals drawer link
+- **Lines 329-334**: Remove Groups drawer link
+- **Lines 348-353**: Remove My Goals drawer link
+- **Lines 373-378**: Remove Create Goal drawer link
+- **Lines 401-406**: Remove admin "Goal Categories" drawer link
+- **Lines 462-479**: Remove "Create a Goal" drawer promo card
 
-    {new_level, new_xp, level_name}
-  end
+### 2.13 `lib/heads_up_web/components/home_discovery.ex`
+- Remove `goal_card/1` component (lines 116-173)
+- Remove `group_card/1` component (lines 175-202)
+- Update hero text — remove "Set fewer goals. Finish more." and goal-related CTAs
+- Remove "Create your next goal" link and "Explore all goals" link
+- Update metric tiles — remove "Trending Goals" and "Popular Groups" tiles
 
-  defp calculate_level_from_xp(xp) do
-    Enum.find(@level_thresholds, fn {_level, {min_xp, max_xp, _name}} ->
-      xp >= min_xp and xp < max_xp
-    end)
-    |> case do
-      {level, {_min, _max, name}} -> {level, name}
-      nil -> {40, "Legendary Shark"}
-    end
-  end
+### 2.14 `lib/heads_up_web/components/ui/bottom_nav.ex`
+- **Lines 13-18**: Change Explore link from `/all-goals` to `/challenges`
+- **Lines 19-25**: Change Create link from `/goals/new` to `/challenges/new`
 
-  def get_level_info(level) do
-    Map.get(@level_thresholds, level, {0, 100, "Seastar"})
-  end
-
-  def get_user_activity_summary(user_id, days \\ 30) do
-    start_date = DateTime.utc_now() |> DateTime.add(-days * 24 * 60 * 60, :second)
-
-    activities = from(a in UserActivity,
-      where: a.user_id == ^user_id and a.inserted_at >= ^start_date,
-      order_by: [desc: a.inserted_at]
-    )
-    |> Repo.all()
-
-    total_xp = Enum.sum(Enum.map(activities, & &1.xp_change))
-    activity_count = length(activities)
-
-    %{
-      total_xp: total_xp,
-      activity_count: activity_count,
-      activities: activities
-    }
-  end
-
-  def get_daily_activity_chart_data(user_id, days \\ 365) do
-    end_date = Date.utc_today()
-    start_date = Date.add(end_date, -days)
-
-    activities = from(a in UserActivity,
-      where: a.user_id == ^user_id and fragment("DATE(?)", a.inserted_at) >= ^start_date,
-      select: {fragment("DATE(?)", a.inserted_at), count(a.id)},
-      group_by: fragment("DATE(?)", a.inserted_at)
-    )
-    |> Repo.all()
-    |> Map.new()
-
-    # Generate data for each day
-    for i <- 0..(days-1) do
-      date = Date.add(start_date, i)
-      activity_count = Map.get(activities, date, 0)
-
-      {date, activity_count}
-    end
-  end
-end
-```
-
-### 2.2 Integration with Existing Functions
-
-Update existing functions to track activities:
-
-```elixir
-# In lib/heads_up/goals.ex - Add activity tracking
-def create_goal(attrs) do
-  result =
-    %Goal{}
-    |> Goal.changeset(attrs)
-    |> Repo.insert()
-
-  case result do
-    {:ok, goal} ->
-      # Track activity
-      ActivityService.track_activity(goal.user_id, "goal_created",
-        goal_id: goal.id,
-        description: "Created goal: #{goal.title}"
-      )
-      {:ok, goal}
-    error -> error
-  end
-end
-
-def complete_goal_with_ownership(goal, user_id) do
-  if goal.user_id == user_id do
-    result = update_goal(goal, %{status: :completed})
-
-    case result do
-      {:ok, updated_goal} ->
-        ActivityService.track_activity(user_id, "goal_completed",
-          goal_id: goal.id,
-          description: "Completed goal: #{goal.title}"
-        )
-        {:ok, updated_goal}
-      error -> error
-    end
-  else
-    {:error, :unauthorized}
-  end
-end
-
-# Similar updates for goal_failed, goal_frozen, goal_deleted, etc.
-```
+### 2.15 Seed files
+- `priv/repo/seeds.exs` — Remove all goal/group seed data
+- `priv/repo/seeds_bulk.exs` — Remove all goal/group seed data
 
 ---
 
-## Phase 3: Social Feed System (2-3 weeks)
+## Phase 3: Create Drop Migration
 
-### 3.1 Feed Service
-
-```elixir
-# lib/heads_up/feed_service.ex
-defmodule HeadsUp.FeedService do
-  alias HeadsUp.{Repo, UserActivity, Users, Goals.GoalPost, Accounts}
-  import Ecto.Query
-
-  def get_user_feed(user_id, opts \\ []) do
-    limit = Keyword.get(opts, :limit, 20)
-    offset = Keyword.get(opts, :offset, 0)
-
-    # Get users that current user follows
-    following_ids = get_following_user_ids(user_id)
-
-    # Include current user's activities
-    all_user_ids = [user_id | following_ids]
-
-    # Get feed activities
-    activities = get_feed_activities(all_user_ids, limit, offset)
-
-    # Get related data and format for display
-    format_feed_activities(activities, user_id)
-  end
-
-  defp get_following_user_ids(user_id) do
-    from(f in HeadsUp.UserFollow,
-      where: f.follower_id == ^user_id,
-      select: f.following_id
-    )
-    |> Repo.all()
-  end
-
-  defp get_feed_activities(user_ids, limit, offset) do
-    # Get relevant activity types for feed
-    feed_activity_types = [
-      "goal_created", "goal_completed", "post_created",
-      "user_followed", "friend_request_accepted", "goal_step_completed"
-    ]
-
-    from(a in UserActivity,
-      where: a.user_id in ^user_ids and a.activity_type in ^feed_activity_types,
-      order_by: [desc: a.inserted_at],
-      limit: ^limit,
-      offset: ^offset,
-      preload: [:user, :goal, :post]
-    )
-    |> Repo.all()
-  end
-
-  defp format_feed_activities(activities, _current_user_id) do
-    Enum.map(activities, fn activity ->
-      %{
-        id: activity.id,
-        type: activity.activity_type,
-        user: activity.user,
-        description: activity.description,
-        inserted_at: activity.inserted_at,
-        goal: activity.goal,
-        post: activity.post,
-        metadata: activity.metadata || %{}
-      }
-    end)
-  end
-
-  def get_user_timeline(user_id, opts \\ []) do
-    limit = Keyword.get(opts, :limit, 50)
-    offset = Keyword.get(opts, :offset, 0)
-
-    from(a in UserActivity,
-      where: a.user_id == ^user_id,
-      order_by: [desc: a.inserted_at],
-      limit: ^limit,
-      offset: ^offset,
-      preload: [:goal, :post]
-    )
-    |> Repo.all()
-    |> format_feed_activities(user_id)
-  end
-end
-```
-
-### 3.2 Feed LiveView
-
-```elixir
-# lib/heads_up_web/live/feed_live/index.ex
-defmodule HeadsUpWeb.FeedLive.Index do
-  use HeadsUpWeb, :live_view
-  alias HeadsUp.FeedService
-
-  def mount(_params, _session, socket) do
-    if socket.assigns[:current_user] do
-      user_id = socket.assigns.current_user.id
-
-      feed_items = FeedService.get_user_feed(user_id, limit: 10)
-
-      socket =
-        socket
-        |> assign(:feed_items, feed_items)
-        |> assign(:page, 1)
-        |> assign(:loading, false)
-        |> assign(:has_more, length(feed_items) == 10)
-
-      {:ok, socket}
-    else
-      {:ok,
-       socket
-       |> put_flash(:error, "You must be logged in to view your feed")
-       |> push_navigate(to: ~p"/users/log_in")}
-    end
-  end
-
-  def handle_event("load_more", _params, socket) do
-    if not socket.assigns.loading and socket.assigns.has_more do
-      user_id = socket.assigns.current_user.id
-      page = socket.assigns.page + 1
-      offset = (page - 1) * 10
-
-      new_items = FeedService.get_user_feed(user_id, limit: 10, offset: offset)
-
-      socket =
-        socket
-        |> assign(:feed_items, socket.assigns.feed_items ++ new_items)
-        |> assign(:page, page)
-        |> assign(:has_more, length(new_items) == 10)
-        |> assign(:loading, false)
-
-      {:noreply, socket}
-    else
-      {:noreply, socket}
-    end
-  end
-
-  def handle_event("refresh_feed", _params, socket) do
-    user_id = socket.assigns.current_user.id
-    feed_items = FeedService.get_user_feed(user_id, limit: 10)
-
-    socket =
-      socket
-      |> assign(:feed_items, feed_items)
-      |> assign(:page, 1)
-      |> assign(:has_more, length(feed_items) == 10)
-
-    {:noreply, socket}
-  end
-
-  def render(assigns) do
-    ~H"""
-    <div class="max-w-2xl mx-auto p-4">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">My Feed</h1>
-        <button phx-click="refresh_feed" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-          Refresh
-        </button>
-      </div>
-
-      <div class="space-y-4" id="feed-container" phx-hook="InfiniteScroll">
-        <%= for item <- @feed_items do %>
-          <div class="bg-white rounded-lg shadow border p-4">
-            <.feed_item item={item} current_user={@current_user} />
-          </div>
-        <% end %>
-
-        <%= if @has_more do %>
-          <div class="text-center py-4">
-            <button
-              phx-click="load_more"
-              class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-              disabled={@loading}
-            >
-              <%= if @loading, do: "Loading...", else: "Load More" %>
-            </button>
-          </div>
-        <% end %>
-      </div>
-
-      <%= if Enum.empty?(@feed_items) do %>
-        <div class="text-center py-12">
-          <div class="text-gray-500 mb-4">
-            <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4z" />
-            </svg>
-          </div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">Your feed is empty</h3>
-          <p class="text-gray-500 mb-4">Follow people and start engaging to see updates here!</p>
-          <.link navigate={~p"/people"} class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Find People to Follow
-          </.link>
-        </div>
-      <% end %>
-    </div>
-    """
-  end
-
-  defp feed_item(assigns) do
-    ~H"""
-    <div class="flex items-start space-x-3">
-      <!-- User Avatar -->
-      <div class="flex-shrink-0">
-        <%= if @item.user.image_path do %>
-          <img src={@item.user.image_path} alt={@item.user.name} class="w-10 h-10 rounded-full object-cover" />
-        <% else %>
-          <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
-            <span class="text-white font-medium text-sm">
-              <%= String.first(@item.user.name) |> String.upcase() %>
-            </span>
-          </div>
-        <% end %>
-      </div>
-
-      <!-- Content -->
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center space-x-2">
-          <span class="font-medium text-gray-900"><%= @item.user.name %></span>
-          <span class="text-xs text-gray-500">
-            <%= time_ago(@item.inserted_at) %>
-          </span>
-        </div>
-
-        <div class="mt-1">
-          <%= case @item.type do %>
-            <% "goal_created" -> %>
-              <p class="text-gray-700">🎯 Created a new goal:
-                <.link navigate={~p"/goals/#{@item.goal.id}"} class="font-medium text-blue-600 hover:underline">
-                  <%= @item.goal.title %>
-                </.link>
-              </p>
-
-            <% "goal_completed" -> %>
-              <p class="text-gray-700">🏆 Completed goal:
-                <.link navigate={~p"/goals/#{@item.goal.id}"} class="font-medium text-green-600 hover:underline">
-                  <%= @item.goal.title %>
-                </.link>
-              </p>
-
-            <% "post_created" -> %>
-              <p class="text-gray-700">📝 Posted an update:</p>
-              <div class="mt-2 p-3 bg-gray-50 rounded-lg">
-                <p class="text-sm text-gray-800"><%= @item.post.content %></p>
-                <%= if @item.goal do %>
-                  <p class="text-xs text-gray-500 mt-1">
-                    in <.link navigate={~p"/goals/#{@item.goal.id}"} class="text-blue-600 hover:underline">
-                      <%= @item.goal.title %>
-                    </.link>
-                  </p>
-                <% end %>
-              </div>
-
-            <% "user_followed" -> %>
-              <p class="text-gray-700">👥 Started following someone new</p>
-
-            <% "friend_request_accepted" -> %>
-              <p class="text-gray-700">🤝 Made a new friend</p>
-
-            <% "goal_step_completed" -> %>
-              <p class="text-gray-700">✅ Completed a step in
-                <.link navigate={~p"/goals/#{@item.goal.id}"} class="font-medium text-blue-600 hover:underline">
-                  <%= @item.goal.title %>
-                </.link>
-              </p>
-
-            <% _ -> %>
-              <p class="text-gray-700"><%= @item.description || "Activity update" %></p>
-          <% end %>
-        </div>
-      </div>
-    </div>
-    """
-  end
-
-  defp time_ago(datetime) do
-    now = DateTime.utc_now()
-    diff = DateTime.diff(now, datetime, :second)
-
-    cond do
-      diff < 60 -> "#{diff}s ago"
-      diff < 3600 -> "#{div(diff, 60)}m ago"
-      diff < 86400 -> "#{div(diff, 3600)}h ago"
-      diff < 604800 -> "#{div(diff, 86400)}d ago"
-      true -> Calendar.strftime(datetime, "%b %d")
-    end
-  end
-end
-```
+Generate new migration `remove_goals_and_groups` that:
+1. Drops indexes on reports table (goal_id, post_id unique indexes)
+2. Removes `goal_id`, `post_id` columns from `reports`
+3. Removes `goal_id`, `post_id` columns from `user_activities`
+4. Removes `goal_amount` column from `users`
+5. Drops tables: `goal_comments`, `goal_post_likes`, `goal_posts`, `goal_subscriptions`, `goal_likes`, `goal_steps`, `goals`, `groups`
 
 ---
 
-## Phase 4: Commitment Chart Enhancement (1 week)
+## Phase 4: Database Reset & Verify
 
-### 4.1 Enhanced Commitment Chart Component
-
-```elixir
-# lib/heads_up_web/live/components/commitment_chart.ex
-defmodule HeadsUpWeb.Components.CommitmentChart do
-  use HeadsUpWeb, :live_component
-  alias HeadsUp.ActivityService
-
-  def render(assigns) do
-    ~H"""
-    <div class="bg-white p-4 rounded-lg border border-gray-200">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">Activity Chart</h3>
-        <div class="text-sm text-gray-500">
-          <%= @activity_summary.activity_count %> activities in the last <%= @days %> days
-        </div>
-      </div>
-
-      <!-- Chart Grid -->
-      <div class="flex gap-0.5 overflow-x-auto">
-        <%= for {date, activity_count} <- @chart_data do %>
-          <div class="flex flex-col gap-0.5">
-            <%= for day <- 0..6 do %>
-              <div
-                class={get_activity_color(activity_count)}
-                title={"#{date}: #{activity_count} activities"}
-                style="width: 10px; height: 10px;"
-              ></div>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-
-      <!-- Legend -->
-      <div class="flex items-center gap-2 mt-4 text-xs text-gray-600">
-        <span>Less</span>
-        <div class="w-3 h-3 bg-gray-200 rounded-sm"></div>
-        <div class="w-3 h-3 bg-green-200 rounded-sm"></div>
-        <div class="w-3 h-3 bg-green-400 rounded-sm"></div>
-        <div class="w-3 h-3 bg-green-600 rounded-sm"></div>
-        <div class="w-3 h-3 bg-green-800 rounded-sm"></div>
-        <span>More</span>
-      </div>
-
-      <!-- Stats -->
-      <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
-        <div class="text-center">
-          <div class="text-lg font-bold text-green-600"><%= @activity_summary.total_xp %></div>
-          <div class="text-xs text-gray-500">XP Gained</div>
-        </div>
-        <div class="text-center">
-          <div class="text-lg font-bold text-blue-600"><%= @user.level %></div>
-          <div class="text-xs text-gray-500">Current Level</div>
-        </div>
-        <div class="text-center">
-          <div class="text-lg font-bold text-purple-600"><%= get_streak(@chart_data) %></div>
-          <div class="text-xs text-gray-500">Day Streak</div>
-        </div>
-      </div>
-    </div>
-    """
-  end
-
-  def mount(socket) do
-    {:ok, socket}
-  end
-
-  def update(%{user: user, days: days} = _assigns, socket) do
-    chart_data = ActivityService.get_daily_activity_chart_data(user.id, days)
-    activity_summary = ActivityService.get_user_activity_summary(user.id, days)
-
-    socket =
-      socket
-      |> assign(:user, user)
-      |> assign(:days, days)
-      |> assign(:chart_data, chart_data)
-      |> assign(:activity_summary, activity_summary)
-
-    {:ok, socket}
-  end
-
-  defp get_activity_color(count) do
-    case count do
-      0 -> "bg-gray-200 rounded-sm"
-      1..2 -> "bg-green-200 rounded-sm"
-      3..5 -> "bg-green-400 rounded-sm"
-      6..10 -> "bg-green-600 rounded-sm"
-      _ -> "bg-green-800 rounded-sm"
-    end
-  end
-
-  defp get_streak(chart_data) do
-    chart_data
-    |> Enum.reverse()
-    |> Enum.reduce_while(0, fn {_date, count}, streak ->
-      if count > 0, do: {:cont, streak + 1}, else: {:halt, streak}
-    end)
-  end
-end
-```
+1. `mix compile` — verify clean compilation
+2. `mix ecto.reset` — drop, create, run remaining migrations + new drop migration
+3. Update seeds to only include challenge/user data
+4. `mix phx.server` — verify app starts
+5. `mix test` — verify remaining tests pass
 
 ---
 
-## Phase 5: API Endpoints & Tests (1 week)
-
-### 5.1 API Controllers
-
-```elixir
-# lib/heads_up_web/controllers/api/activity_controller.ex
-defmodule HeadsUpWeb.Api.ActivityController do
-  use HeadsUpWeb, :controller
-  alias HeadsUp.{ActivityService, FeedService}
-
-  def user_activities(conn, %{"user_id" => user_id} = params) do
-    limit = String.to_integer(params["limit"] || "20")
-    offset = String.to_integer(params["offset"] || "0")
-
-    activities = ActivityService.get_user_activity_summary(user_id, 365)
-
-    json(conn, %{
-      activities: activities.activities |> Enum.drop(offset) |> Enum.take(limit),
-      total_xp: activities.total_xp,
-      activity_count: activities.activity_count
-    })
-  end
-
-  def user_feed(conn, params) do
-    current_user_id = get_current_user_id(conn)
-    limit = String.to_integer(params["limit"] || "20")
-    offset = String.to_integer(params["offset"] || "0")
-
-    if current_user_id do
-      feed_items = FeedService.get_user_feed(current_user_id, limit: limit, offset: offset)
-
-      json(conn, %{data: feed_items})
-    else
-      conn
-      |> put_status(:unauthorized)
-      |> json(%{error: "Authentication required"})
-    end
-  end
-
-  def chart_data(conn, %{"user_id" => user_id} = params) do
-    days = String.to_integer(params["days"] || "365")
-    chart_data = ActivityService.get_daily_activity_chart_data(user_id, days)
-
-    json(conn, %{data: chart_data})
-  end
-
-  defp get_current_user_id(conn) do
-    case conn.assigns[:current_user] do
-      %{id: id} -> id
-      _ -> nil
-    end
-  end
-end
-```
-
-### 5.2 Tests
-
-```elixir
-# test/heads_up/activity_service_test.exs
-defmodule HeadsUp.ActivityServiceTest do
-  use HeadsUp.DataCase
-  alias HeadsUp.{ActivityService, Users, UserLevel}
-
-  describe "track_activity/3" do
-    test "creates activity and updates user XP" do
-      user = user_fixture()
-
-      {:ok, activity} = ActivityService.track_activity(user.id, "goal_created")
-
-      assert activity.activity_type == "goal_created"
-      assert activity.xp_change == 50
-
-      updated_user = Repo.get!(Users, user.id)
-      assert updated_user.xp == 50
-      assert updated_user.level == 1
-    end
-
-    test "handles level progression" do
-      user = user_fixture()
-
-      # Add enough XP to reach level 2
-      {:ok, _} = ActivityService.track_activity(user.id, "goal_completed")
-      {:ok, _} = ActivityService.track_activity(user.id, "goal_completed")
-
-      updated_user = Repo.get!(Users, user.id)
-      assert updated_user.xp == 2000
-      assert updated_user.level > 1
-    end
-
-    test "handles negative XP correctly" do
-      user = user_fixture()
-
-      # First gain some XP
-      {:ok, _} = ActivityService.track_activity(user.id, "goal_created")
-
-      # Then lose some
-      {:ok, _} = ActivityService.track_activity(user.id, "goal_failed")
-
-      updated_user = Repo.get!(Users, user.id)
-      assert updated_user.xp == -150  # 50 - 200 = -150, but min is 0
-      assert updated_user.xp >= 0
-    end
-  end
-end
-
-# test/heads_up_web/live/feed_live_test.exs
-defmodule HeadsUpWeb.FeedLiveTest do
-  use HeadsUpWeb.ConnCase
-  import Phoenix.LiveViewTest
-  alias HeadsUp.{ActivityService, Accounts}
-
-  test "displays user feed with activities", %{conn: conn} do
-    user = user_fixture()
-    other_user = user_fixture()
-
-    # User follows other_user
-    {:ok, _} = Accounts.follow_user(user.id, other_user.id)
-
-    # Create some activities
-    {:ok, _} = ActivityService.track_activity(other_user.id, "goal_created",
-      description: "Created new goal")
-
-    {:ok, lv, html} =
-      conn
-      |> log_in_user(user)
-      |> live(~p"/feed")
-
-    assert html =~ "My Feed"
-    assert html =~ "Created new goal"
-  end
-
-  test "shows empty state when no followed users", %{conn: conn} do
-    user = user_fixture()
-
-    {:ok, _lv, html} =
-      conn
-      |> log_in_user(user)
-      |> live(~p"/feed")
-
-    assert html =~ "Your feed is empty"
-    assert html =~ "Find People to Follow"
-  end
-end
-```
-
----
-
-## Phase 6: Integration & UI Updates (1 week)
-
-### 6.1 Navigation Updates
-
-```elixir
-# Add to lib/heads_up_web/components/layouts/app.html.heex
-<a class="text-[#0d141c] text-sm font-medium leading-normal" href="/feed">Feed</a>
-```
-
-### 6.2 User Profile Level Display
-
-```elixir
-# Update lib/heads_up_web/live/users_live/show.ex
-# Add level and XP information to user profile
-
-def mount(%{"username" => username}, _session, socket) do
-  # ...existing code...
-
-  if user do
-    # Get user level info
-    user_level = Repo.get_by(UserLevel, user_id: user.id) ||
-                 %UserLevel{level: 1, xp: 0, level_name: "Seastar"}
-
-    socket =
-      socket
-      |> assign(:user_level, user_level)
-      # ...existing assigns...
-  end
-end
-```
-
-### 6.3 Router Updates
-
-```elixir
-# Add to lib/heads_up_web/router.ex
-
-scope "/", HeadsUpWeb do
-  pipe_through [:browser, :require_authenticated_user]
-
-  live "/feed", FeedLive.Index, :index
-end
-
-scope "/api", HeadsUpWeb.Api do
-  pipe_through :api
-
-  get "/activities/:user_id", ActivityController, :user_activities
-  get "/feed", ActivityController, :user_feed
-  get "/chart/:user_id", ActivityController, :chart_data
-end
-```
-
----
-
-## 🎯 FINAL IMPLEMENTATION SUMMARY
-
-**All requirements have been successfully implemented and tested:**
-
-### ✅ **Primary Requirements Completed:**
-1. **User Activity Tracking System** - Complete with XP and level progression
-2. **Social Feed with Lazy Loading** - Infinite scroll and real-time updates
-3. **Commitment Chart Enhancement** - Proper grid layout with blue color scheme
-4. **Real Level Display** - Database-driven levels shown on user profiles
-5. **API Endpoints** - Full REST API for mobile integrations
-6. **Test Coverage** - Comprehensive testing suite
-
-### 🎨 **UI/UX Improvements Made:**
-- **Commitment Chart**: Fixed from vertical line to proper 7×53 grid
-- **Color Scheme**: Updated from green to blue gradient (light → dark)
-- **Level Display**: Real database values instead of placeholders
-- **Grid Layout**: GitHub-style activity heatmap with proper spacing
-- **Responsive Design**: Works across all device sizes
-
-### 🔧 **Technical Implementation:**
-- **ActivityService**: Core logic for XP calculation and level progression
-- **FeedService**: Social feed generation and chart data processing
-- **Live Components**: Real-time updates without page refreshes
-- **Database Optimization**: Efficient queries with proper indexing
-- **Privacy Controls**: Respects user privacy settings throughout
-
-### 📊 **Features Delivered:**
-- **40-Level Ocean Theme**: Seastar → Legendary Shark progression
-- **Real-time Activity Tracking**: All user actions automatically logged
-- **Social Interaction**: Following, friends, likes, and shares
-- **Visual Progress**: Activity heatmaps and progress indicators
-- **Performance Optimized**: Lazy loading and pagination
-- **Mobile Ready**: API endpoints for future mobile app development
-
-**🎉 The HeadsUp platform now has a complete, polished activity tracking and social engagement system!**
+## Verification
+- App compiles with `mix compile` (zero errors)
+- `mix ecto.reset` succeeds
+- `mix phx.server` starts without errors
+- Navigate to `/`, `/challenges`, `/people`, `/connections`, `/feed`
+- Verify no broken links in sidebar/mobile nav
+- `mix test` — all remaining tests pass
+- `grep -ri "HeadsUp.Goal" lib/` returns zero matches (excluding challenges)
+- `grep -ri "goal" lib/heads_up_web/router.ex` returns zero matches

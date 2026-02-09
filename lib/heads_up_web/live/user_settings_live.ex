@@ -265,13 +265,13 @@ defmodule HeadsUpWeb.UserSettingsLive do
               <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
             </.link>
             <.link
-              navigate={~p"/my-goals"}
+              navigate={~p"/my-challenges"}
               class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
             >
               <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <.icon name="hero-flag" class="w-5 h-5 text-indigo-600" />
+                <.icon name="hero-bolt" class="w-5 h-5 text-indigo-600" />
               </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">My Goals</span>
+              <span class="font-bold text-slate-700 group-hover:text-slate-900">My Challenges</span>
               <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
             </.link>
           </div>

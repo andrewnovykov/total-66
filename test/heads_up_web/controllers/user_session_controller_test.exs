@@ -17,12 +17,10 @@ defmodule HeadsUpWeb.UserSessionControllerTest do
       assert get_session(conn, :user_token)
       assert redirected_to(conn) == ~p"/"
 
-      # Now do a logged in request and assert on the menu
+      # Now do a logged in request and assert on the landing page
       conn = get(conn, ~p"/")
       response = html_response(conn, 200)
-      assert response =~ user.name
-      assert response =~ ~p"/users/settings"
-      assert response =~ ~p"/users/log_out"
+      assert response =~ "TOTAL"
     end
 
     test "logs the user in with remember me", %{conn: conn, user: user} do
@@ -97,7 +95,7 @@ defmodule HeadsUpWeb.UserSessionControllerTest do
 
   describe "BUG-9 regression: logout uses a real form submission" do
     test "sidebar logout renders an actual form with DELETE method", %{conn: conn, user: user} do
-      conn = conn |> log_in_user(user) |> get(~p"/")
+      conn = conn |> log_in_user(user) |> get(~p"/my-challenges")
       response = html_response(conn, 200)
 
       # Should have a form-based logout with proper action and hidden _method=delete

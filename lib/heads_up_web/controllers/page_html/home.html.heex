@@ -1,399 +1,590 @@
-<div class="flex gap-0 h-full">
-  <%!-- ===== CENTER CONTENT ===== --%>
-  <div class="flex-grow p-5 sm:p-8 lg:p-10 overflow-y-auto custom-scrollbar">
-    <%!-- Hero Banner --%>
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[40px] p-8 sm:p-10 lg:p-12 mb-10 relative overflow-hidden flex items-center justify-between text-white soft-shadow">
-      <div class="relative z-10 max-w-xl">
-        <span class="bg-blue-500/50 text-blue-100 text-xs font-bold px-4 py-1.5 rounded-full mb-5 inline-block uppercase tracking-wider">
-          New Challenge
-        </span>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-5 leading-tight">
-          Set fewer goals. Finish more.
-        </h1>
-        <p class="text-blue-100 mb-8 text-lg lg:text-xl leading-relaxed">
-          A goal-first social network with structure, accountability, and real progress.
-        </p>
-        <%= if @current_user do %>
-          <.link
-            navigate={~p"/goals/new"}
-            class="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-base hover:scale-105 transition-transform shadow-lg"
-          >
-            Create Your Goal <.icon name="hero-arrow-right" class="w-5 h-5" />
-          </.link>
-        <% else %>
-          <.link
-            href={~p"/users/register"}
-            class="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-2xl font-bold text-base hover:scale-105 transition-transform shadow-lg"
-          >
-            Get Started <.icon name="hero-arrow-right" class="w-5 h-5" />
-          </.link>
-        <% end %>
+<style>
+  @keyframes bobble {
+    0%, 100% { transform: translateX(-50%) translateY(0) }
+    50% { transform: translateX(-50%) translateY(6px) }
+  }
+</style>
+
+<%!-- ═══ NAVIGATION ═══ --%>
+<HeadsUpWeb.Layouts.topnav current_user={@current_user} />
+
+<%!-- ═══ HERO ═══ --%>
+<section class="min-h-screen flex items-center justify-center text-center relative overflow-hidden px-5 sm:px-[30px]" style="padding-top: 120px; padding-bottom: 80px;">
+  <%!-- "66" Watermark --%>
+  <div
+    class="absolute top-1/2 left-1/2 -translate-x-1/2 pointer-events-none font-display leading-none"
+    style="font-size: clamp(250px, 40vw, 500px); color: rgba(255, 77, 0, 0.03); transform: translate(-50%, -55%);"
+  >
+    66
+  </div>
+  <%!-- Glow --%>
+  <div class="absolute w-[600px] h-[600px] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" style="background: radial-gradient(circle, rgba(255, 77, 0, 0.06) 0%, transparent 70%);"></div>
+
+  <div class="relative max-w-[720px] z-[2]">
+    <div class="inline-flex items-center gap-2 py-1.5 px-[18px] rounded-full bg-t66-accent-glow text-t66-accent text-[0.7rem] font-bold tracking-[2.5px] uppercase mb-6 border border-[rgba(255,77,0,0.2)]">
+      &#9679; The #1 66-Day Challenge Tracker
+    </div>
+    <h1 class="font-display tracking-[4px] leading-[0.95] mb-5" style="font-size: clamp(3rem, 8vw, 5.5rem);">
+      <span class="text-t66-accent">66 Days.</span><br>Total Transformation.
+    </h1>
+    <p class="text-t66-text-secondary max-w-[540px] mx-auto mb-9 leading-[1.7]" style="font-size: clamp(0.95rem, 1.8vw, 1.15rem);">
+      Science says 66 days builds a habit for life. Total 66 gives you the tools to track every day, stay accountable, and actually finish what you start.
+    </p>
+    <div class="flex gap-3.5 justify-center flex-wrap">
+      <%= if @current_user do %>
+        <.link navigate={~p"/challenges/new"} class="py-4 px-9 rounded-xl font-body font-bold text-[0.85rem] tracking-[2px] uppercase cursor-pointer transition-all no-underline inline-flex items-center gap-2 bg-t66-accent text-white border-none shadow-t66-accent hover:-translate-y-0.5 hover:shadow-t66-accent-hover">
+          Start Your Challenge
+        </.link>
+      <% else %>
+        <.link navigate={~p"/users/register"} class="py-4 px-9 rounded-xl font-body font-bold text-[0.85rem] tracking-[2px] uppercase cursor-pointer transition-all no-underline inline-flex items-center gap-2 bg-t66-accent text-white border-none shadow-t66-accent hover:-translate-y-0.5 hover:shadow-t66-accent-hover">
+          Start Your Challenge
+        </.link>
+      <% end %>
+      <a href="#how" class="py-4 px-9 rounded-xl font-body font-bold text-[0.85rem] tracking-[2px] uppercase cursor-pointer transition-all no-underline inline-flex items-center gap-2 bg-transparent text-t66-text border border-t66 hover:border-[rgba(255,255,255,0.15)] hover:bg-[rgba(255,255,255,0.03)]">
+        See How It Works
+      </a>
+    </div>
+    <div class="flex gap-10 justify-center mt-12 flex-wrap">
+      <div class="text-center">
+        <div class="font-display text-[2.4rem] text-t66-accent leading-none">{@user_count}+</div>
+        <div class="text-[0.65rem] text-t66-text-muted uppercase tracking-[2px] mt-1">Challengers</div>
       </div>
-      <div class="absolute right-0 top-0 h-full w-1/3 opacity-20 pointer-events-none flex items-center justify-center">
-        <.icon name="hero-star" class="w-48 h-48 lg:w-64 lg:h-64" />
+      <div class="text-center">
+        <div class="font-display text-[2.4rem] text-t66-accent leading-none">{@finisher_count}+</div>
+        <div class="text-[0.65rem] text-t66-text-muted uppercase tracking-[2px] mt-1">Finishers</div>
+      </div>
+      <div class="text-center">
+        <div class="font-display text-[2.4rem] text-t66-accent leading-none">66</div>
+        <div class="text-[0.65rem] text-t66-text-muted uppercase tracking-[2px] mt-1">Days</div>
+      </div>
+      <div class="text-center">
+        <div class="font-display text-[2.4rem] text-t66-accent leading-none">92%</div>
+        <div class="text-[0.65rem] text-t66-text-muted uppercase tracking-[2px] mt-1">Say Life Changed</div>
       </div>
     </div>
-
-    <%!-- Goal Categories --%>
-    <section class="mb-10">
-      <HeadsUpWeb.Components.UI.SectionHeader.section_header
-        title="Goal Categories"
-        link_text="View All"
-        link_to={~p"/goals-category"}
-      />
-      <div class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-        <%= for group <- @popular_groups do %>
-          <.link
-            navigate={~p"/goals-category/#{group.id}"}
-            class="flex items-center gap-3 bg-white px-6 py-4 rounded-3xl soft-shadow border border-slate-50 min-w-fit hover:border-blue-200 transition-colors"
-          >
-            <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-              <.icon name="hero-fire" class="w-6 h-6 text-blue-600" />
-            </div>
-            <span class="font-bold text-slate-700 text-base">{group.name}</span>
-          </.link>
-        <% end %>
-        <%= if Enum.empty?(@popular_groups) do %>
-          <div class="flex items-center gap-3 bg-white px-6 py-4 rounded-3xl soft-shadow border border-slate-50 min-w-fit">
-            <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
-              <.icon name="hero-squares-2x2" class="w-6 h-6 text-slate-400" />
-            </div>
-            <span class="font-bold text-slate-400 text-base">No categories yet</span>
-          </div>
-        <% end %>
-      </div>
-    </section>
-
-    <%!-- Challenge Categories --%>
-    <section class="mb-10">
-      <HeadsUpWeb.Components.UI.SectionHeader.section_header
-        title="Challenge Categories"
-        link_text="View All"
-        link_to={~p"/challenges"}
-      />
-      <div class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
-        <%= for category <- @challenge_categories do %>
-          <.link
-            navigate={~p"/challenges?category=#{category.id}"}
-            class="flex items-center gap-3 bg-white px-6 py-4 rounded-3xl soft-shadow border border-slate-50 min-w-fit hover:border-indigo-200 transition-colors"
-          >
-            <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">
-              <.icon name="hero-fire" class="w-6 h-6 text-indigo-600" />
-            </div>
-            <span class="font-bold text-slate-700 text-base">{category.name}</span>
-          </.link>
-        <% end %>
-        <%= if Enum.empty?(@challenge_categories) do %>
-          <div class="flex items-center gap-3 bg-white px-6 py-4 rounded-3xl soft-shadow border border-slate-50 min-w-fit">
-            <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
-              <.icon name="hero-fire" class="w-6 h-6 text-slate-400" />
-            </div>
-            <span class="font-bold text-slate-400 text-base">No categories yet</span>
-          </div>
-        <% end %>
-      </div>
-    </section>
-
-    <%!-- Top Goal-Setters --%>
-    <section class="mb-10">
-      <h2 class="text-2xl font-extrabold text-slate-900 mb-6">Top Goal-Setters</h2>
-      <div class="flex gap-6 overflow-x-auto pb-6 custom-scrollbar">
-        <%= for user <- @user_spotlights do %>
-          <.link
-            navigate={~p"/people/#{user.user_name || user.id}"}
-            class="flex flex-col items-center flex-shrink-0"
-          >
-            <%= if user.privacy == "private" do %>
-              <div class="w-20 h-20 rounded-full p-1 border-2 border-slate-300 border-dashed mb-2 flex items-center justify-center">
-                <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
-                  <.icon name="hero-lock-closed-solid" class="w-6 h-6 text-slate-400" />
-                </div>
-              </div>
-              <span class="text-xs font-bold text-slate-500">Private Person</span>
-            <% else %>
-              <%= if user.privacy == "friends_only" do %>
-                <div class="w-20 h-20 rounded-full p-1 border-2 border-amber-400 border-dashed mb-2 flex items-center justify-center">
-                  <HeadsUpWeb.Components.UI.Avatar.avatar
-                    name={user.name || user.user_name || "U"}
-                    src={user.image_path}
-                    size={:lg}
-                  />
-                </div>
-                <span class="text-xs font-bold text-slate-900">
-                  {user.name || user.user_name || "Anonymous"}
-                </span>
-              <% else %>
-                <div class="w-20 h-20 rounded-full p-1 border-2 border-blue-500 border-dashed mb-2 flex items-center justify-center">
-                  <HeadsUpWeb.Components.UI.Avatar.avatar
-                    name={user.name || user.user_name || "U"}
-                    src={user.image_path}
-                    size={:lg}
-                  />
-                </div>
-                <span class="text-xs font-bold text-slate-900">
-                  {user.name || user.user_name || "Anonymous"}
-                </span>
-              <% end %>
-            <% end %>
-          </.link>
-        <% end %>
-        <%= if Enum.empty?(@user_spotlights) do %>
-          <p class="text-sm text-slate-400 font-medium">No spotlight users yet</p>
-        <% end %>
-      </div>
-    </section>
-
-    <%!-- Active Goals Feed --%>
-    <section>
-      <div class="flex items-center justify-between mb-8">
-        <h2 class="text-2xl font-extrabold text-slate-900">Active Goals</h2>
-        <div class="flex gap-3">
-          <.link
-            navigate={~p"/all-goals"}
-            class="px-6 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-bold"
-          >
-            Trending
-          </.link>
-          <.link
-            navigate={~p"/all-goals"}
-            class="px-6 py-2.5 rounded-xl bg-white text-slate-500 text-sm font-bold soft-shadow"
-          >
-            Recent
-          </.link>
-        </div>
-      </div>
-
-      <%= if Enum.empty?(@trending_goals) do %>
-        <HeadsUpWeb.Components.UI.EmptyState.empty_state
-          icon="hero-fire"
-          title="No active goals yet"
-          message="Be the first to create a goal and start building momentum."
-        >
-          <:action>
-            <.link
-              navigate={~p"/goals/new"}
-              class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold px-6 py-3 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
-            >
-              Create Goal
-            </.link>
-          </:action>
-        </HeadsUpWeb.Components.UI.EmptyState.empty_state>
-      <% else %>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <%= for goal <- @trending_goals do %>
-            <.link navigate={~p"/goals/#{goal.id}"} class="block">
-              <HeadsUpWeb.Components.UI.Card.card hover>
-                <%!-- Post Header --%>
-                <div class="flex items-start justify-between mb-4">
-                  <div class="flex gap-3">
-                    <HeadsUpWeb.Components.UI.Avatar.avatar
-                      name={goal.user.name || goal.user.user_name || "Anonymous"}
-                      src={goal.user.image_path}
-                      size={:md}
-                    />
-                    <div>
-                      <h4 class="font-extrabold text-slate-900 text-sm">
-                        {goal.user.name || goal.user.user_name || "Anonymous"}
-                      </h4>
-                      <p class="text-slate-400 text-xs font-medium">
-                        {if goal.group, do: goal.group.name, else: "Uncategorized"}
-                      </p>
-                    </div>
-                  </div>
-                  <HeadsUpWeb.Components.UI.StatusBadge.status_badge
-                    status={goal.status}
-                    size={:sm}
-                  />
-                </div>
-
-                <%!-- Goal Content --%>
-                <h3 class="text-lg font-extrabold text-slate-900 mb-2">{goal.title}</h3>
-                <%= if goal.description do %>
-                  <p class="text-slate-600 text-sm mb-4 leading-relaxed line-clamp-2">
-                    {goal.description}
-                  </p>
-                <% end %>
-
-                <%!-- Goal Image --%>
-                <%= if goal.image_path do %>
-                  <img
-                    src={goal.image_path}
-                    alt={goal.title}
-                    class="w-full h-40 object-cover rounded-2xl mb-4"
-                  />
-                <% end %>
-
-                <%!-- Progress Bar --%>
-                <div class="mb-4">
-                  <HeadsUpWeb.Components.UI.ProgressBar.progress_bar
-                    value={goal.progress || 0}
-                    max={100}
-                    size={:sm}
-                    color={:indigo}
-                    show_label={true}
-                  />
-                </div>
-
-                <%!-- Engagement Row --%>
-                <div class="flex items-center gap-4 pt-4 border-t border-slate-100">
-                  <span class="flex items-center gap-1.5 text-slate-500 font-bold text-sm">
-                    <.icon name="hero-heart" class="w-4 h-4 text-pink-400" />
-                    {Map.get(goal, :like_count, 0)} likes
-                  </span>
-                  <span class="flex items-center gap-1.5 text-slate-500 font-bold text-sm">
-                    <.icon name="hero-eye" class="w-4 h-4 text-blue-400" />
-                    {Map.get(goal, :subscriber_count, 0)} subscribers
-                  </span>
-                  <span class="flex items-center gap-1.5 text-slate-500 font-bold text-sm">
-                    <.icon name="hero-chat-bubble-left" class="w-4 h-4 text-slate-400" />
-                    {Map.get(goal, :post_count, 0)} posts
-                  </span>
-                </div>
-              </HeadsUpWeb.Components.UI.Card.card>
-            </.link>
-          <% end %>
-        </div>
-      <% end %>
-    </section>
   </div>
 
-  <%!-- ===== RIGHT SIDEBAR (Desktop only) ===== --%>
-  <aside class="hidden xl:flex w-[420px] flex-shrink-0 border-l border-slate-100 p-8 flex-col gap-10 overflow-y-auto custom-scrollbar bg-white">
-    <%!-- Popular Groups --%>
-    <section>
-      <HeadsUpWeb.Components.UI.SectionHeader.section_header
-        title="Popular Groups"
-        link_text="View all"
-        link_to={~p"/goals-category"}
-      />
-      <%= if Enum.empty?(@popular_groups) do %>
-        <p class="text-sm text-slate-400">No groups yet</p>
-      <% else %>
-        <div class="grid grid-cols-2 gap-4">
-          <%= for group <- @popular_groups do %>
-            <.link
-              navigate={~p"/goals-category/#{group.id}"}
-              class="bg-indigo-50 p-6 rounded-[32px] flex flex-col items-center justify-center text-center group cursor-pointer hover:scale-105 transition-transform soft-shadow"
-            >
-              <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm">
-                <.icon name="hero-user-group" class="w-6 h-6 text-blue-500" />
-              </div>
-              <span class="font-extrabold text-slate-900 text-sm">{group.name}</span>
-              <span class="text-[10px] text-slate-400 mt-1">
-                {Map.get(group, :goal_count, 0)} goals
-              </span>
-            </.link>
-          <% end %>
-        </div>
-      <% end %>
-    </section>
+  <%!-- Scroll Indicator --%>
+  <div class="absolute bottom-[30px] left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-t66-text-muted text-[0.6rem] tracking-[3px] uppercase" style="animation: bobble 2s ease-in-out infinite;">
+    Scroll to explore
+    <span class="text-[1.2rem]">&darr;</span>
+  </div>
+</section>
 
-    <%!-- Suggestions --%>
-    <section>
-      <HeadsUpWeb.Components.UI.SectionHeader.section_header
-        title="Suggestions"
-        link_text="See all"
-        link_to={~p"/people"}
-      />
-      <div class="space-y-6">
-        <%= for user <- @user_spotlights do %>
-          <div class="flex items-center gap-4 group">
-            <%= if user.privacy == "private" do %>
-              <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
-                <.icon name="hero-lock-closed-solid" class="w-6 h-6 text-slate-400" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <h5 class="font-bold text-slate-500 text-sm">Private Person</h5>
-                <p class="text-slate-400 text-xs">Private profile</p>
-              </div>
-              <.link
-                navigate={~p"/people/#{user.user_name || user.id}"}
-                class="ml-auto bg-slate-200 text-slate-500 px-4 py-2.5 rounded-xl text-xs font-bold"
-              >
-                View
-              </.link>
-            <% else %>
-              <%= if user.privacy == "friends_only" do %>
-                <HeadsUpWeb.Components.UI.Avatar.avatar
-                  name={user.name || user.user_name || "Anonymous"}
-                  src={user.image_path}
-                  size={:lg}
-                />
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1.5">
-                    <h5 class="font-bold text-slate-900 text-sm">
-                      {user.name || user.user_name || "Anonymous"}
-                    </h5>
-                    <.icon name="hero-user-group" class="w-3.5 h-3.5 text-amber-500" />
-                  </div>
-                  <p class="text-slate-400 text-xs">Friends only</p>
-                </div>
-                <.link
-                  navigate={~p"/people/#{user.user_name || user.id}"}
-                  class="ml-auto bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:scale-105 transition-all"
-                >
-                  Add Friend
-                </.link>
-              <% else %>
-                <HeadsUpWeb.Components.UI.Avatar.avatar
-                  name={user.name || user.user_name || "Anonymous"}
-                  src={user.image_path}
-                  size={:lg}
-                />
-                <div class="flex-1 min-w-0">
-                  <h5 class="font-bold text-slate-900 text-sm">
-                    {user.name || user.user_name || "Anonymous"}
-                  </h5>
-                  <p class="text-slate-400 text-xs">Level {user.level}</p>
-                </div>
-                <.link
-                  navigate={~p"/people/#{user.user_name || user.id}"}
-                  class="ml-auto bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:scale-105 transition-all"
-                >
-                  Follow
-                </.link>
-              <% end %>
-            <% end %>
+<%!-- ═══ SCIENCE ═══ --%>
+<section class="py-[100px]" id="science">
+  <div class="max-w-[1100px] mx-auto px-5 sm:px-[30px]">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-[60px] items-center">
+      <%!-- Text --%>
+      <div>
+        <div class="text-[0.65rem] tracking-[4px] uppercase text-t66-accent mb-3.5 font-bold">The Science</div>
+        <h2 class="font-display tracking-[2px] leading-[1.1] mb-4" style="font-size: clamp(2rem, 4vw, 2.8rem);">
+          Why 66 Days Changes Everything
+        </h2>
+        <p class="text-t66-text-secondary text-[0.95rem] leading-[1.8] mb-7">
+          Research from University College London found it takes an average of 66 days to form a lasting habit. Not 21. Not 30. The Total 66 challenge breaks this journey into three psychological phases &mdash; so you understand exactly what you're going through and why.
+        </p>
+        <div class="flex flex-col gap-3">
+          <%!-- Phase 1 --%>
+          <div class="flex items-center gap-3.5 p-[18px_20px] bg-t66-card border border-t66 rounded-[14px] transition-all hover:border-[rgba(255,255,255,0.1)] hover:translate-x-1">
+            <div class="font-display text-[1.6rem] w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-red-500 bg-t66-red-glow">
+              01
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-[0.9rem]">Destruction</div>
+              <div class="text-[0.75rem] text-t66-text-muted">Days 1&ndash;22 &middot; Break old patterns</div>
+            </div>
           </div>
-        <% end %>
-        <%= if Enum.empty?(@user_spotlights) do %>
-          <p class="text-sm text-slate-400">No suggestions yet</p>
-        <% end %>
-      </div>
-    </section>
-
-    <%!-- Quick Stats --%>
-    <section>
-      <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Quick Stats</h3>
-      <div class="space-y-4">
-        <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl">
-          <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center">
-            <.icon name="hero-fire" class="w-7 h-7 text-blue-600" />
+          <%!-- Phase 2 --%>
+          <div class="flex items-center gap-3.5 p-[18px_20px] bg-t66-card border border-t66 rounded-[14px] transition-all hover:border-[rgba(255,255,255,0.1)] hover:translate-x-1">
+            <div class="font-display text-[1.6rem] w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-t66-accent bg-t66-accent-glow">
+              02
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-[0.9rem]">Installation</div>
+              <div class="text-[0.75rem] text-t66-text-muted">Days 23&ndash;44 &middot; Build new routines</div>
+            </div>
           </div>
-          <div>
-            <p class="text-3xl font-extrabold text-slate-900">{length(@trending_goals)}</p>
-            <p class="text-xs text-slate-400 font-medium">Trending Goals</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl">
-          <div class="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center">
-            <.icon name="hero-user-group" class="w-7 h-7 text-indigo-500" />
-          </div>
-          <div>
-            <p class="text-3xl font-extrabold text-slate-900">{length(@popular_groups)}</p>
-            <p class="text-xs text-slate-400 font-medium">Active Groups</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl">
-          <div class="w-14 h-14 bg-purple-50 rounded-xl flex items-center justify-center">
-            <.icon name="hero-users" class="w-7 h-7 text-purple-500" />
-          </div>
-          <div>
-            <p class="text-3xl font-extrabold text-slate-900">{length(@user_spotlights)}</p>
-            <p class="text-xs text-slate-400 font-medium">Top Users</p>
+          <%!-- Phase 3 --%>
+          <div class="flex items-center gap-3.5 p-[18px_20px] bg-t66-card border border-t66 rounded-[14px] transition-all hover:border-[rgba(255,255,255,0.1)] hover:translate-x-1">
+            <div class="font-display text-[1.6rem] w-11 h-11 rounded-xl flex items-center justify-center shrink-0 text-green-500 bg-t66-green-glow">
+              03
+            </div>
+            <div class="flex-1">
+              <div class="font-bold text-[0.9rem]">Integration</div>
+              <div class="text-[0.75rem] text-t66-text-muted">Days 45&ndash;66 &middot; Lock in the habit</div>
+            </div>
           </div>
         </div>
       </div>
-    </section>
-  </aside>
+
+      <%!-- Ring Visual --%>
+      <div class="relative flex justify-center items-center order-first md:order-last">
+        <div class="w-[280px] h-[280px] rounded-full border-2 border-t66 flex items-center justify-center relative">
+          <%!-- Inner dashed ring --%>
+          <div class="absolute inset-3 rounded-full border-2 border-dashed border-[rgba(255,77,0,0.15)]"></div>
+          <span class="font-display text-[7rem] text-t66-accent opacity-15">66</span>
+          <span class="absolute -bottom-2.5 bg-t66-bg px-4 text-[0.6rem] tracking-[3px] uppercase text-t66-text-muted">Days to transform</span>
+          <%!-- Orbiting icons --%>
+          <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 w-[42px] h-[42px] rounded-full flex items-center justify-center text-[1.1rem] bg-t66-red-glow">&#128293;</div>
+          <div class="absolute -right-2.5 top-1/2 -translate-y-1/2 w-[42px] h-[42px] rounded-full flex items-center justify-center text-[1.1rem] bg-t66-accent-glow">&#128170;</div>
+          <div class="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-[42px] h-[42px] rounded-full flex items-center justify-center text-[1.1rem] bg-t66-green-glow">&#129504;</div>
+          <div class="absolute -left-2.5 top-1/2 -translate-y-1/2 w-[42px] h-[42px] rounded-full flex items-center justify-center text-[1.1rem] bg-t66-blue-glow">&#9889;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%!-- ═══ FEATURES ═══ --%>
+<section class="py-[100px]" id="features">
+  <div class="max-w-[1100px] mx-auto px-5 sm:px-[30px]">
+    <div class="text-center mb-[60px]">
+      <div class="text-[0.65rem] tracking-[4px] uppercase text-t66-cyan mb-3.5 font-bold">Platform Features</div>
+      <h2 class="font-display tracking-[2px] mb-2.5" style="font-size: clamp(2rem, 4vw, 2.8rem);">
+        Everything You Need to Finish
+      </h2>
+      <p class="text-t66-text-muted text-[0.95rem] max-w-[500px] mx-auto">
+        Most people fail challenges because they track on paper or not at all. Total 66 changes that.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <%!-- Feature 1 --%>
+      <div class="bg-t66-card border border-t66 rounded-2xl p-[32px_28px] transition-all relative overflow-hidden hover:border-[rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-t66-card group">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-t66-accent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center text-[1.5rem] mb-[18px] bg-t66-accent-glow">&#128202;</div>
+        <div class="font-bold text-base mb-2">Daily Task Tracking</div>
+        <div class="text-[0.85rem] text-t66-text-secondary leading-[1.65]">Mark each task as Done or Failed every day. See your completion rate, daily stats, and streaks at a glance.</div>
+      </div>
+      <%!-- Feature 2 --%>
+      <div class="bg-t66-card border border-t66 rounded-2xl p-[32px_28px] transition-all relative overflow-hidden hover:border-[rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-t66-card group">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-t66-cyan opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center text-[1.5rem] mb-[18px] bg-t66-cyan-glow">&#128522;</div>
+        <div class="font-bold text-base mb-2">Mood Tracker</div>
+        <div class="text-[0.85rem] text-t66-text-secondary leading-[1.65]">Log how you feel each day across all 66 days. See your emotional journey mapped out &mdash; the tough days and the breakthroughs.</div>
+      </div>
+      <%!-- Feature 3 --%>
+      <div class="bg-t66-card border border-t66 rounded-2xl p-[32px_28px] transition-all relative overflow-hidden hover:border-[rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-t66-card group">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-t66-gold opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center text-[1.5rem] mb-[18px] bg-t66-gold-glow">&#127942;</div>
+        <div class="font-bold text-base mb-2">Progress & Milestones</div>
+        <div class="text-[0.85rem] text-t66-text-secondary leading-[1.65]">Visual progress bar, phase tracking (Destruction &rarr; Installation &rarr; Integration), and a finisher badge when you complete the challenge.</div>
+      </div>
+      <%!-- Feature 4 --%>
+      <div class="bg-t66-card border border-t66 rounded-2xl p-[32px_28px] transition-all relative overflow-hidden hover:border-[rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-t66-card group">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center text-[1.5rem] mb-[18px] bg-t66-green-glow">&#129309;</div>
+        <div class="font-bold text-base mb-2">Community & Accountability</div>
+        <div class="text-[0.85rem] text-t66-text-secondary leading-[1.65]">Connect with friends, follow other challengers, comment on their progress. Public challenges let others cheer you on.</div>
+      </div>
+      <%!-- Feature 5 --%>
+      <div class="bg-t66-card border border-t66 rounded-2xl p-[32px_28px] transition-all relative overflow-hidden hover:border-[rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-t66-card group">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center text-[1.5rem] mb-[18px] bg-t66-blue-glow">&#9997;&#65039;</div>
+        <div class="font-bold text-base mb-2">Daily Reflections</div>
+        <div class="text-[0.85rem] text-t66-text-secondary leading-[1.65]">Write a short journal entry each day. Look back at your mindset shifts from Day 1 to Day 66 in your challenge feed.</div>
+      </div>
+      <%!-- Feature 6 --%>
+      <div class="bg-t66-card border border-t66 rounded-2xl p-[32px_28px] transition-all relative overflow-hidden hover:border-[rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-t66-card group">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-t66-purple opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="w-[52px] h-[52px] rounded-[14px] flex items-center justify-center text-[1.5rem] mb-[18px] bg-t66-purple-glow">&#128736;&#65039;</div>
+        <div class="font-bold text-base mb-2">Custom Schedules</div>
+        <div class="text-[0.85rem] text-t66-text-secondary leading-[1.65]">Choose a preset (Classic or Evolution) or build a fully custom challenge. Set task frequency per day &mdash; every day, weekdays, or specific days.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%!-- ═══ HOW IT WORKS ═══ --%>
+<section class="py-[100px]" id="how">
+  <div class="max-w-[1100px] mx-auto px-5 sm:px-[30px]">
+    <div class="text-center mb-[60px]">
+      <div class="text-[0.65rem] tracking-[4px] uppercase text-t66-accent mb-3.5 font-bold">How It Works</div>
+      <h2 class="font-display tracking-[2px]" style="font-size: clamp(2rem, 4vw, 2.8rem);">
+        Start in Under 2 Minutes
+      </h2>
+    </div>
+
+    <div class="flex flex-col relative max-w-[640px] mx-auto">
+      <%!-- Vertical gradient line --%>
+      <div class="absolute left-[27px] top-10 bottom-10 w-[2px] opacity-20" style="background: linear-gradient(to bottom, #ff4d00, #00d4aa, #22c55e);"></div>
+
+      <%!-- Step 1 --%>
+      <div class="flex gap-4 sm:gap-5 py-7 relative z-[2]">
+        <div class="w-14 h-14 rounded-2xl shrink-0 flex items-center justify-center font-display text-[1.4rem] bg-t66-accent-glow text-t66-accent sm:w-14 sm:h-14">
+          01
+        </div>
+        <div>
+          <div class="font-bold text-base mb-1">Pick Your Challenge</div>
+          <div class="text-t66-text-secondary text-[0.88rem] leading-[1.65]">Choose Total 66 Classic, Evolution, or build a fully custom challenge with your own tasks and schedule.</div>
+        </div>
+      </div>
+      <%!-- Step 2 --%>
+      <div class="flex gap-4 sm:gap-5 py-7 relative z-[2]">
+        <div class="w-14 h-14 rounded-2xl shrink-0 flex items-center justify-center font-display text-[1.4rem] bg-t66-cyan-glow text-t66-cyan sm:w-14 sm:h-14">
+          02
+        </div>
+        <div>
+          <div class="font-bold text-base mb-1">Set Your Start Date & Goal</div>
+          <div class="text-t66-text-secondary text-[0.88rem] leading-[1.65]">Pick when you begin, write your personal goal, and configure daily task frequency. We calculate your end date automatically.</div>
+        </div>
+      </div>
+      <%!-- Step 3 --%>
+      <div class="flex gap-4 sm:gap-5 py-7 relative z-[2]">
+        <div class="w-14 h-14 rounded-2xl shrink-0 flex items-center justify-center font-display text-[1.4rem] bg-t66-green-glow text-green-500 sm:w-14 sm:h-14">
+          03
+        </div>
+        <div>
+          <div class="font-bold text-base mb-1">Track Every Day</div>
+          <div class="text-t66-text-secondary text-[0.88rem] leading-[1.65]">Each day, mark tasks as done or failed, log your mood, write a reflection, and hit &ldquo;Finish Day.&rdquo; Your progress updates in real time.</div>
+        </div>
+      </div>
+      <%!-- Step 4 --%>
+      <div class="flex gap-4 sm:gap-5 py-7 relative z-[2]">
+        <div class="w-14 h-14 rounded-2xl shrink-0 flex items-center justify-center font-display text-[1.4rem] bg-t66-gold-glow text-t66-gold sm:w-14 sm:h-14">
+          04
+        </div>
+        <div>
+          <div class="font-bold text-base mb-1">Earn Your Badge</div>
+          <div class="text-t66-text-secondary text-[0.88rem] leading-[1.65]">Complete all 66 days and join the finishers. Your profile gets a gold trophy badge, and your challenge history is preserved forever.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%!-- ═══ CHALLENGES ═══ --%>
+<section class="py-[100px]" id="challenges">
+  <div class="max-w-[1100px] mx-auto px-5 sm:px-[30px]">
+    <div class="text-center mb-[60px]">
+      <div class="text-[0.65rem] tracking-[4px] uppercase text-t66-gold mb-3.5 font-bold">Choose Your Path</div>
+      <h2 class="font-display tracking-[2px] mb-2.5" style="font-size: clamp(2rem, 4vw, 2.8rem);">
+        Two Proven Challenges
+      </h2>
+      <p class="text-t66-text-muted text-[0.95rem] max-w-[500px] mx-auto">Or build your own custom challenge from scratch</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[800px] mx-auto">
+      <%!-- Classic --%>
+      <div class="bg-t66-card border border-t66 rounded-2xl p-[36px_32px] relative overflow-hidden transition-all hover:border-[rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-t66-card group">
+        <div class="absolute top-0 left-0 right-0 h-[3px]" style="background: linear-gradient(90deg, #ff4d00, #ff8a50);"></div>
+        <div class="text-[2.4rem] mb-4">&#128293;</div>
+        <div class="font-display text-[1.8rem] tracking-[2px] mb-1.5">Total 66</div>
+        <div class="text-t66-text-secondary text-[0.85rem] leading-[1.65] mb-5">The original. 6 required daily tasks focused on physical health, diet, and discipline. Plus 6 optional tasks to level up even further.</div>
+        <div class="flex flex-wrap gap-1.5 mb-5">
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-accent bg-t66-accent-glow">Workout</span>
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-accent bg-t66-accent-glow">Diet</span>
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-accent bg-t66-accent-glow">Sleep</span>
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-accent bg-t66-accent-glow">No Sugar</span>
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-accent bg-t66-accent-glow">No Alcohol</span>
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-accent bg-t66-accent-glow">Progress Pic</span>
+        </div>
+        <.link navigate={~p"/challenges"} class="text-t66-text-muted text-[0.75rem] font-bold uppercase tracking-[1.5px] no-underline transition-colors inline-flex items-center gap-1.5 hover:text-t66-accent">
+          Learn more &rarr;
+        </.link>
+      </div>
+
+      <%!-- Evolution --%>
+      <div class="bg-t66-card border border-t66 rounded-2xl p-[36px_32px] relative overflow-hidden transition-all hover:border-[rgba(255,255,255,0.1)] hover:-translate-y-1 hover:shadow-t66-card group">
+        <div class="absolute top-0 left-0 right-0 h-[3px]" style="background: linear-gradient(90deg, #00d4aa, #00f0c0);"></div>
+        <div class="text-[2.4rem] mb-4">&#9889;</div>
+        <div class="font-display text-[1.8rem] tracking-[2px] mb-1.5">Total 66 Evolution</div>
+        <div class="text-t66-text-secondary text-[0.85rem] leading-[1.65] mb-5">The advanced protocol. 5 pillars spanning physical health, skill building, nutrition, digital detox, and accountability journaling.</div>
+        <div class="flex flex-wrap gap-1.5 mb-5">
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-cyan bg-t66-cyan-glow">Dynamic Workout</span>
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-cyan bg-t66-cyan-glow">Skill Hour</span>
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-cyan bg-t66-cyan-glow">Diet Plan</span>
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-cyan bg-t66-cyan-glow">Digital Detox</span>
+          <span class="text-[0.6rem] py-1 px-2.5 rounded-full tracking-[1px] uppercase font-bold text-t66-cyan bg-t66-cyan-glow">Journal</span>
+        </div>
+        <.link navigate={~p"/challenges"} class="text-t66-text-muted text-[0.75rem] font-bold uppercase tracking-[1.5px] no-underline transition-colors inline-flex items-center gap-1.5 hover:text-t66-cyan">
+          Learn more &rarr;
+        </.link>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%!-- ═══ SOCIAL PROOF ═══ --%>
+<section class="py-[100px]">
+  <div class="max-w-[1100px] mx-auto px-5 sm:px-[30px]">
+    <div class="text-center mb-[60px]">
+      <div class="text-[0.65rem] tracking-[4px] uppercase text-green-500 mb-3.5 font-bold">Community</div>
+      <h2 class="font-display tracking-[2px] mb-2.5" style="font-size: clamp(2rem, 4vw, 2.8rem);">
+        What Finishers Say
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="bg-t66-card border border-t66 rounded-2xl p-7 transition-all hover:border-[rgba(255,255,255,0.1)]">
+        <div class="text-t66-text-secondary text-[0.9rem] italic leading-[1.7] mb-[18px]">
+          &ldquo;I&rsquo;ve tried 75 Hard three times and never finished. Total 66 was the first challenge I actually completed. The daily tracking and seeing my mood change over time &mdash; that&rsquo;s what kept me going.&rdquo;
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.06)] flex items-center justify-center font-display text-[0.85rem] text-t66-text-muted tracking-[1px]">MS</div>
+          <div>
+            <div class="font-bold text-[0.85rem]">Maria Santos</div>
+            <div class="text-[0.7rem] text-t66-text-muted">Completed 2x &middot; S&atilde;o Paulo &#127463;&#127479;</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-t66-card border border-t66 rounded-2xl p-7 transition-all hover:border-[rgba(255,255,255,0.1)]">
+        <div class="text-t66-text-secondary text-[0.9rem] italic leading-[1.7] mb-[18px]">
+          &ldquo;The community feature is everything. Having friends see my daily check-ins and comment on tough days &mdash; it&rsquo;s real accountability. Not just posting on Instagram for likes.&rdquo;
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.06)] flex items-center justify-center font-display text-[0.85rem] text-t66-text-muted tracking-[1px]">DK</div>
+          <div>
+            <div class="font-bold text-[0.85rem]">David Kim</div>
+            <div class="text-[0.7rem] text-t66-text-muted">Day 58 &middot; Seoul &#127472;&#127479;</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-t66-card border border-t66 rounded-2xl p-7 transition-all hover:border-[rgba(255,255,255,0.1)]">
+        <div class="text-t66-text-secondary text-[0.9rem] italic leading-[1.7] mb-[18px]">
+          &ldquo;I built a custom challenge around marathon training. The flexible scheduling &mdash; some tasks every day, some only weekdays &mdash; made it actually fit my life instead of fighting against it.&rdquo;
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.06)] flex items-center justify-center font-display text-[0.85rem] text-t66-text-muted tracking-[1px]">EM</div>
+          <div>
+            <div class="font-bold text-[0.85rem]">Emma M&uuml;ller</div>
+            <div class="text-[0.7rem] text-t66-text-muted">Completed 1x &middot; Berlin &#127465;&#127466;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%!-- ═══ COMPARE ═══ --%>
+<section class="py-[100px]">
+  <div class="max-w-[1100px] mx-auto px-5 sm:px-[30px]">
+    <div class="text-center mb-[60px]">
+      <div class="text-[0.65rem] tracking-[4px] uppercase text-t66-accent mb-3.5 font-bold">Why Total 66</div>
+      <h2 class="font-display tracking-[2px] mb-2.5" style="font-size: clamp(2rem, 4vw, 2.8rem);">
+        More Than a Checklist
+      </h2>
+      <p class="text-t66-text-muted text-[0.95rem] max-w-[500px] mx-auto">Most people track challenges in notebooks or Notes apps. Here&rsquo;s what you get instead.</p>
+    </div>
+
+    <div class="max-w-[700px] mx-auto bg-t66-card border border-t66 rounded-2xl overflow-hidden">
+      <%!-- Header --%>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[14px_16px] sm:p-[14px_24px] border-b border-t66 font-bold text-[0.65rem] uppercase tracking-[2px] text-t66-text-muted bg-[rgba(255,255,255,0.02)]">
+        <div>Feature</div>
+        <div class="text-center">Total 66</div>
+        <div class="text-center">Notebook</div>
+      </div>
+      <%!-- Rows --%>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] border-b border-t66 items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Visual progress tracking</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+        <div class="text-center text-[1.1rem] text-t66-text-muted opacity-40">&#10005;</div>
+      </div>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] border-b border-t66 items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Mood tracking over 66 days</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+        <div class="text-center text-[1.1rem] text-t66-text-muted opacity-40">&#10005;</div>
+      </div>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] border-b border-t66 items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Daily task completion rate</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+        <div class="text-center text-[1.1rem] text-t66-text-muted opacity-40">&#10005;</div>
+      </div>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] border-b border-t66 items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Community accountability</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+        <div class="text-center text-[1.1rem] text-t66-text-muted opacity-40">&#10005;</div>
+      </div>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] border-b border-t66 items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Daily reflections journal</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+      </div>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] border-b border-t66 items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Custom task scheduling</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+        <div class="text-center text-[1.1rem] text-t66-text-muted opacity-40">&#10005;</div>
+      </div>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] border-b border-t66 items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Challenge history & stats</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+        <div class="text-center text-[1.1rem] text-t66-text-muted opacity-40">&#10005;</div>
+      </div>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] border-b border-t66 items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Finisher badge & profile</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+        <div class="text-center text-[1.1rem] text-t66-text-muted opacity-40">&#10005;</div>
+      </div>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] border-b border-t66 items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Likes & comments from friends</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+        <div class="text-center text-[1.1rem] text-t66-text-muted opacity-40">&#10005;</div>
+      </div>
+      <div class="grid grid-cols-[1fr_80px_80px] sm:grid-cols-[1fr_100px_100px] p-[12px_16px] sm:p-[14px_24px] items-center text-[0.8rem] sm:text-[0.85rem]">
+        <div class="text-t66-text-secondary">Works without internet</div>
+        <div class="text-center text-[1.1rem] text-t66-text-muted opacity-40">&#10005;</div>
+        <div class="text-center text-[1.1rem] text-green-500">&#10003;</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%!-- ═══ FAQ ═══ --%>
+<section class="py-[100px]" id="faq">
+  <div class="max-w-[1100px] mx-auto px-5 sm:px-[30px]">
+    <div class="text-center mb-[50px]">
+      <div class="text-[0.65rem] tracking-[4px] uppercase text-t66-text-muted mb-3.5 font-bold">Questions</div>
+      <h2 class="font-display tracking-[2px]" style="font-size: clamp(2rem, 4vw, 2.8rem);">
+        Common Questions
+      </h2>
+    </div>
+
+    <div class="max-w-[700px] mx-auto" x-data="{ openFaq: null }">
+      <%!-- FAQ 1 --%>
+      <div class="border-b border-t66">
+        <div
+          class="flex justify-between items-center py-5 cursor-pointer font-semibold text-[0.95rem] transition-colors hover:text-t66-accent"
+          @click="openFaq = openFaq === 1 ? null : 1"
+        >
+          Why 66 days?
+          <span class="text-[0.7rem] text-t66-text-muted transition-transform duration-300" x-bind:class="openFaq === 1 && 'rotate-180 !text-t66-accent'">&blacktriangledown;</span>
+        </div>
+        <div
+          class="overflow-hidden transition-all duration-[400ms] text-t66-text-secondary text-[0.88rem] leading-[1.8]"
+          x-bind:class="openFaq === 1 ? 'max-h-[400px] pb-5' : 'max-h-0'"
+        >
+          Research from University College London shows it takes an average of 66 days to form a lasting habit &mdash; not 21, not 30. The challenge is broken into three phases: Destruction (breaking old patterns), Installation (building new routines), and Integration (making it automatic). By Day 66, your new habits are locked in.
+        </div>
+      </div>
+      <%!-- FAQ 2 --%>
+      <div class="border-b border-t66">
+        <div
+          class="flex justify-between items-center py-5 cursor-pointer font-semibold text-[0.95rem] transition-colors hover:text-t66-accent"
+          @click="openFaq = openFaq === 2 ? null : 2"
+        >
+          Is it free?
+          <span class="text-[0.7rem] text-t66-text-muted transition-transform duration-300" x-bind:class="openFaq === 2 && 'rotate-180 !text-t66-accent'">&blacktriangledown;</span>
+        </div>
+        <div
+          class="overflow-hidden transition-all duration-[400ms] text-t66-text-secondary text-[0.88rem] leading-[1.8]"
+          x-bind:class="openFaq === 2 ? 'max-h-[400px] pb-5' : 'max-h-0'"
+        >
+          Yes &mdash; tracking your challenge, daily tasks, mood, and reflections is completely free. Premium features like detailed analytics and advanced community tools may be added in the future, but the core challenge experience will always be free.
+        </div>
+      </div>
+      <%!-- FAQ 3 --%>
+      <div class="border-b border-t66">
+        <div
+          class="flex justify-between items-center py-5 cursor-pointer font-semibold text-[0.95rem] transition-colors hover:text-t66-accent"
+          @click="openFaq = openFaq === 3 ? null : 3"
+        >
+          What happens if I fail a day?
+          <span class="text-[0.7rem] text-t66-text-muted transition-transform duration-300" x-bind:class="openFaq === 3 && 'rotate-180 !text-t66-accent'">&blacktriangledown;</span>
+        </div>
+        <div
+          class="overflow-hidden transition-all duration-[400ms] text-t66-text-secondary text-[0.88rem] leading-[1.8]"
+          x-bind:class="openFaq === 3 ? 'max-h-[400px] pb-5' : 'max-h-0'"
+        >
+          It depends on your settings. In strict mode (0 failed days allowed), any missed day resets your challenge. But you can configure a grace period &mdash; allowing 1, 2, or more failed days. Either way, you can always start a new attempt. Most finishers didn&rsquo;t succeed on their first try.
+        </div>
+      </div>
+      <%!-- FAQ 4 --%>
+      <div class="border-b border-t66">
+        <div
+          class="flex justify-between items-center py-5 cursor-pointer font-semibold text-[0.95rem] transition-colors hover:text-t66-accent"
+          @click="openFaq = openFaq === 4 ? null : 4"
+        >
+          How is this different from 75 Hard?
+          <span class="text-[0.7rem] text-t66-text-muted transition-transform duration-300" x-bind:class="openFaq === 4 && 'rotate-180 !text-t66-accent'">&blacktriangledown;</span>
+        </div>
+        <div
+          class="overflow-hidden transition-all duration-[400ms] text-t66-text-secondary text-[0.88rem] leading-[1.8]"
+          x-bind:class="openFaq === 4 ? 'max-h-[400px] pb-5' : 'max-h-0'"
+        >
+          Total 66 is designed to be more flexible and sustainable. It&rsquo;s 9 days shorter, offers optional tasks alongside required ones, lets you build custom schedules, and includes community accountability with mood tracking. The goal isn&rsquo;t punishment &mdash; it&rsquo;s building habits that actually last beyond the challenge.
+        </div>
+      </div>
+      <%!-- FAQ 5 --%>
+      <div class="border-b border-t66">
+        <div
+          class="flex justify-between items-center py-5 cursor-pointer font-semibold text-[0.95rem] transition-colors hover:text-t66-accent"
+          @click="openFaq = openFaq === 5 ? null : 5"
+        >
+          Can I create my own challenge?
+          <span class="text-[0.7rem] text-t66-text-muted transition-transform duration-300" x-bind:class="openFaq === 5 && 'rotate-180 !text-t66-accent'">&blacktriangledown;</span>
+        </div>
+        <div
+          class="overflow-hidden transition-all duration-[400ms] text-t66-text-secondary text-[0.88rem] leading-[1.8]"
+          x-bind:class="openFaq === 5 ? 'max-h-[400px] pb-5' : 'max-h-0'"
+        >
+          Absolutely. Choose the Custom preset and add your own tasks &mdash; anything from &ldquo;Practice piano 30 min&rdquo; to &ldquo;Cold shower every morning.&rdquo; Set which days each task applies (every day, weekdays, or specific days). It&rsquo;s your challenge, your rules.
+        </div>
+      </div>
+      <%!-- FAQ 6 --%>
+      <div class="border-b border-t66">
+        <div
+          class="flex justify-between items-center py-5 cursor-pointer font-semibold text-[0.95rem] transition-colors hover:text-t66-accent"
+          @click="openFaq = openFaq === 6 ? null : 6"
+        >
+          Is my challenge public?
+          <span class="text-[0.7rem] text-t66-text-muted transition-transform duration-300" x-bind:class="openFaq === 6 && 'rotate-180 !text-t66-accent'">&blacktriangledown;</span>
+        </div>
+        <div
+          class="overflow-hidden transition-all duration-[400ms] text-t66-text-secondary text-[0.88rem] leading-[1.8]"
+          x-bind:class="openFaq === 6 ? 'max-h-[400px] pb-5' : 'max-h-0'"
+        >
+          Only if you want it to be. When starting a challenge, you choose Public or Private. Public challenges appear in the community feed where friends can like and comment on your daily updates. Private challenges are visible only to you.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%!-- ═══ FINAL CTA ═══ --%>
+<section class="py-[120px] text-center relative overflow-hidden">
+  <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at center, rgba(255, 77, 0, 0.06) 0%, transparent 60%);"></div>
+  <div class="max-w-[1100px] mx-auto px-5 sm:px-[30px] relative z-[2]">
+    <h2 class="font-display tracking-[3px] leading-none mb-4" style="font-size: clamp(2.4rem, 5vw, 3.6rem);">
+      Ready to <span class="text-t66-accent">Transform?</span>
+    </h2>
+    <p class="text-t66-text-secondary text-base max-w-[480px] mx-auto mb-9 leading-[1.7]">
+      {@user_count}+ people have already started. {@finisher_count}+ have earned their finisher badge. Your 66 days start whenever you decide.
+    </p>
+    <%= if @current_user do %>
+      <.link navigate={~p"/challenges/new"} class="inline-flex items-center gap-2.5 py-[18px] px-11 rounded-[14px] bg-t66-accent text-white font-body font-bold text-[0.9rem] tracking-[2px] uppercase no-underline transition-all shadow-t66-accent hover:-translate-y-0.5 hover:shadow-t66-accent-hover">
+        Start Your Challenge
+      </.link>
+    <% else %>
+      <.link navigate={~p"/users/register"} class="inline-flex items-center gap-2.5 py-[18px] px-11 rounded-[14px] bg-t66-accent text-white font-body font-bold text-[0.9rem] tracking-[2px] uppercase no-underline transition-all shadow-t66-accent hover:-translate-y-0.5 hover:shadow-t66-accent-hover">
+        Start Your Challenge &mdash; Free
+      </.link>
+    <% end %>
+    <div class="mt-4 text-[0.72rem] text-t66-text-muted">No credit card required. Set up takes under 2 minutes.</div>
+  </div>
+</section>
+
+<%!-- ═══ MEDICAL DISCLAIMER ═══ --%>
+<div class="max-w-[700px] mx-auto px-5 sm:px-[30px] pb-20 text-center">
+  <div class="text-[0.72rem] text-t66-text-muted leading-[1.7] p-[20px_24px] border border-t66 rounded-xl bg-t66-card">
+    &#9877;&#65039; Before starting the Total 66 Challenge, consult with your doctor to ensure this program is safe for you.
+    This challenge involves physical exercise and dietary changes that may not be suitable for everyone.
+    Prioritize your health and safety above all else.
+  </div>
 </div>
+
+<%!-- ═══ FOOTER ═══ --%>
+<footer class="border-t border-t66 py-10 text-center">
+  <div class="max-w-[1100px] mx-auto px-5 sm:px-[30px]">
+    <div class="font-display text-[1.2rem] tracking-[4px] mb-2">
+      TOTAL <span class="text-t66-accent">66</span>
+    </div>
+    <div class="text-t66-text-muted text-[0.75rem]">66 Days. Total Transformation.</div>
+    <div class="flex justify-center gap-5 mt-3.5">
+      <.link navigate={~p"/challenges"} class="text-t66-text-muted no-underline text-[0.75rem] transition-colors hover:text-t66-accent">Challenges</.link>
+      <.link navigate={~p"/people"} class="text-t66-text-muted no-underline text-[0.75rem] transition-colors hover:text-t66-accent">Community</.link>
+    </div>
+  </div>
+</footer>

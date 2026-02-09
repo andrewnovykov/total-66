@@ -2,9 +2,8 @@ defmodule HeadsUpWeb.Components.HomeDiscovery do
   use HeadsUpWeb, :html
 
   attr :current_user, :map, default: nil
-  attr :trending_count, :integer, required: true
-  attr :groups_count, :integer, required: true
   attr :spotlight_count, :integer, required: true
+  attr :challenge_categories_count, :integer, required: true
 
   def hero(assigns) do
     ~H"""
@@ -20,19 +19,19 @@ defmodule HeadsUpWeb.Components.HomeDiscovery do
             Daily Discovery
           </span>
           <h1 class="max-w-[20ch] text-[28px] font-bold leading-[1.15]">
-            Set fewer goals. Finish more.
+            Transform in 66 days.
           </h1>
           <p class="max-w-[58ch] text-[14px] font-normal leading-[1.5] text-slate-100">
-            Discover high-momentum goals, active communities, and disciplined people who can raise your execution level this week.
+            Build lasting habits with structured challenges, daily accountability, and real progress tracking.
           </p>
 
           <div class="flex flex-wrap gap-3 pt-1">
             <%= if @current_user do %>
               <.link
-                navigate={~p"/goals/new"}
+                navigate={~p"/challenges/new"}
                 class="inline-flex items-center rounded-xl bg-[#111827] px-5 py-2.5 text-[14px] font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_rgba(0,0,0,0.08)]"
               >
-                Create your next goal
+                Start a challenge
               </.link>
             <% else %>
               <.link
@@ -43,14 +42,8 @@ defmodule HeadsUpWeb.Components.HomeDiscovery do
               </.link>
             <% end %>
             <.link
-              navigate={~p"/all-goals"}
-              class="inline-flex items-center rounded-xl border border-white/40 bg-white/10 px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-white/20"
-            >
-              Explore all goals
-            </.link>
-            <.link
               navigate={~p"/challenges"}
-              class="inline-flex items-center rounded-xl border border-white/35 bg-transparent px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-white/10"
+              class="inline-flex items-center rounded-xl border border-white/40 bg-white/10 px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-white/20"
             >
               Browse challenges
             </.link>
@@ -59,14 +52,9 @@ defmodule HeadsUpWeb.Components.HomeDiscovery do
 
         <div class="grid gap-3">
           <.metric_tile
-            title="Trending Goals"
-            value={@trending_count}
-            subtitle="Top momentum picks for today."
-          />
-          <.metric_tile
-            title="Popular Groups"
-            value={@groups_count}
-            subtitle="Communities with active goal creation."
+            title="Challenge Categories"
+            value={@challenge_categories_count}
+            subtitle="Explore structured challenge templates."
           />
           <.metric_tile
             title="Spotlight Users"
@@ -113,95 +101,6 @@ defmodule HeadsUpWeb.Components.HomeDiscovery do
     """
   end
 
-  attr :goal, :map, required: true
-  attr :fallback_image, :string, required: true
-
-  def goal_card(assigns) do
-    progress = assigns.goal.progress || 0
-    progress = progress |> max(0) |> min(100)
-
-    status =
-      assigns.goal.status
-      |> to_string()
-      |> String.replace("_", " ")
-      |> String.capitalize()
-
-    assigns = assign(assigns, progress: progress, status: status)
-
-    ~H"""
-    <.link
-      navigate={~p"/goals/#{@goal.id}"}
-      class="group overflow-hidden rounded-[24px] border border-[#E5E7EB] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_rgba(0,0,0,0.08)]"
-    >
-      <div
-        class="relative aspect-[16/10] bg-cover bg-center bg-no-repeat"
-        style={"background-image: url('#{@goal.image_path || @fallback_image}');"}
-      >
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent">
-        </div>
-        <div class="absolute left-4 top-4 flex items-center gap-2">
-          <span class="rounded-full bg-[#DBEAFE] px-3 py-1 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#1E40AF]">
-            Trending
-          </span>
-          <span class="rounded-full bg-white/95 px-3 py-1 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111827]">
-            {@goal.group.name}
-          </span>
-        </div>
-        <div class="absolute inset-x-4 bottom-4">
-          <h3 class="text-[16px] font-semibold leading-[1.25] text-white">
-            {@goal.title}
-          </h3>
-          <p class="pt-1 text-[14px] text-slate-200">
-            By {@goal.user.name || @goal.user.user_name || "Anonymous"}
-          </p>
-        </div>
-      </div>
-
-      <div class="space-y-3 p-4">
-        <div class="flex items-center justify-between gap-3">
-          <span class="rounded-full bg-[#DBEAFE] px-3 py-1 text-[12px] font-medium text-[#1E40AF]">
-            {@status}
-          </span>
-          <span class="text-[14px] font-medium text-[#6B7280]">{@progress}% complete</span>
-        </div>
-        <div class="h-2 rounded-full bg-[#E5E7EB]">
-          <div class="h-2 rounded-full bg-[#3B82F6]" style={"width: #{@progress}%"}></div>
-        </div>
-      </div>
-    </.link>
-    """
-  end
-
-  attr :group, :map, required: true
-  attr :fallback_image, :string, required: true
-
-  def group_card(assigns) do
-    ~H"""
-    <.link
-      navigate={~p"/goals-category/#{@group.id}"}
-      class="group overflow-hidden rounded-[24px] border border-[#E5E7EB] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_rgba(0,0,0,0.08)]"
-    >
-      <div
-        class="relative aspect-[16/10] bg-cover bg-center bg-no-repeat"
-        style={"background-image: url('#{@group.image_path || @fallback_image}');"}
-      >
-        <div class="absolute inset-0 bg-gradient-to-t from-black/72 via-black/20 to-transparent">
-        </div>
-        <div class="absolute inset-x-4 bottom-4">
-          <h3 class="text-[16px] font-semibold text-white">{@group.name}</h3>
-        </div>
-      </div>
-
-      <div class="space-y-1 p-4">
-        <p class="text-[14px] text-[#6B7280]">
-          {@group.goal_count} {if @group.goal_count == 1, do: "goal", else: "goals"} tracked
-        </p>
-        <p class="text-[14px] font-semibold text-[#3B82F6]">Open group</p>
-      </div>
-    </.link>
-    """
-  end
-
   attr :user, :map, required: true
   attr :fallback_image, :string, required: true
 
@@ -227,18 +126,13 @@ defmodule HeadsUpWeb.Components.HomeDiscovery do
             {@user.name || @user.user_name || "Anonymous"}
           </h3>
           <p class="truncate text-[14px] text-[#6B7280]">
-            {if @user.user_name, do: "@#{@user.user_name}", else: "GoalHub member"}
+            {if @user.user_name, do: "@#{@user.user_name}", else: "Total 66 member"}
           </p>
         </div>
       </div>
 
       <p class="pt-4 text-[14px] leading-[1.5] text-[#6B7280]">
-        <%= if @user.latest_achievement do %>
-          Latest achievement:
-          <span class="font-medium text-[#111827]">{@user.latest_achievement}</span>
-        <% else %>
-          Active this week with meaningful progress updates.
-        <% end %>
+        Active this week with meaningful progress updates.
       </p>
 
       <p class="pt-3 text-[14px] font-semibold text-[#3B82F6]">View profile</p>

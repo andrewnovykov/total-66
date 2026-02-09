@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total 66 – Start Challenge</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #131313;
+            --bg-card-hover: #1a1a1a;
+            --bg-elevated: #1c1c1c;
+            --bg-input: #0f0f0f;
+            --accent: #ff4d00;
+            --accent-glow: rgba(255, 77, 0, 0.15);
+            --accent-secondary: #ff8a50;
+            --gold: #ffc642;
+            --gold-glow: rgba(255, 198, 66, 0.15);
+            --cyan: #00d4aa;
+            --cyan-glow: rgba(0, 212, 170, 0.12);
+            --green: #22c55e;
+            --green-dim: rgba(34, 197, 94, 0.12);
+            --yellow: #eab308;
+            --yellow-dim: rgba(234, 179, 8, 0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239, 68, 68, 0.12);
+            --blue: #3b82f6;
+            --blue-dim: rgba(59, 130, 246, 0.12);
+            --purple: #a855f7;
+            --purple-dim: rgba(168, 85, 247, 0.12);
+            --text-primary: #f0ece6;
+            --text-secondary: #8a8680;
+            --text-muted: #5a5754;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-input: rgba(255, 255, 255, 0.08);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            padding: 0 30px;
+            height: 64px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 10, 0.85);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .nav-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            color: var(--text-primary);
+            text-decoration: none
+        }
+
+        .nav-logo span {
+            color: var(--accent)
+        }
+
+        .nav-pages {
+            display: flex;
+            gap: 4px
+        }
+
+        .nav-pages a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all 0.3s
+        }
+
+        .nav-pages a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05)
+        }
+
+        .nav-pages a.active {
+            color: var(--accent);
+            background: var(--accent-glow)
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px
+        }
+
+        .nav-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            cursor: pointer;
+            border: 1px solid var(--border)
+        }
+
+        /* MAIN */
+        .main {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 100px 30px 100px
+        }
+
+        /* PAGE HEADER */
+        .pg-header {
+            text-align: center;
+            margin-bottom: 48px;
+            position: relative
+        }
+
+        .pg-header::before {
+            content: 'START';
+            position: absolute;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(100px, 16vw, 220px);
+            color: rgba(255, 77, 0, 0.025);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            letter-spacing: 10px
+        }
+
+        .pg-label {
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px
+        }
+
+        .pg-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            letter-spacing: 3px;
+            line-height: 1.1;
+            margin-bottom: 8px
+        }
+
+        .pg-sub {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 500px;
+            margin: 0 auto
+        }
+
+        /* STEPPER */
+        .stepper {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 48px
+        }
+
+        .step-dot {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: all 0.3s
+        }
+
+        .step-dot.active .step-num {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow)
+        }
+
+        .step-dot.done .step-num {
+            border-color: var(--green);
+            color: #fff;
+            background: var(--green)
+        }
+
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: var(--border);
+            align-self: center;
+            transition: background 0.3s
+        }
+
+        .step-dot.done+.step-line,
+        .step-line.done {
+            background: var(--green)
+        }
+
+        .step-name {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            display: none
+        }
+
+        /* PANELS */
+        .panel {
+            display: none
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeUp 0.4s ease both
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* SECTION CARD */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 20px
+        }
+
+        .card-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            margin-bottom: 4px
+        }
+
+        .card-sub {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin-bottom: 20px
+        }
+
+        /* FORM */
+        .form-label {
+            display: block;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 700
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-input);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted)
+        }
+
+        .form-input:focus {
+            border-color: rgba(255, 77, 0, 0.4);
+            box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.08)
+        }
+
+        .form-group {
+            margin-bottom: 20px
+        }
+
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical
+        }
+
+        /* SCHEDULE PRESETS */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px
+        }
+
+        .preset-card {
+            padding: 24px 18px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            position: relative;
+            overflow: hidden
+        }
+
+        .preset-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            opacity: 0;
+            transition: opacity 0.3s
+        }
+
+        .preset-card:hover {
+            border-color: rgba(255, 255, 255, 0.12)
+        }
+
+        .preset-card.selected {
+            transform: translateY(-2px)
+        }
+
+        .preset-card[data-preset="classic"].selected {
+            border-color: rgba(255, 77, 0, 0.4);
+            box-shadow: 0 0 30px rgba(255, 77, 0, 0.08)
+        }
+
+        .preset-card[data-preset="classic"].selected::before,
+        .preset-card[data-preset="classic"]::before {
+            background: var(--accent);
+            opacity: 1
+        }
+
+        .preset-card[data-preset="evolution"].selected {
+            border-color: rgba(0, 212, 170, 0.4);
+            box-shadow: 0 0 30px rgba(0, 212, 170, 0.08)
+        }
+
+        .preset-card[data-preset="evolution"].selected::before,
+        .preset-card[data-preset="evolution"]::before {
+            background: var(--cyan);
+            opacity: 1
+        }
+
+        .preset-card[data-preset="custom"].selected {
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.08)
+        }
+
+        .preset-card[data-preset="custom"].selected::before,
+        .preset-card[data-preset="custom"]::before {
+            background: var(--purple);
+            opacity: 1
+        }
+
+        .preset-card:not(.selected)::before {
+            opacity: 0 !important
+        }
+
+        .preset-icon {
+            font-size: 1.8rem;
+            margin-bottom: 10px
+        }
+
+        .preset-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 2px
+        }
+
+        .preset-desc {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.4
+        }
+
+        .preset-tasks-count {
+            margin-top: 10px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 100px;
+            display: inline-block
+        }
+
+        .preset-card[data-preset="classic"] .preset-tasks-count {
+            color: var(--accent);
+            background: var(--accent-glow)
+        }
+
+        .preset-card[data-preset="evolution"] .preset-tasks-count {
+            color: var(--cyan);
+            background: var(--cyan-glow)
+        }
+
+        .preset-card[data-preset="custom"] .preset-tasks-count {
+            color: var(--purple);
+            background: var(--purple-dim)
+        }
+
+        /* TASK LIST */
+        .task-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px
+        }
+
+        .task-counter {
+            font-size: 0.8rem;
+            color: var(--text-muted)
+        }
+
+        .task-counter strong {
+            color: var(--text-primary)
+        }
+
+        .tasks-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s
+        }
+
+        .task-item:hover {
+            border-color: rgba(255, 255, 255, 0.1)
+        }
+
+        .task-item.disabled {
+            opacity: 0.4;
+            pointer-events: none
+        }
+
+        /* Checkbox */
+        .task-check {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--border-input);
+            background: none;
+            appearance: none;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.2s
+        }
+
+        .task-check:checked {
+            background: var(--accent);
+            border-color: var(--accent)
+        }
+
+        .task-check:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700
+        }
+
+        .task-info {
+            flex: 1;
+            min-width: 0
+        }
+
+        .task-name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .task-name {
+            font-size: 0.88rem;
+            font-weight: 600
+        }
+
+        .task-tag {
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 700
+        }
+
+        .task-tag.req {
+            color: var(--accent);
+            background: var(--accent-glow)
+        }
+
+        .task-tag.opt {
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04)
+        }
+
+        .task-tag.custom-tag {
+            color: var(--purple);
+            background: var(--purple-dim)
+        }
+
+        .task-icon-em {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            width: 24px;
+            text-align: center
+        }
+
+        /* Schedule selector */
+        .task-schedule {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            flex-wrap: wrap
+        }
+
+        .sched-preset {
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all 0.2s;
+            letter-spacing: 0.5px
+        }
+
+        .sched-preset:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary)
+        }
+
+        .sched-preset.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow)
+        }
+
+        .day-pills {
+            display: flex;
+            gap: 3px;
+            margin-left: 4px
+        }
+
+        .day-pill {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .day-pill:hover {
+            border-color: rgba(255, 255, 255, 0.15)
+        }
+
+        .day-pill.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow)
+        }
+
+        /* Add custom task */
+        .add-task-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px
+        }
+
+        .add-task-input {
+            flex: 1;
+            padding: 12px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-input);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            outline: none
+        }
+
+        .add-task-input::placeholder {
+            color: var(--text-muted)
+        }
+
+        .add-task-input:focus {
+            border-color: rgba(168, 85, 247, 0.4)
+        }
+
+        .add-task-btn {
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            background: var(--purple-dim);
+            color: var(--purple);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap
+        }
+
+        .add-task-btn:hover {
+            background: var(--purple);
+            color: #fff;
+            border-color: var(--purple)
+        }
+
+        .remove-task {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0
+        }
+
+        .remove-task:hover {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--red);
+            background: var(--red-dim)
+        }
+
+        /* SUMMARY */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 24px
+        }
+
+        .summary-item {
+            padding: 18px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px
+        }
+
+        .summary-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 4px
+        }
+
+        .summary-value {
+            font-weight: 700;
+            font-size: 0.95rem
+        }
+
+        .summary-value.accent {
+            color: var(--accent)
+        }
+
+        .summary-tasks {
+            margin-bottom: 24px
+        }
+
+        .summary-task {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .summary-task:last-child {
+            border-bottom: none
+        }
+
+        .summary-task-name {
+            flex: 1;
+            font-size: 0.85rem
+        }
+
+        .summary-task-freq {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: right
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 24px
+        }
+
+        .ss {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center
+        }
+
+        .ss-val {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            line-height: 1
+        }
+
+        .ss-lbl {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-top: 4px
+        }
+
+        .ss.c1 .ss-val {
+            color: var(--accent)
+        }
+
+        .ss.c2 .ss-val {
+            color: var(--green)
+        }
+
+        .ss.c3 .ss-val {
+            color: var(--gold)
+        }
+
+        .summary-goal {
+            padding: 18px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 24px
+        }
+
+        .summary-goal-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 6px
+        }
+
+        .summary-goal-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            line-height: 1.6
+        }
+
+        /* BUTTONS */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px
+        }
+
+        .btn-secondary {
+            padding: 14px 28px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary)
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: var(--accent);
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(255, 77, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px rgba(255, 77, 0, 0.35)
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            pointer-events: none
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            font-size: 1rem;
+            padding: 20px;
+            box-shadow: 0 0 50px rgba(255, 77, 0, 0.25)
+        }
+
+        .btn-start:hover {
+            box-shadow: 0 0 70px rgba(255, 77, 0, 0.4)
+        }
+
+        /* SUCCESS */
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 20px
+        }
+
+        .success-screen.visible {
+            display: block;
+            animation: fadeUp 0.5s ease both
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--green);
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            box-shadow: 0 0 50px rgba(34, 197, 94, 0.3);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0)
+            }
+
+            to {
+                transform: scale(1)
+            }
+        }
+
+        .success-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.4rem;
+            letter-spacing: 3px;
+            margin-bottom: 8px
+        }
+
+        .success-text {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 32px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto
+        }
+
+        .success-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 36px;
+            border-radius: 12px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(255, 77, 0, 0.2)
+        }
+
+        .success-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px rgba(255, 77, 0, 0.35)
+        }
+
+        /* Date input styling */
+        input[type="date"] {
+            color-scheme: dark
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:600px) {
+            .main {
+                padding: 90px 16px 80px
+            }
+
+            .preset-grid {
+                grid-template-columns: 1fr
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr
+            }
+
+            .summary-stats {
+                grid-template-columns: 1fr
+            }
+
+            .btn-row {
+                flex-direction: column
+            }
+
+            .card {
+                padding: 24px 18px
+            }
+
+            .day-pills {
+                flex-wrap: wrap
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="nav-left">
+            <a href="/" class="nav-logo">TOTAL <span>66</span></a>
+            <div class="nav-pages">
+                <a href="/">Home</a>
+                <a href="/challenges">Challenges</a>
+                <a href="/hub">My Hub</a>
+            </div>
+        </div>
+        <div class="nav-avatar">AK</div>
+    </nav>
+
+    <div class="main">
+
+        <!-- HEADER -->
+        <div class="pg-header">
+            <div class="pg-label">New Challenge</div>
+            <h1 class="pg-title">Start Your Journey</h1>
+            <p class="pg-sub">Configure your 66-day challenge. Choose a preset or build your own custom plan.</p>
+        </div>
+
+        <!-- STEPPER -->
+        <div class="stepper" id="stepper"></div>
+
+        <!-- STEP 1: SCHEDULE -->
+        <div class="panel active" id="step1">
+            <div class="card">
+                <div class="card-title">Choose Your Schedule</div>
+                <div class="card-sub">Start with a proven template or build from scratch</div>
+                <div class="preset-grid" id="presetGrid"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">Start Date</div>
+                <div class="card-sub">When does your 66-day journey begin?</div>
+                <div class="form-group">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-input" id="startDate">
+                </div>
+                <div id="datePreview" style="font-size:0.82rem;color:var(--text-muted)"></div>
+            </div>
+            <div class="btn-row">
+                <div></div>
+                <button class="btn-primary" onclick="goStep(2)">Next: Daily Tasks →</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: TASKS -->
+        <div class="panel" id="step2">
+            <div class="card">
+                <div class="task-list-header">
+                    <div class="card-title">Daily Tasks</div>
+                    <div class="task-counter">Selected: <strong id="taskCount">0</strong></div>
+                </div>
+                <div class="card-sub">Toggle tasks on/off. Set how often each task occurs. Add your own custom tasks.
+                </div>
+                <div class="tasks-container" id="tasksList"></div>
+                <div class="add-task-row">
+                    <input type="text" class="add-task-input" id="customTaskInput" placeholder="Add a custom task...">
+                    <button class="add-task-btn" onclick="addCustomTask()">+ Add</button>
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goStep(1)">← Back</button>
+                <button class="btn-primary" onclick="goStep(3)">Next: Set Your Goal →</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: GOAL -->
+        <div class="panel" id="step3">
+            <div class="card">
+                <div class="card-title">Your Goal</div>
+                <div class="card-sub">What are you trying to achieve? This will keep you focused on tough days.</div>
+                <div class="form-group">
+                    <label class="form-label">Challenge Goal</label>
+                    <textarea class="form-input" id="goalText"
+                        placeholder="e.g., Lose 10 lbs, build a morning routine, complete my first marathon training, develop mental toughness..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Visibility</label>
+                    <div style="display:flex;gap:10px">
+                        <button class="sched-preset active" id="visPublic" onclick="setVis(true)"
+                            style="padding:8px 16px;font-size:0.75rem">🌍 Public</button>
+                        <button class="sched-preset" id="visPrivate" onclick="setVis(false)"
+                            style="padding:8px 16px;font-size:0.75rem">🔒 Private</button>
+                    </div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px">Public challenges appear in
+                        the community feed. Others can like and comment on your progress.</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Max Failed Days Allowed</label>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <input type="number" class="form-input" id="failDays" value="0" min="0" max="10"
+                            style="width:80px;text-align:center">
+                        <span style="font-size:0.8rem;color:var(--text-muted)">days (0 = strict, any fail
+                            restarts)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goStep(2)">← Back</button>
+                <button class="btn-primary" onclick="goStep(4)">Next: Review →</button>
+            </div>
+        </div>
+
+        <!-- STEP 4: REVIEW -->
+        <div class="panel" id="step4">
+            <div class="card">
+                <div class="card-title">Review Your Challenge</div>
+                <div class="card-sub">Make sure everything looks good before you start</div>
+
+                <div class="summary-grid" id="summaryGrid"></div>
+                <div class="summary-stats" id="summaryStats"></div>
+                <div class="summary-goal" id="summaryGoal"></div>
+
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;margin-bottom:12px">
+                    Tasks</div>
+                <div class="summary-tasks" id="summaryTasks"
+                    style="background:var(--bg-primary);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-secondary" onclick="goStep(3)">← Back</button>
+                <button class="btn-primary btn-start" onclick="startChallenge()">🔥 Start Challenge</button>
+            </div>
+        </div>
+
+        <!-- SUCCESS -->
+        <div class="success-screen" id="successScreen">
+            <div class="success-icon">🔥</div>
+            <div class="success-title">Challenge Started!</div>
+            <div class="success-text">Your 66-day transformation begins now. Stay disciplined, stay focused, and
+                remember why you started.</div>
+            <a href="/active-challenge" class="success-btn">Go to My Challenge →</a>
+        </div>
+
+    </div>
+
+    <script>
+        // ══════════ DATA ══════════
+        const DAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+        const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+        const WEEKDAYS = [0, 1, 2, 3, 4];
+
+        const PRESETS = {
+            classic: {
+                name: "Total 66", icon: "🔥", color: "accent",
+                desc: "The original challenge — 6 required + 6 optional tasks",
+                tasks: [
+                    { name: "45-Minute Workout", icon: "🏋️", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "Follow a Healthy Diet", icon: "🥦", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "7-8 Hours of Sleep", icon: "😴", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "No Alcohol or Cheat Meals", icon: "🚫", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "No Added Sugar", icon: "🍬", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "Take a Progress Picture", icon: "📸", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "Read 10 Pages Daily", icon: "📖", tag: "opt", schedule: "daily", days: [...ALL_DAYS], enabled: false },
+                    { name: "Drink 1 Gallon of Water", icon: "💧", tag: "opt", schedule: "daily", days: [...ALL_DAYS], enabled: false },
+                    { name: "No Social Media", icon: "📵", tag: "opt", schedule: "daily", days: [...ALL_DAYS], enabled: false },
+                    { name: "Journaling — Write Goals", icon: "✍️", tag: "opt", schedule: "daily", days: [...ALL_DAYS], enabled: false },
+                    { name: "Meditation", icon: "🧘", tag: "opt", schedule: "daily", days: [...ALL_DAYS], enabled: false },
+                    { name: "Affirmations", icon: "✨", tag: "opt", schedule: "daily", days: [...ALL_DAYS], enabled: false },
+                ]
+            },
+            evolution: {
+                name: "Total 66 Evolution", icon: "⚡", color: "cyan",
+                desc: "The advanced protocol — 5 pillars, deeper transformation",
+                tasks: [
+                    { name: "30-min Dynamic Workout", icon: "💪", tag: "req", schedule: "custom", days: [0, 1, 2, 3, 4, 5] },
+                    { name: "30-min Outdoor Walk", icon: "🚶", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "1 Hour Skill Development", icon: "🎯", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "No Alcohol / Added Sugar", icon: "🚫", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "Follow Diet Plan", icon: "🥗", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "Social Silence (2 days/wk)", icon: "📵", tag: "req", schedule: "custom", days: [5, 6] },
+                    { name: "Unplugged Day (1 day/wk)", icon: "🔌", tag: "req", schedule: "custom", days: [6] },
+                    { name: "Morning Goals + Evening Journal", icon: "✍️", tag: "req", schedule: "daily", days: [...ALL_DAYS] },
+                    { name: "Weekly Progress Snapshot", icon: "📊", tag: "req", schedule: "custom", days: [6] },
+                ]
+            },
+            custom: {
+                name: "Custom", icon: "🛠️", color: "purple",
+                desc: "Build your own challenge from the ground up",
+                tasks: []
+            }
+        };
+
+        let state = {
+            preset: 'classic',
+            startDate: '',
+            tasks: [],
+            goal: '',
+            isPublic: true,
+            failDays: 0,
+            step: 1,
+        };
+
+        // ══════════ INIT ══════════
+        function init() {
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = dateStr;
+            document.getElementById('startDate').min = dateStr;
+            state.startDate = dateStr;
+            updateDatePreview();
+
+            document.getElementById('startDate').addEventListener('change', (e) => {
+                state.startDate = e.target.value;
+                updateDatePreview();
+            });
+
+            selectPreset('classic');
+            renderStepper();
+        }
+
+        function updateDatePreview() {
+            if (!state.startDate) return;
+            const start = new Date(state.startDate + 'T00:00:00');
+            const end = new Date(start); end.setDate(end.getDate() + 65);
+            document.getElementById('datePreview').textContent =
+                `Your challenge: ${fmtD(start)} → ${fmtD(end)} (66 days)`;
+        }
+
+        function fmtD(d) {
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // ══════════ STEPPER ══════════
+        function renderStepper() {
+            const steps = ['Schedule', 'Tasks', 'Goal', 'Review'];
+            document.getElementById('stepper').innerHTML = steps.map((s, i) => {
+                const num = i + 1;
+                const cls = num < state.step ? 'done' : num === state.step ? 'active' : '';
+                const line = i < steps.length - 1 ? `<div class="step-line ${num < state.step ? 'done' : ''}"></div>` : '';
+                return `<div class="step-dot ${cls}"><div class="step-num">${num < state.step ? '✓' : num}</div></div>${line}`;
+            }).join('');
+        }
+
+        function goStep(n) {
+            state.step = n;
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            const panel = document.getElementById('step' + n);
+            if (panel) panel.classList.add('active');
+            renderStepper();
+            if (n === 2) renderTasks();
+            if (n === 4) renderSummary();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ══════════ PRESETS ══════════
+        function selectPreset(key) {
+            state.preset = key;
+            state.tasks = JSON.parse(JSON.stringify(PRESETS[key].tasks)).map((t, i) => ({
+                ...t, id: i, enabled: t.enabled !== false, custom: false
+            }));
+
+            document.getElementById('presetGrid').innerHTML = Object.entries(PRESETS).map(([k, p]) => {
+                const sel = k === key ? ' selected' : '';
+                const count = k === 'custom' ? 'You decide' : `${p.tasks.filter(t => t.tag === 'req').length} required`;
+                return `<div class="preset-card${sel}" data-preset="${k}" onclick="selectPreset('${k}')">
+      <div class="preset-icon">${p.icon}</div>
+      <div class="preset-name">${p.name}</div>
+      <div class="preset-desc">${p.desc}</div>
+      <div class="preset-tasks-count">${count}</div>
+    </div>`;
+            }).join('');
+        }
+
+        // ══════════ TASKS ══════════
+        function renderTasks() {
+            const container = document.getElementById('tasksList');
+            container.innerHTML = state.tasks.map(t => {
+                const checked = t.enabled ? 'checked' : '';
+                const tagCls = t.custom ? 'custom-tag' : t.tag;
+                const tagLabel = t.custom ? 'Custom' : t.tag === 'req' ? 'Required' : 'Optional';
+                const schedActive = (s) => t.schedule === s ? ' active' : '';
+                const dayPills = DAYS.map((d, i) => {
+                    const active = t.days.includes(i) ? ' active' : '';
+                    return `<button class="day-pill${active}" onclick="toggleDay(${t.id},${i})">${d}</button>`;
+                }).join('');
+
+                const removeBtn = t.custom ? `<button class="remove-task" onclick="removeTask(${t.id})" title="Remove">✕</button>` : '';
+
+                return `<div class="task-item">
+      <input type="checkbox" class="task-check" ${checked} onchange="toggleTask(${t.id})">
+      <span class="task-icon-em">${t.icon}</span>
+      <div class="task-info">
+        <div class="task-name-row">
+          <span class="task-name">${t.name}</span>
+          <span class="task-tag ${tagCls}">${tagLabel}</span>
+        </div>
+        ${t.enabled ? `<div class="task-schedule">
+          <button class="sched-preset${schedActive('daily')}" onclick="setSched(${t.id},'daily')">Every day</button>
+          <button class="sched-preset${schedActive('weekdays')}" onclick="setSched(${t.id},'weekdays')">Mon–Fri</button>
+          <button class="sched-preset${schedActive('custom')}" onclick="setSched(${t.id},'custom')">Custom</button>
+          ${t.schedule === 'custom' ? `<div class="day-pills">${dayPills}</div>` : ''}
+        </div>` : ''}
+      </div>
+      ${removeBtn}
+    </div>`;
+            }).join('');
+
+            updateTaskCount();
+        }
+
+        function toggleTask(id) {
+            const t = state.tasks.find(x => x.id === id);
+            t.enabled = !t.enabled;
+            if (t.enabled && t.days.length === 0) { t.days = [...ALL_DAYS]; t.schedule = 'daily'; }
+            renderTasks();
+        }
+
+        function setSched(id, sched) {
+            const t = state.tasks.find(x => x.id === id);
+            t.schedule = sched;
+            if (sched === 'daily') t.days = [...ALL_DAYS];
+            else if (sched === 'weekdays') t.days = [...WEEKDAYS];
+            renderTasks();
+        }
+
+        function toggleDay(id, day) {
+            const t = state.tasks.find(x => x.id === id);
+            t.schedule = 'custom';
+            const idx = t.days.indexOf(day);
+            if (idx > -1) t.days.splice(idx, 1); else t.days.push(day);
+            t.days.sort();
+            renderTasks();
+        }
+
+        function addCustomTask() {
+            const input = document.getElementById('customTaskInput');
+            const name = input.value.trim();
+            if (!name) return;
+            const maxId = state.tasks.length > 0 ? Math.max(...state.tasks.map(t => t.id)) : -1;
+            state.tasks.push({
+                id: maxId + 1, name, icon: '⭐', tag: 'custom-tag',
+                schedule: 'daily', days: [...ALL_DAYS], enabled: true, custom: true
+            });
+            input.value = '';
+            renderTasks();
+        }
+
+        function removeTask(id) {
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            renderTasks();
+        }
+
+        function updateTaskCount() {
+            const active = state.tasks.filter(t => t.enabled);
+            document.getElementById('taskCount').textContent = active.length;
+        }
+
+        // ══════════ VISIBILITY ══════════
+        function setVis(pub) {
+            state.isPublic = pub;
+            document.getElementById('visPublic').classList.toggle('active', pub);
+            document.getElementById('visPrivate').classList.toggle('active', !pub);
+        }
+
+        // ══════════ SUMMARY ══════════
+        function renderSummary() {
+            state.goal = document.getElementById('goalText').value;
+            state.failDays = parseInt(document.getElementById('failDays').value) || 0;
+
+            const active = state.tasks.filter(t => t.enabled);
+            const dailyTasks = active.filter(t => t.days.length === 7);
+            const start = new Date(state.startDate + 'T00:00:00');
+            const end = new Date(start); end.setDate(end.getDate() + 65);
+            const presetInfo = PRESETS[state.preset];
+
+            // Compute total task instances across 66 days
+            let totalInstances = 0;
+            active.forEach(t => { totalInstances += Math.round(66 * t.days.length / 7); });
+
+            document.getElementById('summaryGrid').innerHTML = `
+    <div class="summary-item"><div class="summary-label">Schedule</div><div class="summary-value">${presetInfo.icon} ${presetInfo.name}</div></div>
+    <div class="summary-item"><div class="summary-label">Duration</div><div class="summary-value">66 Days</div></div>
+    <div class="summary-item"><div class="summary-label">Start Date</div><div class="summary-value accent">${fmtD(start)}</div></div>
+    <div class="summary-item"><div class="summary-label">End Date</div><div class="summary-value accent">${fmtD(end)}</div></div>
+    <div class="summary-item"><div class="summary-label">Visibility</div><div class="summary-value">${state.isPublic ? '🌍 Public' : '🔒 Private'}</div></div>
+    <div class="summary-item"><div class="summary-label">Failed Days Allowed</div><div class="summary-value">${state.failDays === 0 ? 'Strict (0)' : state.failDays + ' days'}</div></div>`;
+
+            document.getElementById('summaryStats').innerHTML = `
+    <div class="ss c1"><div class="ss-val">${active.length}</div><div class="ss-lbl">Daily Tasks</div></div>
+    <div class="ss c2"><div class="ss-val">${totalInstances}</div><div class="ss-lbl">Total Task Instances</div></div>
+    <div class="ss c3"><div class="ss-val">${dailyTasks.length}/${active.length}</div><div class="ss-lbl">Every Day Tasks</div></div>`;
+
+            document.getElementById('summaryGoal').innerHTML = state.goal
+                ? `<div class="summary-goal-label">Your Goal</div><div class="summary-goal-text">"${state.goal}"</div>`
+                : `<div class="summary-goal-label">Your Goal</div><div class="summary-goal-text" style="color:var(--text-muted)">No goal set</div>`;
+
+            const freqLabel = (t) => {
+                if (t.days.length === 7) return 'Every day';
+                if (t.days.length === 5 && JSON.stringify(t.days) === JSON.stringify(WEEKDAYS)) return 'Mon–Fri';
+                return t.days.map(d => DAYS[d]).join(', ');
+            };
+
+            document.getElementById('summaryTasks').innerHTML = active.map(t => {
+                const tagCls = t.custom ? 'custom-tag' : t.tag;
+                const tagLabel = t.custom ? 'Custom' : t.tag === 'req' ? 'Required' : 'Optional';
+                return `<div class="summary-task">
+      <span style="font-size:1rem">${t.icon}</span>
+      <span class="summary-task-name">${t.name} <span class="task-tag ${tagCls}" style="margin-left:6px">${tagLabel}</span></span>
+      <span class="summary-task-freq">${freqLabel(t)}</span>
+    </div>`;
+            }).join('');
+        }
+
+        // ══════════ START ══════════
+        function startChallenge() {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('stepper').style.display = 'none';
+            document.getElementById('successScreen').classList.add('visible');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // INIT
+        init();
+    </script>
+</body>
+
+</html>
