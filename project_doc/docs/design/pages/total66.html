@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Total 66 – Login / Register</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-card: #131313;
+      --bg-card-hover: #1a1a1a;
+      --bg-elevated: #1c1c1c;
+      --bg-input: #0f0f0f;
+      --accent: #ff4d00;
+      --accent-glow: rgba(255, 77, 0, 0.15);
+      --accent-secondary: #ff8a50;
+      --cyan: #00d4aa;
+      --cyan-glow: rgba(0, 212, 170, 0.12);
+      --green: #22c55e;
+      --red: #ef4444;
+      --text-primary: #f0ece6;
+      --text-secondary: #8a8680;
+      --text-muted: #5a5754;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-input: rgba(255, 255, 255, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(10, 10, 10, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 4px;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-links a.active {
+      color: var(--accent);
+    }
+
+    .nav-links .nav-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--border);
+      margin: 0 4px;
+    }
+
+    .nav-login-btn {
+      color: var(--accent) !important;
+      border: 1px solid rgba(255, 77, 0, 0.3) !important;
+      border-radius: 8px !important;
+      padding: 6px 16px !important;
+    }
+
+    .nav-login-btn:hover {
+      background: var(--accent-glow) !important;
+    }
+
+    /* ── PAGE LAYOUT ── */
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 20px 60px;
+      position: relative;
+    }
+
+    /* Background decorations */
+    .auth-page::before {
+      content: '66';
+      position: absolute;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(250px, 35vw, 500px);
+      color: rgba(255, 77, 0, 0.025);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .bg-glow-1 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255, 77, 0, 0.06) 0%, transparent 70%);
+      top: 10%;
+      left: -10%;
+      pointer-events: none;
+      animation: float1 20s ease infinite alternate;
+    }
+
+    .bg-glow-2 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(0, 212, 170, 0.04) 0%, transparent 70%);
+      bottom: 5%;
+      right: -5%;
+      pointer-events: none;
+      animation: float2 18s ease infinite alternate;
+    }
+
+    @keyframes float1 {
+      from {
+        transform: translate(0, 0);
+      }
+
+      to {
+        transform: translate(40px, -30px);
+      }
+    }
+
+    @keyframes float2 {
+      from {
+        transform: translate(0, 0);
+      }
+
+      to {
+        transform: translate(-30px, 20px);
+      }
+    }
+
+    /* ── AUTH CARD ── */
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+      animation: cardIn 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-secondary), var(--accent));
+    }
+
+    /* ── CARD HEADER ── */
+    .auth-header {
+      padding: 36px 36px 0;
+      text-align: center;
+    }
+
+    .auth-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 5px;
+      margin-bottom: 6px;
+    }
+
+    .auth-logo span {
+      color: var(--accent);
+    }
+
+    .auth-subtitle {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 28px;
+    }
+
+    /* ── TABS ── */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin: 0 36px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 14px 0;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.3s;
+      border-bottom: 2px solid transparent;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .auth-tab:hover {
+      color: var(--text-secondary);
+    }
+
+    .auth-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── FORMS ── */
+    .auth-body {
+      padding: 32px 36px 36px;
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .form-input-wrapper {
+      position: relative;
+    }
+
+    .form-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px 14px 46px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-input:focus {
+      border-color: rgba(255, 77, 0, 0.4);
+      box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.08);
+    }
+
+    .form-input.error {
+      border-color: rgba(239, 68, 68, 0.5);
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+    }
+
+    .form-error {
+      color: var(--red);
+      font-size: 0.75rem;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .form-error.visible {
+      display: block;
+    }
+
+    /* Password toggle */
+    .pw-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .pw-toggle:hover {
+      color: var(--text-secondary);
+    }
+
+    /* Country select */
+    .form-select {
+      width: 100%;
+      padding: 14px 16px 14px 46px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.3s;
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%235a5754'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+    }
+
+    .form-select:focus {
+      border-color: rgba(255, 77, 0, 0.4);
+      box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.08);
+    }
+
+    .form-select option {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    /* Row for first/last name */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Checkbox */
+    .form-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 24px;
+      cursor: pointer;
+    }
+
+    .form-checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 1px solid var(--border-input);
+      background: var(--bg-input);
+      appearance: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .form-checkbox:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .form-checkbox:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .form-check-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .form-check-label a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .form-check-label a:hover {
+      text-decoration: underline;
+    }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 30px rgba(255, 77, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 50px rgba(255, 77, 0, 0.35);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Loading state */
+    .submit-btn.loading {
+      pointer-events: none;
+      color: transparent;
+    }
+
+    .submit-btn.loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    /* Forgot password */
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 24px;
+      transition: color 0.2s;
+    }
+
+    .forgot-link:hover {
+      color: var(--accent);
+    }
+
+    /* ── DIVIDERS ── */
+    .divider-or {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .divider-or::before,
+    .divider-or::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-or span {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+    }
+
+    /* ── SOCIAL BUTTONS ── */
+    .social-btns {
+      display: flex;
+      gap: 12px;
+    }
+
+    .social-btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .social-btn:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: var(--bg-card-hover);
+      transform: translateY(-1px);
+    }
+
+    .social-btn .social-icon {
+      font-size: 1.1rem;
+    }
+
+    /* ── FOOTER TEXT ── */
+    .auth-footer {
+      text-align: center;
+      padding: 0 36px 32px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .auth-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── SUCCESS MESSAGE ── */
+    .success-message {
+      display: none;
+      text-align: center;
+      padding: 40px 36px;
+    }
+
+    .success-message.visible {
+      display: block;
+    }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--green);
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.3);
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0);
+      }
+
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .success-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .success-text {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    .success-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .success-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px rgba(255, 77, 0, 0.3);
+    }
+
+    /* ── PASSWORD STRENGTH ── */
+    .pw-strength {
+      margin-top: 8px;
+    }
+
+    .pw-strength-bar {
+      height: 3px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .pw-strength-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: all 0.4s;
+      width: 0%;
+    }
+
+    .pw-strength-fill.weak {
+      width: 25%;
+      background: var(--red);
+    }
+
+    .pw-strength-fill.fair {
+      width: 50%;
+      background: #f59e0b;
+    }
+
+    .pw-strength-fill.good {
+      width: 75%;
+      background: var(--cyan);
+    }
+
+    .pw-strength-fill.strong {
+      width: 100%;
+      background: var(--green);
+    }
+
+    .pw-strength-label {
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .pw-strength-label.weak {
+      color: var(--red);
+    }
+
+    .pw-strength-label.fair {
+      color: #f59e0b;
+    }
+
+    .pw-strength-label.good {
+      color: var(--cyan);
+    }
+
+    .pw-strength-label.strong {
+      color: var(--green);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 500px) {
+      nav {
+        padding: 16px 16px;
+      }
+
+      .nav-links a {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+      }
+
+      .auth-header {
+        padding: 28px 24px 0;
+      }
+
+      .auth-tabs {
+        margin: 0 24px;
+      }
+
+      .auth-body {
+        padding: 24px 24px 28px;
+      }
+
+      .auth-footer {
+        padding: 0 24px 24px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .social-btns {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="/" class="nav-logo">TOTAL <span>66</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/challenges">Challenges</a>
+      <a href="/members">Members</a>
+      <div class="nav-divider"></div>
+      <a href="/auth" class="nav-login-btn active">Login</a>
+    </div>
+  </nav>
+
+  <!-- PAGE -->
+  <div class="auth-page">
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="auth-card">
+      <!-- Top gradient bar is ::before -->
+
+      <!-- Header -->
+      <div class="auth-header">
+        <div class="auth-logo">TOTAL <span>66</span></div>
+        <div class="auth-subtitle">Join the transformation. 66 days starts now.</div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+        <button class="auth-tab" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- ═══ LOGIN FORM ═══ -->
+      <div class="auth-body">
+        <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="form-input-wrapper">
+              <span class="form-icon">✉️</span>
+              <input class="form-input" type="email" placeholder="you@example.com" required id="loginEmail">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="form-input-wrapper">
+              <span class="form-icon">🔒</span>
+              <input class="form-input" type="password" placeholder="Enter your password" required id="loginPassword">
+              <button type="button" class="pw-toggle" onclick="togglePw('loginPassword', this)">👁️</button>
+            </div>
+          </div>
+
+          <a href="#" class="forgot-link">Forgot password?</a>
+
+          <button class="submit-btn" type="submit" id="loginBtn">Sign In</button>
+
+          <div class="divider-or"><span>or</span></div>
+
+          <div class="social-btns">
+            <button type="button" class="social-btn" onclick="socialLogin('google')">
+              <span class="social-icon">G</span> Google
+            </button>
+            <button type="button" class="social-btn" onclick="socialLogin('apple')">
+              <span class="social-icon">🍎</span> Apple
+            </button>
+            <button type="button" class="social-btn" onclick="socialLogin('facebook')">
+              <span class="social-icon">f</span> Facebook
+            </button>
+          </div>
+        </form>
+
+        <!-- ═══ REGISTER FORM ═══ -->
+        <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First Name</label>
+              <div class="form-input-wrapper">
+                <span class="form-icon">👤</span>
+                <input class="form-input" type="text" placeholder="John" required id="regFirstName">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <div class="form-input-wrapper">
+                <span class="form-icon">👤</span>
+                <input class="form-input" type="text" placeholder="Doe" required id="regLastName">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nickname</label>
+            <div class="form-input-wrapper">
+              <span class="form-icon">@</span>
+              <input class="form-input" type="text" placeholder="johndoe66" required id="regNickname">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="form-input-wrapper">
+              <span class="form-icon">✉️</span>
+              <input class="form-input" type="email" placeholder="you@example.com" required id="regEmail">
+            </div>
+            <div class="form-error" id="emailError">This email is already registered</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="form-input-wrapper">
+              <span class="form-icon">🔒</span>
+              <input class="form-input" type="password" placeholder="Min. 8 characters" required minlength="8"
+                id="regPassword" oninput="checkStrength(this.value)">
+              <button type="button" class="pw-toggle" onclick="togglePw('regPassword', this)">👁️</button>
+            </div>
+            <div class="pw-strength">
+              <div class="pw-strength-bar">
+                <div class="pw-strength-fill" id="pwFill"></div>
+              </div>
+              <div class="pw-strength-label" id="pwLabel"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="form-input-wrapper">
+              <span class="form-icon">🔒</span>
+              <input class="form-input" type="password" placeholder="Repeat password" required id="regConfirm">
+            </div>
+            <div class="form-error" id="confirmError">Passwords don't match</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Country</label>
+            <div class="form-input-wrapper">
+              <span class="form-icon">🌍</span>
+              <select class="form-select" id="regCountry" required>
+                <option value="" disabled selected>Select your country</option>
+                <option value="US">🇺🇸 United States</option>
+                <option value="GB">🇬🇧 United Kingdom</option>
+                <option value="CA">🇨🇦 Canada</option>
+                <option value="AU">🇦🇺 Australia</option>
+                <option value="DE">🇩🇪 Germany</option>
+                <option value="FR">🇫🇷 France</option>
+                <option value="ES">🇪🇸 Spain</option>
+                <option value="IT">🇮🇹 Italy</option>
+                <option value="BR">🇧🇷 Brazil</option>
+                <option value="MX">🇲🇽 Mexico</option>
+                <option value="JP">🇯🇵 Japan</option>
+                <option value="KR">🇰🇷 South Korea</option>
+                <option value="IN">🇮🇳 India</option>
+                <option value="UA">🇺🇦 Ukraine</option>
+                <option value="PL">🇵🇱 Poland</option>
+                <option value="NL">🇳🇱 Netherlands</option>
+                <option value="SE">🇸🇪 Sweden</option>
+                <option value="NO">🇳🇴 Norway</option>
+                <option value="PT">🇵🇹 Portugal</option>
+                <option value="AR">🇦🇷 Argentina</option>
+                <option value="OTHER">🌍 Other</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="form-check">
+            <input type="checkbox" class="form-checkbox" required id="regAgree">
+            <span class="form-check-label">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy
+                Policy</a></span>
+          </label>
+
+          <button class="submit-btn" type="submit" id="registerBtn">Create Account</button>
+
+          <div class="divider-or"><span>or</span></div>
+
+          <div class="social-btns">
+            <button type="button" class="social-btn" onclick="socialLogin('google')">
+              <span class="social-icon">G</span> Google
+            </button>
+            <button type="button" class="social-btn" onclick="socialLogin('apple')">
+              <span class="social-icon">🍎</span> Apple
+            </button>
+            <button type="button" class="social-btn" onclick="socialLogin('facebook')">
+              <span class="social-icon">f</span> Facebook
+            </button>
+          </div>
+        </form>
+
+        <!-- ═══ SUCCESS STATE ═══ -->
+        <div class="success-message" id="successMessage">
+          <div class="success-icon">✓</div>
+          <div class="success-title" id="successTitle">Welcome Back!</div>
+          <div class="success-text" id="successText">You're all set. Let's continue your transformation.</div>
+          <a href="/" class="success-btn">Go to Dashboard →</a>
+        </div>
+      </div>
+
+      <!-- Footer toggle -->
+      <div class="auth-footer" id="authFooter">
+        Don't have an account? <a href="#" onclick="switchTab('register'); return false;">Sign up</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── TAB SWITCHING ──
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      document.getElementById('successMessage').classList.remove('visible');
+
+      if (tab === 'login') {
+        document.querySelectorAll('.auth-tab')[0].classList.add('active');
+        document.getElementById('loginForm').classList.add('active');
+        document.getElementById('authFooter').innerHTML =
+          'Don\'t have an account? <a href="#" onclick="switchTab(\'register\'); return false;">Sign up</a>';
+      } else {
+        document.querySelectorAll('.auth-tab')[1].classList.add('active');
+        document.getElementById('registerForm').classList.add('active');
+        document.getElementById('authFooter').innerHTML =
+          'Already have an account? <a href="#" onclick="switchTab(\'login\'); return false;">Sign in</a>';
+      }
+
+      document.getElementById('authFooter').style.display = '';
+      document.querySelector('.auth-body').style.display = '';
+    }
+
+    // ── PASSWORD TOGGLE ──
+    function togglePw(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+      }
+    }
+
+    // ── PASSWORD STRENGTH ──
+    function checkStrength(pw) {
+      const fill = document.getElementById('pwFill');
+      const label = document.getElementById('pwLabel');
+      let score = 0;
+      if (pw.length >= 8) score++;
+      if (pw.length >= 12) score++;
+      if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+      if (/\d/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+      fill.className = 'pw-strength-fill';
+      label.className = 'pw-strength-label';
+
+      if (pw.length === 0) {
+        label.textContent = '';
+        return;
+      }
+      if (score <= 1) { fill.classList.add('weak'); label.classList.add('weak'); label.textContent = 'Weak'; }
+      else if (score === 2) { fill.classList.add('fair'); label.classList.add('fair'); label.textContent = 'Fair'; }
+      else if (score === 3) { fill.classList.add('good'); label.classList.add('good'); label.textContent = 'Good'; }
+      else { fill.classList.add('strong'); label.classList.add('strong'); label.textContent = 'Strong'; }
+    }
+
+    // ── FORM HANDLERS ──
+    function handleLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      btn.classList.add('loading');
+
+      setTimeout(() => {
+        btn.classList.remove('loading');
+        showSuccess('Welcome Back!', 'You\'re all set. Let\'s continue your transformation.');
+      }, 1500);
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+
+      // Validate password match
+      const pw = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regConfirm').value;
+      const confirmErr = document.getElementById('confirmError');
+
+      if (pw !== confirm) {
+        confirmErr.classList.add('visible');
+        document.getElementById('regConfirm').classList.add('error');
+        return;
+      }
+      confirmErr.classList.remove('visible');
+      document.getElementById('regConfirm').classList.remove('error');
+
+      const btn = document.getElementById('registerBtn');
+      btn.classList.add('loading');
+
+      setTimeout(() => {
+        btn.classList.remove('loading');
+        const name = document.getElementById('regFirstName').value;
+        showSuccess(`Welcome, ${name}!`, 'Your account is ready. Time to start your 66-day journey.');
+      }, 1500);
+    }
+
+    function showSuccess(title, text) {
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      document.getElementById('successTitle').textContent = title;
+      document.getElementById('successText').textContent = text;
+      document.getElementById('successMessage').classList.add('visible');
+      document.getElementById('authFooter').style.display = 'none';
+    }
+
+    function socialLogin(provider) {
+      alert(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login — coming soon!`);
+    }
+
+    // ── CLEAR ERRORS ON INPUT ──
+    document.getElementById('regConfirm')?.addEventListener('input', () => {
+      document.getElementById('confirmError').classList.remove('visible');
+      document.getElementById('regConfirm').classList.remove('error');
+    });
+  </script>
+
+</body>
+
+</html>

@@ -3,12 +3,6 @@ defmodule HeadsUp.UserActivity do
   import Ecto.Changeset
 
   @activity_types [
-    "goal_created",
-    "goal_completed",
-    "goal_failed",
-    "goal_frozen",
-    "goal_deleted",
-    "goal_updated",
     "post_created",
     "post_liked",
     "post_received_like",
@@ -17,7 +11,6 @@ defmodule HeadsUp.UserActivity do
     "friend_request_sent",
     "friend_request_accepted",
     "daily_login",
-    "goal_step_completed",
     # Challenge activities
     "challenge_created",
     "challenge_joined",
@@ -38,8 +31,6 @@ defmodule HeadsUp.UserActivity do
     field :metadata, :map, default: %{}
 
     belongs_to :user, HeadsUp.Users
-    belongs_to :goal, HeadsUp.Goal
-    belongs_to :post, HeadsUp.Goals.GoalPost
     belongs_to :challenge, HeadsUp.Challenges.Challenge
     field :like_id, :integer
     field :follow_id, :integer
@@ -55,8 +46,6 @@ defmodule HeadsUp.UserActivity do
       :description,
       :metadata,
       :user_id,
-      :goal_id,
-      :post_id,
       :challenge_id,
       :like_id,
       :follow_id
@@ -64,8 +53,6 @@ defmodule HeadsUp.UserActivity do
     |> validate_required([:activity_type, :user_id])
     |> validate_inclusion(:activity_type, @activity_types)
     |> foreign_key_constraint(:user_id)
-    |> foreign_key_constraint(:goal_id)
-    |> foreign_key_constraint(:post_id)
   end
 
   def activity_types, do: @activity_types

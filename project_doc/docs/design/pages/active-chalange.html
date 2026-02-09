@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total 66 – Active Challenge</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #131313;
+            --bg-card-hover: #1a1a1a;
+            --bg-elevated: #1c1c1c;
+            --bg-input: #0f0f0f;
+            --accent: #ff4d00;
+            --accent-glow: rgba(255, 77, 0, 0.15);
+            --accent-secondary: #ff8a50;
+            --gold: #ffc642;
+            --gold-glow: rgba(255, 198, 66, 0.15);
+            --cyan: #00d4aa;
+            --cyan-glow: rgba(0, 212, 170, 0.12);
+            --green: #22c55e;
+            --green-dim: rgba(34, 197, 94, 0.12);
+            --yellow: #eab308;
+            --yellow-dim: rgba(234, 179, 8, 0.12);
+            --red: #ef4444;
+            --red-dim: rgba(239, 68, 68, 0.12);
+            --blue: #3b82f6;
+            --blue-dim: rgba(59, 130, 246, 0.12);
+            --text-primary: #f0ece6;
+            --text-secondary: #8a8680;
+            --text-muted: #5a5754;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-input: rgba(255, 255, 255, 0.08);
+            --radius: 16px;
+            --sidebar-w: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            padding: 0 30px;
+            height: 64px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 10, 0.85);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-logo span {
+            color: var(--accent);
+        }
+
+        .nav-pages {
+            display: flex;
+            gap: 4px;
+        }
+
+        .nav-pages a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-pages a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-pages a.active {
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .nav-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-w);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+            overflow-y: auto;
+            z-index: 50;
+            transition: transform 0.3s;
+        }
+
+        .sb-label {
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 12px 24px 8px;
+            font-weight: 700;
+        }
+
+        .sb-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 24px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sb-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .sb-link.active {
+            color: var(--accent);
+            background: var(--accent-glow);
+            border-left-color: var(--accent);
+        }
+
+        .sb-link .sb-ic {
+            width: 22px;
+            text-align: center;
+            font-size: 1.05rem;
+        }
+
+        .sb-link .sb-tx {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .sb-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 12px 24px;
+        }
+
+        .hamburger {
+            display: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sb-overlay {
+            display: none;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 40;
+        }
+
+        /* ── MAIN ── */
+        .main {
+            margin-left: var(--sidebar-w);
+            padding: 88px 40px 80px;
+            min-height: 100vh;
+            max-width: calc(900px + var(--sidebar-w));
+        }
+
+        /* ══════════ CHALLENGE HEADER ══════════ */
+        .ch-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ch-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+        }
+
+        .ch-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .ch-info {}
+
+        .ch-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            color: var(--accent);
+            background: var(--accent-glow);
+            margin-bottom: 10px;
+        }
+
+        .ch-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            letter-spacing: 3px;
+            line-height: 1.1;
+        }
+
+        .ch-dates {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        .ch-dates strong {
+            color: var(--text-secondary);
+        }
+
+        .ch-fail-btn {
+            padding: 10px 22px;
+            border-radius: 10px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: var(--red-dim);
+            color: var(--red);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .ch-fail-btn:hover {
+            background: var(--red);
+            color: #fff;
+            border-color: var(--red);
+        }
+
+        /* Progress bar */
+        .ch-progress {
+            margin-bottom: 6px;
+        }
+
+        .ch-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+
+        .ch-progress-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+        }
+
+        .ch-progress-pct {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        .ch-bar {
+            height: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ch-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            transition: width 1s ease;
+            position: relative;
+        }
+
+        .ch-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 20px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2));
+            border-radius: 0 10px 10px 0;
+        }
+
+        .ch-day-count {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .ch-day-count strong {
+            color: var(--text-primary);
+        }
+
+        /* ══════════ MOOD TRACKER ══════════ */
+        .mood-tracker {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .mood-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .mood-sub {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 16px;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(22, 1fr);
+            gap: 4px;
+        }
+
+        .mood-day {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.7rem, 1.2vw, 1.1rem);
+            cursor: default;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .mood-day:hover {
+            transform: scale(1.2);
+            z-index: 2;
+        }
+
+        .mood-day .mood-tooltip {
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 4px 10px;
+            white-space: nowrap;
+            font-size: 0.7rem;
+            color: var(--text-primary);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .mood-day:hover .mood-tooltip {
+            opacity: 1;
+        }
+
+        .mood-day.good {
+            background: var(--green-dim);
+        }
+
+        .mood-day.okay {
+            background: var(--yellow-dim);
+        }
+
+        .mood-day.bad {
+            background: var(--red-dim);
+        }
+
+        .mood-day.none {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .mood-day.future {
+            background: rgba(255, 255, 255, 0.015);
+            opacity: 0.4;
+        }
+
+        .mood-day.today {
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        .mood-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .mood-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .mood-legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+
+        .mood-legend-dot.g {
+            background: var(--green-dim);
+        }
+
+        .mood-legend-dot.y {
+            background: var(--yellow-dim);
+        }
+
+        .mood-legend-dot.r {
+            background: var(--red-dim);
+        }
+
+        .mood-legend-dot.n {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        /* Phase labels */
+        .mood-phases {
+            display: flex;
+            margin-bottom: 6px;
+        }
+
+        .mood-phase {
+            flex: 1;
+            text-align: center;
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            padding: 4px 0;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .mood-phase.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        /* ══════════ TODAY'S TASKS ══════════ */
+        .today-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .today-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .today-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 2px;
+        }
+
+        .today-day-badge {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            background: var(--accent-glow);
+            padding: 4px 14px;
+            border-radius: 100px;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .task-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .task-row:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .task-row .task-icon {
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .task-row .task-name {
+            flex: 1;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .task-row.done .task-name {
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .task-row.failed-task .task-name {
+            color: var(--red);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .task-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .task-btn.done-btn {
+            color: var(--green);
+        }
+
+        .task-btn.done-btn:hover {
+            background: var(--green-dim);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .task-btn.done-btn.active {
+            background: var(--green);
+            color: #fff;
+            border-color: var(--green);
+        }
+
+        .task-btn.fail-btn {
+            color: var(--red);
+        }
+
+        .task-btn.fail-btn:hover {
+            background: var(--red-dim);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .task-btn.fail-btn.active {
+            background: var(--red);
+            color: #fff;
+            border-color: var(--red);
+        }
+
+        .task-status-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .task-status-label.s-done {
+            color: var(--green);
+            background: var(--green-dim);
+        }
+
+        .task-status-label.s-fail {
+            color: var(--red);
+            background: var(--red-dim);
+        }
+
+        /* Mood selector */
+        .mood-select {
+            margin-bottom: 24px;
+        }
+
+        .mood-select-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .mood-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mood-opt {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .mood-opt:hover {
+            transform: scale(1.1);
+        }
+
+        .mood-opt.selected {
+            transform: scale(1.1);
+        }
+
+        .mood-opt[data-mood="good"].selected {
+            border-color: var(--green);
+            background: var(--green-dim);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        }
+
+        .mood-opt[data-mood="okay"].selected {
+            border-color: var(--yellow);
+            background: var(--yellow-dim);
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.2);
+        }
+
+        .mood-opt[data-mood="bad"].selected {
+            border-color: var(--red);
+            background: var(--red-dim);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+
+        .mood-opt-label {
+            position: absolute;
+            bottom: -18px;
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Reflection */
+        .reflection {
+            margin-bottom: 28px;
+            margin-top: 12px;
+        }
+
+        .reflection-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .reflection-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 14px 18px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-input);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        .reflection-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .reflection-textarea:focus {
+            border-color: rgba(255, 77, 0, 0.4);
+        }
+
+        /* Finish day button */
+        .finish-day-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            background: var(--accent);
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 40px rgba(255, 77, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .finish-day-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 60px rgba(255, 77, 0, 0.35);
+        }
+
+        .finish-day-btn:active {
+            transform: translateY(0);
+        }
+
+        .finish-day-btn.submitted {
+            background: var(--green);
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.2);
+            pointer-events: none;
+        }
+
+        /* ══════════ CHALLENGE FEED ══════════ */
+        .feed-section {
+            margin-bottom: 40px;
+        }
+
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .feed-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+        }
+
+        .feed-public-tag {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--green);
+            background: var(--green-dim);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-weight: 700;
+        }
+
+        .feed-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feed-entry {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .feed-entry:hover {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .fe-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .fe-date {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .fe-day-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.85rem;
+            color: var(--accent);
+            letter-spacing: 2px;
+        }
+
+        .fe-mood {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .fe-mood.good {
+            color: var(--green);
+            background: var(--green-dim);
+        }
+
+        .fe-mood.okay {
+            color: var(--yellow);
+            background: var(--yellow-dim);
+        }
+
+        .fe-mood.bad {
+            color: var(--red);
+            background: var(--red-dim);
+        }
+
+        .fe-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .fe-stat {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .fe-stat strong {
+            color: var(--text-primary);
+        }
+
+        .fe-tasks-bar {
+            height: 6px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            margin-bottom: 6px;
+            display: flex;
+        }
+
+        .fe-tasks-done {
+            height: 100%;
+            background: var(--green);
+        }
+
+        .fe-tasks-failed {
+            height: 100%;
+            background: var(--red);
+        }
+
+        .fe-tasks-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .fe-reflection {
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            border-left: 3px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-style: italic;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        /* Likes & Comments */
+        .fe-actions {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .fe-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
+        .fe-action-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+
+        .fe-action-btn.liked {
+            color: var(--red);
+        }
+
+        .fe-action-btn .fe-act-icon {
+            font-size: 1rem;
+        }
+
+        /* Comments section */
+        .fe-comments {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .fe-comment {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .fe-comment-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            letter-spacing: 1px;
+        }
+
+        .fe-comment-body {
+            flex: 1;
+        }
+
+        .fe-comment-name {
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .fe-comment-name span {
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: 6px;
+            font-size: 0.7rem;
+        }
+
+        .fe-comment-text {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .fe-comment-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .fe-comment-input input {
+            flex: 1;
+            padding: 10px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-input);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .fe-comment-input input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .fe-comment-input input:focus {
+            border-color: rgba(255, 77, 0, 0.3);
+        }
+
+        .fe-comment-send {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fe-comment-send:hover {
+            transform: scale(1.05);
+        }
+
+        .fe-toggle-comments {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 4px 0;
+        }
+
+        .fe-toggle-comments:hover {
+            color: var(--text-secondary);
+        }
+
+        .fe-comments-list {
+            display: none;
+        }
+
+        .fe-comments-list.open {
+            display: block;
+        }
+
+        /* ── Animations ── */
+        .anim {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .anim.vis {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width:860px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-pages {
+                display: none;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 100;
+                background: var(--bg-elevated);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sb-overlay.open {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 88px 20px 60px;
+            }
+
+            .mood-grid {
+                grid-template-columns: repeat(11, 1fr);
+            }
+        }
+
+        @media (max-width:500px) {
+            nav {
+                padding: 0 16px;
+            }
+
+            .mood-grid {
+                grid-template-columns: repeat(11, 1fr);
+            }
+
+            .ch-top {
+                flex-direction: column;
+            }
+
+            .mood-options {
+                gap: 6px;
+            }
+
+            .mood-opt {
+                width: 48px;
+                height: 48px;
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <div class="nav-left">
+            <button class="hamburger" onclick="toggleSidebar()">☰</button>
+            <a href="/" class="nav-logo">TOTAL <span>66</span></a>
+            <div class="nav-pages">
+                <a href="/">Home</a>
+                <a href="/challenges">Challenges</a>
+                <a href="/members">Members</a>
+                <a href="/hub" class="active">My Hub</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <div class="nav-avatar">AK</div>
+        </div>
+    </nav>
+
+    <div class="sb-overlay" id="sbOverlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sb-label">Menu</div>
+        <a class="sb-link" href="/hub"><span class="sb-ic">🏠</span><span class="sb-tx">My Hub</span></a>
+        <a class="sb-link" href="/profile"><span class="sb-ic">👤</span><span class="sb-tx">Profile</span></a>
+        <a class="sb-link active" href="/my-challenges"><span class="sb-ic">🔥</span><span class="sb-tx">My
+                Challenges</span></a>
+        <a class="sb-link" href="/connections"><span class="sb-ic">🤝</span><span class="sb-tx">Connections</span></a>
+        <a class="sb-link" href="/messages"><span class="sb-ic">💬</span><span class="sb-tx">Messages</span></a>
+        <a class="sb-link" href="/feed"><span class="sb-ic">📰</span><span class="sb-tx">Feed</span></a>
+        <div class="sb-divider"></div>
+        <a class="sb-link" href="/settings"><span class="sb-ic">⚙️</span><span class="sb-tx">Settings</span></a>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- ═══ CHALLENGE HEADER ═══ -->
+        <div class="ch-header anim" id="chHeader"></div>
+
+        <!-- ═══ MOOD TRACKER ═══ -->
+        <div class="mood-tracker anim" id="moodTracker"></div>
+
+        <!-- ═══ TODAY'S TASKS ═══ -->
+        <div class="today-section anim" id="todaySection"></div>
+
+        <!-- ═══ CHALLENGE FEED ═══ -->
+        <div class="feed-section anim" id="feedSection"></div>
+
+    </div>
+
+    <script>
+        // ══════════════════════════════════
+        //  DATA — Replace with your backend
+        // ══════════════════════════════════
+        const challenge = {
+            name: "Total 66 Evolution",
+            type: "evolution",
+            startDate: "2025-04-01",
+            endDate: "2025-06-05",
+            currentDay: 34,
+            totalDays: 66,
+            isPublic: true,
+            tasks: [
+                { id: 1, icon: "💪", name: "30-min Dynamic Workout", status: null },
+                { id: 2, icon: "🚶", name: "30-min Outdoor Walk", status: null },
+                { id: 3, icon: "🎯", name: "1 Hour Skill Development", status: null },
+                { id: 4, icon: "🚫", name: "No Alcohol / Added Sugar", status: null },
+                { id: 5, icon: "🥗", name: "Follow Diet Plan", status: null },
+                { id: 6, icon: "📵", name: "Social Silence (if scheduled)", status: null },
+                { id: 7, icon: "✍️", name: "Morning Goals + Evening Journal", status: null },
+                { id: 8, icon: "📊", name: "Weekly Progress Snapshot", status: null },
+            ],
+            // Mood per day: "good" | "okay" | "bad" | "none"
+            moods: [
+                "good", "good", "okay", "good", "bad", "good", "good",
+                "okay", "good", "good", "good", "okay", "good", "good",
+                "bad", "okay", "good", "good", "good", "good", "okay",
+                "good", "good", "okay", "good", "good", "good", "bad",
+                "good", "okay", "good", "good", "good",
+            ],
+            selectedMood: null,
+            feed: [
+                {
+                    day: 33, date: "May 3, 2025", mood: "good",
+                    tasksDone: 7, tasksFailed: 1, tasksTotal: 8,
+                    reflection: "Great workout session today. Boxing class was intense but I pushed through. Feeling stronger each day. The skill development hour flew by — making real progress with the piano.",
+                    likes: 12, liked: true,
+                    comments: [
+                        { user: "Maria Santos", initials: "MS", text: "Keep it up Andrew! 💪", time: "2h ago" },
+                        { user: "David Kim", initials: "DK", text: "Boxing is the best! Which gym do you go to?", time: "1h ago" },
+                    ]
+                },
+                {
+                    day: 32, date: "May 2, 2025", mood: "okay",
+                    tasksDone: 6, tasksFailed: 2, tasksTotal: 8,
+                    reflection: "Struggled with the diet today. Had cravings but stayed strong. Walk was nice — found a new trail near the park. Need to sleep earlier tonight.",
+                    likes: 8, liked: false,
+                    comments: [
+                        { user: "Emma Müller", initials: "EM", text: "Those cravings get easier, trust me! Day 50+ they're basically gone 🙌", time: "5h ago" },
+                    ]
+                },
+                {
+                    day: 31, date: "May 1, 2025", mood: "good",
+                    tasksDone: 8, tasksFailed: 0, tasksTotal: 8,
+                    reflection: "Perfect day! All tasks completed. HIIT session in the morning, long walk at sunset. Learning Photoshop and already made my first composition. Journaling is becoming second nature.",
+                    likes: 24, liked: true,
+                    comments: [
+                        { user: "Jake Thompson", initials: "JT", text: "A perfect day!! That's what I'm talking about 🔥🔥", time: "12h ago" },
+                        { user: "Sophia Rivera", initials: "SR", text: "Photoshop is such a great skill to learn!", time: "10h ago" },
+                        { user: "David Kim", initials: "DK", text: "Sunset walks hit different. Keep crushing it!", time: "8h ago" },
+                    ]
+                },
+                {
+                    day: 30, date: "Apr 30, 2025", mood: "bad",
+                    tasksDone: 5, tasksFailed: 3, tasksTotal: 8,
+                    reflection: "Tough day mentally. Didn't sleep well last night and it affected everything. Skipped the outdoor walk and couldn't focus on skill practice. Tomorrow is a new day.",
+                    likes: 18, liked: false,
+                    comments: [
+                        { user: "Maria Santos", initials: "MS", text: "Bad days are part of the journey. You didn't quit — that's what matters ❤️", time: "1d ago" },
+                    ]
+                },
+            ]
+        };
+
+        // ── FORMAT DATE ──
+        function fmtDate(d) {
+            return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // ══════════ RENDER HEADER ══════════
+        function renderHeader() {
+            const pct = Math.round((challenge.currentDay / challenge.totalDays) * 100);
+            document.getElementById('chHeader').innerHTML = `
+        <div class="ch-top">
+          <div class="ch-info">
+            <div class="ch-badge">● Active · Day ${challenge.currentDay}</div>
+            <div class="ch-name">${challenge.name}</div>
+            <div class="ch-dates">
+              <strong>${fmtDate(challenge.startDate)}</strong> → <strong>${fmtDate(challenge.endDate)}</strong>
+            </div>
+          </div>
+          <button class="ch-fail-btn" onclick="failChallenge()">✕ Fail Challenge</button>
+        </div>
+        <div class="ch-progress">
+          <div class="ch-progress-header">
+            <span class="ch-progress-label">Progress</span>
+            <span class="ch-progress-pct">${pct}%</span>
+          </div>
+          <div class="ch-bar"><div class="ch-bar-fill" style="width:${pct}%"></div></div>
+          <div class="ch-day-count">Day <strong>${challenge.currentDay}</strong> of <strong>${challenge.totalDays}</strong></div>
+        </div>`;
+        }
+
+        // ══════════ RENDER MOOD TRACKER ══════════
+        function renderMoodTracker() {
+            const moodEmoji = { good: '😊', okay: '😐', bad: '😞', none: '·' };
+            const moodLabel = { good: 'Good', okay: 'Okay', bad: 'Not Good', none: 'No Mood' };
+
+            let phasesHTML = `
+        <div class="mood-phases">
+          <div class="mood-phase ${challenge.currentDay <= 22 ? 'active' : ''}">Destruction (1–22)</div>
+          <div class="mood-phase ${challenge.currentDay > 22 && challenge.currentDay <= 44 ? 'active' : ''}">Installation (23–44)</div>
+          <div class="mood-phase ${challenge.currentDay > 44 ? 'active' : ''}">Integration (45–66)</div>
+        </div>`;
+
+            let daysHTML = '';
+            for (let i = 0; i < 66; i++) {
+                const dayNum = i + 1;
+                const isFuture = dayNum > challenge.currentDay;
+                const isToday = dayNum === challenge.currentDay;
+                const mood = isFuture ? null : (challenge.moods[i] || 'none');
+                const cls = isFuture ? 'future' : mood;
+                const todayCls = isToday ? ' today' : '';
+                const emoji = isFuture ? '' : moodEmoji[mood];
+                const tip = isFuture ? `Day ${dayNum}` : `Day ${dayNum} — ${moodLabel[mood]}`;
+
+                daysHTML += `<div class="mood-day ${cls}${todayCls}"><span class="mood-tooltip">${tip}</span>${emoji}</div>`;
+            }
+
+            document.getElementById('moodTracker').innerHTML = `
+        <div class="mood-title">Mood Tracker</div>
+        <div class="mood-sub">Your emotional journey through 66 days</div>
+        ${phasesHTML}
+        <div class="mood-grid">${daysHTML}</div>
+        <div class="mood-legend">
+          <div class="mood-legend-item"><div class="mood-legend-dot g"></div> Good</div>
+          <div class="mood-legend-item"><div class="mood-legend-dot y"></div> Okay</div>
+          <div class="mood-legend-item"><div class="mood-legend-dot r"></div> Not Good</div>
+          <div class="mood-legend-item"><div class="mood-legend-dot n"></div> No Mood</div>
+        </div>`;
+        }
+
+        // ══════════ RENDER TODAY'S TASKS ══════════
+        function renderToday() {
+            const tasksHTML = challenge.tasks.map(t => {
+                let statusHTML = '';
+                let rowClass = '';
+                if (t.status === 'done') {
+                    rowClass = ' done';
+                    statusHTML = `<span class="task-status-label s-done">✓ Done</span>`;
+                } else if (t.status === 'failed') {
+                    rowClass = ' failed-task';
+                    statusHTML = `<span class="task-status-label s-fail">✕ Failed</span>`;
+                } else {
+                    statusHTML = `
+            <div class="task-actions">
+              <button class="task-btn done-btn" onclick="setTask(${t.id},'done')" title="Done">✓</button>
+              <button class="task-btn fail-btn" onclick="setTask(${t.id},'failed')" title="Failed">✕</button>
+            </div>`;
+                }
+                return `<div class="task-row${rowClass}">
+          <span class="task-icon">${t.icon}</span>
+          <span class="task-name">${t.name}</span>
+          ${statusHTML}
+        </div>`;
+            }).join('');
+
+            const moodOpts = [
+                { key: 'good', emoji: '😊', label: 'Good' },
+                { key: 'okay', emoji: '😐', label: 'Okay' },
+                { key: 'bad', emoji: '😞', label: 'Not Good' },
+            ];
+            const moodHTML = moodOpts.map(m => {
+                const sel = challenge.selectedMood === m.key ? ' selected' : '';
+                return `<button class="mood-opt${sel}" data-mood="${m.key}" onclick="selectMood('${m.key}')">
+          ${m.emoji}
+          <span class="mood-opt-label">${m.label}</span>
+        </button>`;
+            }).join('');
+
+            document.getElementById('todaySection').innerHTML = `
+        <div class="today-header">
+          <div class="today-title">Today's Tasks</div>
+          <div class="today-day-badge">Day ${challenge.currentDay}</div>
+        </div>
+        <div class="task-list">${tasksHTML}</div>
+        <div class="mood-select">
+          <div class="mood-select-label">How are you feeling today?</div>
+          <div class="mood-options">${moodHTML}</div>
+        </div>
+        <div class="reflection">
+          <div class="reflection-label">Daily Reflection</div>
+          <textarea class="reflection-textarea" id="reflectionText" placeholder="How was your day? What did you learn? What will you do better tomorrow?"></textarea>
+        </div>
+        <button class="finish-day-btn" id="finishBtn" onclick="finishDay()">
+          🔥 Finish Day ${challenge.currentDay}
+        </button>`;
+        }
+
+        // ══════════ RENDER FEED ══════════
+        function renderFeed() {
+            const entriesHTML = challenge.feed.map((entry, idx) => {
+                const donePct = Math.round((entry.tasksDone / entry.tasksTotal) * 100);
+                const failPct = Math.round((entry.tasksFailed / entry.tasksTotal) * 100);
+                const moodEmoji = { good: '😊 Good', okay: '😐 Okay', bad: '😞 Not Good' };
+
+                const commentsHTML = entry.comments.map(c => `
+          <div class="fe-comment">
+            <div class="fe-comment-avatar">${c.initials}</div>
+            <div class="fe-comment-body">
+              <div class="fe-comment-name">${c.user}<span>${c.time}</span></div>
+              <div class="fe-comment-text">${c.text}</div>
+            </div>
+          </div>`).join('');
+
+                return `
+          <div class="feed-entry">
+            <div class="fe-top">
+              <div>
+                <div class="fe-date">${entry.date}</div>
+                <div class="fe-day-num">DAY ${entry.day}</div>
+              </div>
+              <span class="fe-mood ${entry.mood}">${moodEmoji[entry.mood]}</span>
+            </div>
+            <div class="fe-stats">
+              <div class="fe-stat"><strong>${entry.tasksDone}</strong> / ${entry.tasksTotal} tasks done</div>
+              <div class="fe-stat"><strong>${entry.tasksFailed}</strong> failed</div>
+            </div>
+            <div class="fe-tasks-bar">
+              <div class="fe-tasks-done" style="width:${donePct}%"></div>
+              <div class="fe-tasks-failed" style="width:${failPct}%"></div>
+            </div>
+            <div class="fe-tasks-label">${donePct}% completion rate</div>
+            ${entry.reflection ? `<div class="fe-reflection">"${entry.reflection}"</div>` : ''}
+            <div class="fe-actions">
+              <button class="fe-action-btn ${entry.liked ? 'liked' : ''}" onclick="toggleLike(${idx}, this)">
+                <span class="fe-act-icon">${entry.liked ? '❤️' : '🤍'}</span>
+                <span class="like-count">${entry.likes}</span>
+              </button>
+              <button class="fe-action-btn" onclick="toggleComments(${idx})">
+                <span class="fe-act-icon">💬</span> ${entry.comments.length}
+              </button>
+            </div>
+            <div class="fe-comments" id="comments-${idx}">
+              <button class="fe-toggle-comments" onclick="toggleComments(${idx})">
+                ${entry.comments.length > 0 ? `View ${entry.comments.length} comment${entry.comments.length > 1 ? 's' : ''}` : 'No comments yet'}
+              </button>
+              <div class="fe-comments-list" id="clist-${idx}">
+                ${commentsHTML}
+                <div class="fe-comment-input">
+                  <input type="text" placeholder="Write a comment..." id="cinput-${idx}">
+                  <button class="fe-comment-send" onclick="postComment(${idx})">→</button>
+                </div>
+              </div>
+            </div>
+          </div>`;
+            }).join('');
+
+            document.getElementById('feedSection').innerHTML = `
+        <div class="feed-header">
+          <div class="feed-title">Challenge Feed</div>
+          ${challenge.isPublic ? '<span class="feed-public-tag">🌍 Public</span>' : '<span class="feed-public-tag" style="color:var(--text-muted);background:rgba(255,255,255,0.04);">🔒 Private</span>'}
+        </div>
+        <div class="feed-list">${entriesHTML}</div>`;
+        }
+
+        // ══════════ INTERACTIONS ══════════
+        function setTask(id, status) {
+            const task = challenge.tasks.find(t => t.id === id);
+            if (task) { task.status = status; renderToday(); }
+        }
+
+        function selectMood(mood) {
+            challenge.selectedMood = mood;
+            renderToday();
+        }
+
+        function finishDay() {
+            const allDone = challenge.tasks.every(t => t.status !== null);
+            if (!allDone) {
+                alert('Please mark all tasks as Done or Failed before finishing the day.');
+                return;
+            }
+            if (!challenge.selectedMood) {
+                alert('Please select your mood for today.');
+                return;
+            }
+            const btn = document.getElementById('finishBtn');
+            btn.innerHTML = '✓ Day ' + challenge.currentDay + ' Completed!';
+            btn.classList.add('submitted');
+        }
+
+        function failChallenge() {
+            if (confirm('Are you sure you want to fail this challenge? This cannot be undone. You can always start a new attempt.')) {
+                alert('Challenge marked as failed. Starting over is always an option — you\'ve got this! 🔥');
+            }
+        }
+
+        function toggleLike(idx, btn) {
+            const entry = challenge.feed[idx];
+            entry.liked = !entry.liked;
+            entry.likes += entry.liked ? 1 : -1;
+            btn.querySelector('.fe-act-icon').textContent = entry.liked ? '❤️' : '🤍';
+            btn.querySelector('.like-count').textContent = entry.likes;
+            btn.classList.toggle('liked', entry.liked);
+        }
+
+        function toggleComments(idx) {
+            const list = document.getElementById('clist-' + idx);
+            list.classList.toggle('open');
+        }
+
+        function postComment(idx) {
+            const input = document.getElementById('cinput-' + idx);
+            const text = input.value.trim();
+            if (!text) return;
+            challenge.feed[idx].comments.push({
+                user: 'You', initials: 'AK', text: text, time: 'Just now'
+            });
+            input.value = '';
+            renderFeed();
+            // Re-open the comments we just posted to
+            const list = document.getElementById('clist-' + idx);
+            list.classList.add('open');
+        }
+
+        // ══════════ INIT ══════════
+        renderHeader();
+        renderMoodTracker();
+        renderToday();
+        renderFeed();
+
+        // Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sbOverlay').classList.toggle('open');
+        }
+
+        // Animations
+        const obs = new IntersectionObserver(entries => {
+            entries.forEach((e, i) => {
+                if (e.isIntersecting) {
+                    setTimeout(() => e.target.classList.add('vis'), i * 80);
+                    obs.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.05 });
+        document.querySelectorAll('.anim').forEach(el => obs.observe(el));
+    </script>
+
+</body>
+
+</html>

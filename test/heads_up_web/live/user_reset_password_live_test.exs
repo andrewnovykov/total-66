@@ -98,7 +98,7 @@ defmodule HeadsUpWeb.UserResetPasswordLiveTest do
         |> follow_redirect(conn, ~p"/users/log_in")
 
       html = html_response(conn, 200)
-      assert html =~ "Log in"
+      assert html =~ "Login"
     end
 
     test "redirects to registration page when the Register button is clicked", %{

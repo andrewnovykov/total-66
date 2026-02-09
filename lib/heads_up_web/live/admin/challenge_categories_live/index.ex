@@ -422,13 +422,13 @@ defmodule HeadsUpWeb.Admin.ChallengeCategoriesLive.Index do
           <h3 class="text-2xl font-extrabold text-slate-900 mb-6">Admin Links</h3>
           <div class="space-y-3">
             <.link
-              navigate={~p"/admin/categories"}
+              navigate={~p"/admin/challenge-categories"}
               class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors group"
             >
               <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
                 <.icon name="hero-tag" class="w-5 h-5 text-blue-600" />
               </div>
-              <span class="font-bold text-slate-700 group-hover:text-slate-900">Goal Categories</span>
+              <span class="font-bold text-slate-700 group-hover:text-slate-900">Challenge Categories</span>
               <.icon name="hero-chevron-right" class="w-5 h-5 text-slate-400 ml-auto" />
             </.link>
             <.link

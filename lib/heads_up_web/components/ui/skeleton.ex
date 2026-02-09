@@ -28,19 +28,6 @@ defmodule HeadsUpWeb.Components.UI.Skeleton do
     """
   end
 
-  def skeleton_goal_card(assigns) do
-    ~H"""
-    <div class="bg-white rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden animate-pulse">
-      <div class="h-44 bg-gray-200" />
-      <div class="p-5 space-y-3">
-        <div class="h-4 bg-gray-200 rounded w-3/4" />
-        <div class="h-3 bg-gray-200 rounded w-1/2" />
-        <div class="h-2.5 bg-gray-200 rounded-full w-full" />
-      </div>
-    </div>
-    """
-  end
-
   defp skeleton_class(:text), do: "h-4 bg-gray-200 rounded"
   defp skeleton_class(:avatar), do: "w-10 h-10 bg-gray-200 rounded-full"
   defp skeleton_class(:card), do: "h-40 bg-gray-200 rounded-3xl"

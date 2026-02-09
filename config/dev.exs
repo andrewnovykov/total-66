@@ -5,7 +5,7 @@ config :heads_up, HeadsUp.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "heads_up_dev",
+  database: "total66",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10

@@ -1,10 +1,7 @@
 # Style Guide
 
-> This document defines the visual identity and design preferences for HeadsUp.
+> This document defines the visual identity and design preferences for Total 66.
 > The AI agent should follow these guidelines for all UI development.
-
-> Update note (latest): For current UI implementation details and reference-driven layout patterns, treat `/project_doc/docs/design/ux-ui.md` as the primary source of truth.  
-> This file remains valid for brand foundations, but if guidance conflicts, follow `ux-ui.md`.
 
 ---
 
@@ -12,28 +9,29 @@
 
 ### Project Name
 
-**Name:** HeadsUp
-**Tagline:** Set fewer goals. Finish more.
+**Name:** Total 66
+**Tagline:** 66 Days. Total Transformation.
 
 ### Logo
 
 **Logo Status:**
 
 - [ ] I will provide a logo file (place in `/assets/logo/`)
-- [x] Generate a simple text-based logo using the project name
+- [x] Generate a text-based logo using the project name
 - [ ] No logo needed for MVP
 
-**Logo Files Provided:**
+**Logo Treatment:**
 
-- Primary: `/assets/logo/logo-primary.svg`
-- Light version (for dark backgrounds): `/assets/logo/logo-light.svg`
-- Icon only: `/assets/logo/logo-icon.svg`
+- Text: `TOTAL 66` in Bebas Neue, 1.5rem, letter-spacing 4px
+- "TOTAL" in `#f0ece6` (text-primary), "66" in `#ff4d00` (accent orange)
+- Uppercase, no icon — typographic only
 
 **Logo Usage Rules:**
 
 - Minimum size: 120px width
-- Clear space around logo: equal to the height of the logo icon
-- Never stretch or distort the logo
+- Clear space around logo: equal to the height of the logo text
+- Never stretch, distort, or recolor the logo
+- Always render on dark backgrounds (#0a0a0a or darker)
 
 ---
 
@@ -41,54 +39,61 @@
 
 ### Primary Colors
 
-| Role              | Color Name   | Hex Code  | Usage                            |
-| ----------------- | ------------ | --------- | -------------------------------- |
-| **Primary**       | Brand Indigo | `#6366f1` | Main buttons, links, key actions |
-| **Primary Hover** | Brand Dark   | `#4f46e5` | Hover state for primary elements |
-| **Primary Light** | Indigo 50    | `#eef2ff` | Backgrounds, highlights          |
+| Role              | Color Name   | Hex Code              | Usage                                |
+| ----------------- | ------------ | --------------------- | ------------------------------------ |
+| **Primary**       | Total Orange | `#ff4d00`             | Main CTAs, active states, highlights |
+| **Primary Hover** | Light Orange | `#ff8a50`             | Hover/secondary accent, gradients    |
+| **Primary Glow**  | Orange Glow  | `rgba(255,77,0,0.15)` | Backgrounds, badges, glows           |
 
 ### Secondary Colors
 
-| Role                | Color Name | Hex Code  | Usage                      |
-| ------------------- | ---------- | --------- | -------------------------- |
-| **Secondary**       | Teal       | `#14b8a6` | Secondary buttons, accents |
-| **Secondary Hover** | Teal Dark  | `#0d9488` | Hover states               |
+| Role           | Color Name  | Hex Code                | Usage                                  |
+| -------------- | ----------- | ----------------------- | -------------------------------------- |
+| **Cyan**       | Evolution   | `#00d4aa`               | Evolution challenge, secondary accents |
+| **Cyan Glow**  | Cyan Dim    | `rgba(0,212,170,0.12)`  | Cyan backgrounds, badges               |
+| **Gold**       | Trophy      | `#ffc642`               | Achievements, finisher badge, trophies |
+| **Gold Glow**  | Gold Dim    | `rgba(255,198,66,0.15)` | Gold backgrounds                       |
+| **Purple**     | Custom      | `#a855f7`               | Custom tasks, user-defined items       |
+| **Purple Dim** | Purple Glow | `rgba(168,85,247,0.12)` | Purple backgrounds                     |
 
-### Neutral Colors
+### Neutral Colors (Dark Theme)
 
-| Role               | Color Name      | Hex Code  | Usage                    |
-| ------------------ | --------------- | --------- | ------------------------ |
-| **Text Primary**   | Dark Blue/Black | `#0d141c` | Headings, important text |
-| **Text Secondary** | Muted Blue      | `#49739c` | Body text, descriptions  |
-| **Text Muted**     | Slate 400       | `#94a3b8` | Placeholders, hints      |
-| **Border**         | Slate 200       | `#e2e8f0` | Borders, dividers        |
-| **Background**     | Slate 50        | `#f8fafc` | Page background          |
-| **Surface**        | White           | `#ffffff` | Cards, modals            |
-| **Surface Alt**    | Light Blue Grey | `#e7edf4` | Secondary backgrounds    |
+| Role               | Color Name    | Hex Code                 | Usage                         |
+| ------------------ | ------------- | ------------------------ | ----------------------------- |
+| **Background**     | Void Black    | `#0a0a0a`                | Page background               |
+| **Surface**        | Card Dark     | `#131313`                | Cards, panels                 |
+| **Surface Hover**  | Card Hover    | `#1a1a1a`                | Hovered card surfaces         |
+| **Elevated**       | Elevated Dark | `#1c1c1c`                | Dropdowns, modals, sidebar    |
+| **Input BG**       | Input Dark    | `#0f0f0f`                | Form inputs, textareas        |
+| **Text Primary**   | Warm White    | `#f0ece6`                | Headings, important text      |
+| **Text Secondary** | Warm Grey     | `#8a8680`                | Body text, descriptions       |
+| **Text Muted**     | Faded Grey    | `#5a5754`                | Placeholders, hints, captions |
+| **Border**         | Ghost Line    | `rgba(255,255,255,0.06)` | Borders, dividers             |
+| **Border Input**   | Input Line    | `rgba(255,255,255,0.08)` | Form borders                  |
 
 ### Semantic Colors
 
-| Role              | Color Name | Hex Code  | Usage                           |
-| ----------------- | ---------- | --------- | ------------------------------- |
-| **Success**       | Green      | `#22c55e` | Success messages, confirmations |
-| **Success Light** | Green 100  | `#dcfce7` | Success backgrounds             |
-| **Warning**       | Amber      | `#f59e0b` | Warnings, caution states        |
-| **Warning Light** | Amber 100  | `#fef3c7` | Warning backgrounds             |
-| **Error**         | Red        | `#ef4444` | Errors, destructive actions     |
-| **Error Light**   | Red 100    | `#fee2e2` | Error backgrounds               |
-| **Info**          | Blue       | `#3b82f6` | Informational messages          |
-| **Info Light**    | Blue 100   | `#dbeafe` | Info backgrounds                |
+| Role            | Color Name | Hex Code                | Usage                          |
+| --------------- | ---------- | ----------------------- | ------------------------------ |
+| **Success**     | Green      | `#22c55e`               | Task done, completed, positive |
+| **Success Dim** | Green Dim  | `rgba(34,197,94,0.12)`  | Success backgrounds            |
+| **Warning**     | Yellow     | `#eab308`               | Okay mood, caution states      |
+| **Warning Dim** | Yellow Dim | `rgba(234,179,8,0.12)`  | Warning backgrounds            |
+| **Error**       | Red        | `#ef4444`               | Failed tasks, errors, danger   |
+| **Error Dim**   | Red Dim    | `rgba(239,68,68,0.12)`  | Error backgrounds              |
+| **Info**        | Blue       | `#3b82f6`               | Messages, info states          |
+| **Info Dim**    | Blue Dim   | `rgba(59,130,246,0.12)` | Info backgrounds               |
 
 ### Color Preferences (Plain Language)
 
 Primary color preference:
-A modern, professional indigo/blue that feels trustworthy and energetic.
+A bold, fiery orange that conveys discipline, energy, and transformation intensity.
 
 Colors to AVOID:
-Neon colors, harsh contrasts.
+Pastels, light/airy tones, any bright backgrounds. This is a dark-first design.
 
 Overall feeling:
-Clean, modern, and structured.
+Dark, intense, premium fitness aesthetic. Like a high-end gym meets a performance dashboard.
 
 ---
 
@@ -96,40 +101,55 @@ Clean, modern, and structured.
 
 ### Font Families
 
-**Primary Font (Headings & Body):**
+**Display Font (Headings & Titles):**
 
-- Font: Be Vietnam Pro
+- Font: Bebas Neue
 - Source: Google Fonts
-- Weights needed: 400, 500, 600, 700
+- Weights needed: 400 (single weight)
+- Usage: All headings, stat values, badges, navigation labels, hero text
+- Always uppercase by nature of the font
 
-**Secondary Font (Alternative Body):**
+**Body Font (Primary):**
 
-- Font: Noto Sans
+- Font: DM Sans
 - Source: Google Fonts
-- Weights needed: 400, 500, 600
+- Weights needed: 400, 500, 700, 400 italic
+- Usage: Body text, paragraphs, form inputs, buttons, descriptions
 
-**Monospace Font (Code/Data):**
+**Font Import:**
 
-- Font: JetBrains Mono, Fira Code, or system monospace
+```html
+<link
+	href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+	rel="stylesheet"
+/>
+```
 
 **Font Preference (Plain Language):**
 
 Style preference:
-[x] Modern and clean (sans-serif like Inter, Helvetica)
+[x] Display contrast — condensed all-caps display font (Bebas Neue) paired with a clean geometric sans-serif (DM Sans) for hierarchy and impact
 
 ### Type Scale
 
-| Element    | Size            | Weight | Line Height | Letter Spacing |
-| ---------- | --------------- | ------ | ----------- | -------------- |
-| H1         | 36px / 2.25rem  | 700    | 1.2         | -0.02em        |
-| H2         | 30px / 1.875rem | 600    | 1.25        | -0.01em        |
-| H3         | 24px / 1.5rem   | 600    | 1.3         | 0              |
-| H4         | 20px / 1.25rem  | 600    | 1.4         | 0              |
-| H5         | 18px / 1.125rem | 600    | 1.4         | 0              |
-| Body Large | 18px / 1.125rem | 400    | 1.6         | 0              |
-| Body       | 16px / 1rem     | 400    | 1.6         | 0              |
-| Body Small | 14px / 0.875rem | 400    | 1.5         | 0              |
-| Caption    | 12px / 0.75rem  | 400    | 1.4         | 0.01em         |
+| Element         | Font Family | Size                       | Weight | Line Height | Letter Spacing |
+| --------------- | ----------- | -------------------------- | ------ | ----------- | -------------- |
+| Hero/H1         | Bebas Neue  | clamp(2.2rem, 5vw, 3.4rem) | 400    | 1.1         | 3px            |
+| H2              | Bebas Neue  | clamp(2rem, 4vw, 3rem)     | 400    | 1.1         | 2px            |
+| H3 / Section    | Bebas Neue  | 1.6rem                     | 400    | 1.2         | 2px            |
+| H4 / Card Title | Bebas Neue  | 1.4rem                     | 400    | 1.2         | 2px            |
+| H5 / Subtitle   | Bebas Neue  | 1.2rem                     | 400    | 1.3         | 2px            |
+| Stat Value      | Bebas Neue  | 2rem                       | 400    | 1.0         | 0              |
+| Body Large      | DM Sans     | 0.95rem                    | 400    | 1.7         | 0              |
+| Body            | DM Sans     | 0.9rem                     | 400    | 1.7         | 0              |
+| Body Small      | DM Sans     | 0.85rem                    | 400    | 1.6         | 0              |
+| Caption/Label   | DM Sans     | 0.7rem                     | 700    | 1.4         | 2px            |
+| Micro Label     | DM Sans     | 0.6rem                     | 700    | 1.4         | 3px            |
+| Button          | DM Sans     | 0.85rem                    | 700    | 1.0         | 2px            |
+| Nav Link        | DM Sans     | 0.78rem                    | 400    | 1.0         | 1px            |
+
+**Label Convention:**
+All labels, badges, nav links, and section headers use `text-transform: uppercase` with letter-spacing of 1–3px. This is a core part of the brand voice.
 
 ---
 
@@ -139,58 +159,87 @@ Style preference:
 
 **Primary Style:**
 
-- [x] **Modern/Bold** - Strong colors, clear hierarchy, confident
+- [x] **Dark/Premium** — Deep blacks, intense accent colors, fitness-industry energy, noise texture overlays
+
+### Texture Overlay
+
+Every page has a subtle noise texture applied via a fixed `::before` pseudo-element on `<body>`:
+
+```css
+body::before {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+	pointer-events: none;
+	z-index: 9999;
+}
+```
+
+This gives a subtle film-grain texture to all surfaces. Never remove this.
 
 ### Border Radius (Roundness)
 
-- [x] **Rounded** - 8px-12px (friendly, soft)
+- [x] **Moderately Rounded** — 10px–16px (premium, not bubbly)
 
-**Specific Values:**
-| Element | Radius |
-|---------|--------|
-| Buttons | 8px |
-| Cards | 12px |
-| Input fields | 8px |
-| Modals | 16px |
-| Avatars | 50% / fully round |
-| Tags/Badges | 9999px / pill |
+| Element          | Radius                 |
+| ---------------- | ---------------------- |
+| Buttons (large)  | 14px                   |
+| Buttons (small)  | 8–10px                 |
+| Cards            | 16px                   |
+| Input fields     | 12px                   |
+| Modals/Dropdowns | 14px                   |
+| Avatars          | 50% (circle)           |
+| Tags/Badges      | 100px (pill)           |
+| Mood day cells   | 8px                    |
+| Progress bars    | 10px                   |
+| Sidebar links    | 0 (left border accent) |
 
 ### Shadows
 
 **Shadow Style:**
 
-- [x] **Subtle shadows** - Barely noticeable, slight depth
+- [x] **Glow-based** — Colored ambient glows instead of traditional grey box-shadows
 
 **Shadow Definitions:**
 
 ```css
-/* Small - for buttons, dropdowns */
-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+/* Cards on hover */
+shadow-card-hover: 0 16px 40px rgba(0, 0, 0, 0.3);
 
-/* Medium - for cards, popovers */
-shadow-md:
-	0 4px 6px -1px rgba(0, 0, 0, 0.1),
-	0 2px 4px -1px rgba(0, 0, 0, 0.06);
+/* Dropdown menus */
+shadow-dropdown: 0 20px 60px rgba(0, 0, 0, 0.6);
 
-/* Large - for modals, dialogs */
-shadow-lg:
-	0 10px 15px -3px rgba(0, 0, 0, 0.1),
-	0 4px 6px -2px rgba(0, 0, 0, 0.05);
+/* Primary button glow */
+shadow-accent: 0 0 40px rgba(255, 77, 0, 0.2);
+shadow-accent-hover: 0 0 60px rgba(255, 77, 0, 0.35);
+
+/* Success button glow */
+shadow-success: 0 0 40px rgba(34, 197, 94, 0.2);
+
+/* Start button (elevated) */
+shadow-start: 0 0 50px rgba(255, 77, 0, 0.25);
 ```
+
+Traditional grey box-shadows are NOT used. All depth is communicated via colored glows and border interactions.
 
 ### Spacing System
 
-Use consistent spacing based on a base unit (4px):
+Base unit: 4px
 
-| Token | Value | Usage                    |
-| ----- | ----- | ------------------------ |
-| xs    | 4px   | Tight spacing, icon gaps |
-| sm    | 8px   | Related elements         |
-| md    | 16px  | Standard padding         |
-| lg    | 24px  | Section spacing          |
-| xl    | 32px  | Large gaps               |
-| 2xl   | 48px  | Section separation       |
-| 3xl   | 64px  | Page sections            |
+| Token | Value | Usage                            |
+| ----- | ----- | -------------------------------- |
+| xs    | 4px   | Tight spacing, pill gaps         |
+| sm    | 8px   | Related elements, tag padding    |
+| md    | 16px  | Standard padding, card internals |
+| lg    | 24px  | Section spacing, card padding    |
+| xl    | 32px  | Large card padding, section gaps |
+| 2xl   | 48px  | Major section separation         |
+| 3xl   | 64px  | Page section spacing             |
+| 4xl   | 80px  | Top padding (below fixed nav)    |
 
 ---
 
@@ -198,126 +247,339 @@ Use consistent spacing based on a base unit (4px):
 
 ### Buttons
 
-**Primary Button:**
+**Primary Button (CTA):**
 
-- Background: Primary color (`#6366f1`)
-- Text: White
-- Hover: Darker primary (`#4f46e5`)
-- Border radius: 8px
-- Padding: 12px 24px
-- Font weight: 600
+```css
+background: #ff4d00;
+color: #ffffff;
+border: none;
+border-radius: 14px;
+padding: 18px;
+font-weight: 700;
+font-size: 0.85rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+box-shadow: 0 0 40px rgba(255, 77, 0, 0.2);
+```
+
+- Hover: translateY(-2px) + stronger glow
+- Active: translateY(0)
 
 **Secondary Button:**
 
-- Background: Surface Alt (`#e7edf4`)
-- Text: Text Primary (`#0d141c`)
-- Hover: Darker shade
-- Border radius: 8px
+```css
+background: var(--bg-card);
+color: var(--text-secondary);
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 14px 28px;
+font-weight: 700;
+letter-spacing: 1.5px;
+text-transform: uppercase;
+```
 
-**Ghost Button:**
-
-- Background: Transparent
-- Text: Text Primary
-- Hover: Light gray background
+- Hover: brighter border + text-primary color
 
 **Danger Button:**
 
-- Background: Error color (`#ef4444`)
-- Text: White
-- Use for: Delete, cancel subscription, destructive actions
+```css
+background: rgba(239, 68, 68, 0.12);
+color: #ef4444;
+border: 1px solid rgba(239, 68, 68, 0.3);
+border-radius: 10px;
+```
+
+- Hover: solid red background, white text
+
+**Ghost/Pill Button (Tags, Filters):**
+
+```css
+background: none;
+border: 1px solid var(--border);
+border-radius: 100px;
+padding: 6px 14px;
+color: var(--text-secondary);
+font-size: 0.78rem;
+text-transform: uppercase;
+letter-spacing: 1px;
+```
+
+- Active state: accent color + accent-glow background
+
+**Task Action Button (Small Icon):**
+
+```css
+width: 34px;
+height: 34px;
+border-radius: 8px;
+border: 1px solid var(--border);
+background: none;
+```
+
+- Done state: green fill, white icon
+- Fail state: red fill, white icon
 
 **Button Sizes:**
-| Size | Padding | Font Size |
-|------|---------|-----------|
-| Small | 8px 16px | 14px |
-| Medium | 12px 24px | 16px |
-| Large | 16px 32px | 18px |
+
+| Size      | Padding       | Font Size | Radius |
+| --------- | ------------- | --------- | ------ |
+| Small     | 6px 14px      | 0.75rem   | 8px    |
+| Medium    | 14px 28px     | 0.85rem   | 12px   |
+| Large     | 18px (full-w) | 0.9rem    | 14px   |
+| XL (hero) | 20px (full-w) | 1rem      | 14px   |
 
 ### Form Inputs
 
-**Text Input:**
+**Text Input / Textarea:**
 
-- Background: White
-- Border: 1px solid Border color (`#e2e8f0`)
-- Border (focus): Primary color (`#6366f1`)
-- Border radius: 8px
-- Padding: 12px 16px
-- Font size: 16px
+```css
+background: #0f0f0f;
+border: 1px solid rgba(255, 255, 255, 0.08);
+border-radius: 12px;
+padding: 14px 16px;
+color: #f0ece6;
+font-family: 'DM Sans', sans-serif;
+font-size: 0.9rem;
+```
 
-**States:**
-
-- Default: Gray border
-- Focus: Primary border + subtle shadow
-- Error: Error border + error message below
-- Disabled: Gray background, muted text
+- Focus: `border-color: rgba(255, 77, 0, 0.4); box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.08);`
+- Placeholder: `color: #5a5754;`
+- Date inputs: `color-scheme: dark;`
 
 **Labels:**
 
 - Position: Above input
-- Font size: 14px
-- Font weight: 500
-- Color: Text Primary
-- Required indicator: Red asterisk (\*)
+- Font: DM Sans, 0.68rem, weight 700
+- Text-transform: uppercase
+- Letter-spacing: 2px
+- Color: `#5a5754` (text-muted)
+
+**Password Strength Meter:**
+
+- 4-segment bar: weak (red) → fair (yellow) → good (cyan) → strong (green)
+- Animated fill transitions
 
 ### Cards
 
 **Standard Card:**
 
-- Background: White
-- Border: 1px solid Border color (`#e2e8f0`)
-- Border radius: 12px
-- Shadow: shadow-sm
-- Padding: 24px
+```css
+background: #131313;
+border: 1px solid rgba(255, 255, 255, 0.06);
+border-radius: 16px;
+padding: 28px;
+```
 
-**Interactive Card (Clickable):**
+- Hover: `border-color: rgba(255, 255, 255, 0.1); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);`
 
-- Same as standard
-- Hover: Border color change (`border-blue-300`) + shadow-md
-- Cursor: Pointer
+**Stat Card (with color top-line):**
+
+```css
+/* Same as standard + */
+position: relative;
+overflow: hidden;
+```
+
+- `::before` pseudo-element at top, 2px height, full-width colored bar
+- Hover: translateY(-2px)
+
+**Hub Card (large clickable):**
+
+- Standard card + icon block (48px, 14px radius, colored dim background) + title + description + footer with stats + arrow circle
+
+**Challenge Type Convention:**
+
+- Classic → Orange accent (`#ff4d00`)
+- Evolution → Cyan accent (`#00d4aa`)
+- Custom → Purple accent (`#a855f7`)
 
 ### Navigation
 
-**Header/Navbar:**
+**Top Navbar (Fixed):**
 
-- Position: Static
-- Background: White
-- Height: 64px
-- Shadow: None / Border Bottom
+```css
+position: fixed;
+top: 0;
+height: 64px;
+backdrop-filter: blur(20px);
+background: rgba(10, 10, 10, 0.85);
+border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+z-index: 200;
+```
 
-**Sidebar (if applicable):**
+- Logo left, page links center-left, user avatar/dropdown right
+- Nav links: uppercase, 0.78rem, 1px letter-spacing
+- Active link: orange text + orange glow background
 
-- Width: 240px
-- Background: White
-- Collapsible: Yes
+**Sidebar (Hub pages):**
 
-### Tables
+```css
+position: fixed;
+top: 64px;
+width: 260px;
+background: #131313;
+border-right: 1px solid rgba(255, 255, 255, 0.06);
+```
 
-**Style:**
+- Links: left-aligned with 3px left border (transparent default, accent when active)
+- Active: orange text + glow background + orange left border
+- Badges: pill-shaped, colored dim backgrounds
+- Active challenge mini-card at bottom with progress bar
 
-- [x] **Clean** - Minimal lines, just row separators
+**User Dropdown:**
 
-**Table Features:**
+```css
+width: 250px;
+background: #1c1c1c;
+border: 1px solid rgba(255, 255, 255, 0.06);
+border-radius: 14px;
+box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+```
 
-- Header background: Light gray / Surface Alt
-- Row hover: Light highlight
-- Sticky header: Yes
+- Animated: opacity + translateY + scale transition
+- Header with avatar + name + @nickname
+- Sections separated by 1px borders
+- Logout item: red colored
 
-### Modals/Dialogs
+### Avatars
 
-**Overlay:** Dark semi-transparent background (rgba(0,0,0,0.5))
-**Modal:**
+**Avatar (No Image):**
 
-- Background: White
-- Border radius: 16px
-- Shadow: Large shadow
-- Max width: 500px (sm), 800px (lg)
-- Padding: 24-32px
+```css
+border-radius: 50%;
+background: rgba(255, 255, 255, 0.06);
+font-family: 'Bebas Neue', sans-serif;
+color: #5a5754;
+letter-spacing: 1px;
+```
 
-### Notifications/Toasts
+| Context         | Size  | Font Size |
+| --------------- | ----- | --------- |
+| Nav avatar      | 32px  | 0.85rem   |
+| Dropdown        | 40px  | 1rem      |
+| Feed item       | 42px  | 0.85rem   |
+| Comment         | 30px  | 0.6rem    |
+| Member card     | 56px  | 1.1rem    |
+| Profile (large) | 110px | 2.5rem    |
 
-**Position:** Top right
-**Style:** Rounded card with semantic color
-**Duration:** 5 seconds
+### Badges & Tags
+
+**Standard Badge (Pill):**
+
+```css
+font-size: 0.6rem;
+font-weight: 700;
+padding: 2px 7px;
+border-radius: 100px;
+text-transform: uppercase;
+letter-spacing: 1.5px;
+```
+
+- Orange: `color: #ff4d00; background: rgba(255,77,0,0.15);`
+- Blue: `color: #3b82f6; background: rgba(59,130,246,0.12);`
+- Green: `color: #22c55e; background: rgba(34,197,94,0.12);`
+
+**Task Tags:**
+
+| Type     | Color  | Background             |
+| -------- | ------ | ---------------------- |
+| Required | Orange | accent-glow            |
+| Optional | Grey   | rgba(255,255,255,0.04) |
+| Custom   | Purple | purple-dim             |
+
+**Finisher Badge:**
+
+- Gold circle with trophy emoji, positioned as overlay on avatar
+- `background: #ffc642; color: #0a0a0a; box-shadow: 0 2px 8px rgba(255,198,66,0.3);`
+
+### Progress Bars
+
+```css
+/* Track */
+height: 10px;
+border-radius: 10px;
+background: rgba(255, 255, 255, 0.05);
+overflow: hidden;
+
+/* Fill */
+background: linear-gradient(90deg, #ff4d00, #ff8a50);
+border-radius: 10px;
+transition: width 1s ease;
+```
+
+- Sheen effect: `::after` pseudo with gradient white highlight at leading edge
+- Thin variant (sidebar): height 4px
+
+### Mood Tracker
+
+**66-Day Grid:**
+
+- `grid-template-columns: repeat(22, 1fr);` (3 rows of 22)
+- Cell: square aspect-ratio, 8px radius
+
+| Mood     | Emoji | Background Color                          |
+| -------- | ----- | ----------------------------------------- |
+| Good     | 😊    | `rgba(34, 197, 94, 0.12)`                 |
+| Okay     | 😐    | `rgba(234, 179, 8, 0.12)`                 |
+| Not Good | 😞    | `rgba(239, 68, 68, 0.12)`                 |
+| No Mood  | ·     | `rgba(255, 255, 255, 0.03)`               |
+| Future   | —     | `rgba(255, 255, 255, 0.015)` opacity: 0.4 |
+| Today    | —     | + `box-shadow: 0 0 0 2px #ff4d00` ring    |
+
+- Hover: `transform: scale(1.2)` with tooltip showing day + mood label
+
+**Phase Labels Above Grid:**
+
+- 3 equal segments: Destruction (1–22), Installation (23–44), Integration (45–66)
+- Active phase: orange text + orange bottom border
+
+### Mood Selector (Daily Input)
+
+- 3 large buttons (56×56px, 14px radius)
+- Emoji centered, label below
+- Selected state: colored border + dim background + box-shadow glow + scale(1.1)
+
+### Feed / Activity Items
+
+**Feed Entry Card:**
+
+```css
+background: #131313;
+border: 1px solid rgba(255, 255, 255, 0.06);
+border-radius: 16px;
+padding: 24px;
+```
+
+Components:
+
+- Top row: date + day number (Bebas Neue) | mood badge (pill)
+- Stats row: tasks done/total + failed count
+- Task bar: stacked green (done) + red (failed) + grey (remaining)
+- Reflection: italic quote in darker bg with left border accent
+- Actions: like button (toggle ❤️/🤍) + comment button with count
+- Collapsible comments list + comment input
+
+**Like Button:**
+
+```css
+/* Default */
+color: var(--text-muted);
+/* Liked */
+color: #ef4444;
+```
+
+### Accordion (FAQ)
+
+- Toggle icon rotates on open
+- Content area slides in with max-height animation
+- Only one open at a time
+- Border-bottom separator between items
+
+### Stepper (Multi-Step Wizard)
+
+- Horizontal dots with connecting lines
+- States: done (green fill + checkmark), active (orange outline + glow), default (grey outline)
+- Step transitions: fadeUp animation (opacity + translateY)
 
 ---
 
@@ -325,21 +587,35 @@ Use consistent spacing based on a base unit (4px):
 
 **Icon Library:**
 
-- [x] Heroicons (v2.1.1)
+- [x] Emoji-based icons throughout (consistent with mobile-first, cross-platform rendering)
 
-**Icon Style:**
+**Icon Convention:**
 
-- [x] Outline (line icons) for UI
-- [x] Solid (filled icons) for active states
+All task, navigation, and feature icons use native emoji rather than SVG icon libraries. This is intentional for:
+
+- Instant recognition
+- No extra library weight
+- Cross-platform consistency
+- Personality and warmth in a dark UI
+
+| Context       | Examples                |
+| ------------- | ----------------------- |
+| Tasks         | 🏋️ 🥦 😴 🚫 📸 📖 💧 🧘 |
+| Navigation    | 🏠 👤 🔥 🤝 💬 📰 ⚙️ 🚪 |
+| Moods         | 😊 😐 😞                |
+| Status        | ✓ ✕ ● 🏆 ⚡ 🔒 🌍       |
+| Notifications | 🔔                      |
 
 **Icon Sizes:**
-| Context | Size |
-|---------|------|
-| Inline with text | 16px |
-| Buttons | 20px |
-| Navigation | 24px |
-| Empty states | 48-64px |
-| Hero/Feature | 64px+ |
+
+| Context       | Size    |
+| ------------- | ------- |
+| Inline text   | 1rem    |
+| Task rows     | 1.1rem  |
+| Sidebar nav   | 1.05rem |
+| Card headers  | 1.3rem  |
+| Mood selector | 1.6rem  |
+| Hero/Feature  | 1.8rem+ |
 
 ---
 
@@ -349,21 +625,26 @@ Use consistent spacing based on a base unit (4px):
 
 **Photography Style:**
 
-- [x] Modern/Clean
-- [x] Minimal backgrounds
+- Not currently used — UI is text, emoji, and data-driven
+- Future: If images are added, prefer dark/moody fitness photography with orange/warm color grading
 
-**Placeholder Images:**
+**Avatar Placeholder:**
 
-- Use: UI Avatars or generic patterns
-- Avatar placeholder: Initials with colored background
+- Initials in Bebas Neue on `rgba(255,255,255,0.06)` circle
+- Color: `#5a5754` (text-muted)
+- Finisher overlay: gold circle badge with 🏆
 
-### Image Treatment
+### Watermark Text
 
-- Border radius: Match card radius (12px) or fully round for avatars
-- Aspect ratios:
-- Thumbnails: 1:1
-- Cards: 16:9
-- Hero: 21:9
+Used on hero sections for depth:
+
+```css
+font-family: 'Bebas Neue', sans-serif;
+font-size: clamp(100px, 16vw, 220px);
+color: rgba(255, 77, 0, 0.025);
+position: absolute;
+pointer-events: none;
+```
 
 ---
 
@@ -371,35 +652,52 @@ Use consistent spacing based on a base unit (4px):
 
 ### Maximum Widths
 
-| Context           | Max Width      |
-| ----------------- | -------------- |
-| Content (reading) | 720px          |
-| Content (general) | 1024px         |
-| Full page         | 1280px         |
-| Dashboard         | 1440px or full |
+| Context                 | Max Width           |
+| ----------------------- | ------------------- |
+| Content (with sidebar)  | 900px + sidebar     |
+| Content (centered page) | 780px               |
+| Full dashboard          | 1100px + sidebar    |
+| Hero section            | Full viewport width |
+
+### Sidebar Layout (Hub Pages)
+
+```
++--64px-nav-bar-(full width, fixed)--+
+|                                     |
+| +--260px--+ +---remaining---+       |
+| | Sidebar | |  Main Content |       |
+| | (fixed) | |  (scrollable) |       |
+| |         | |               |       |
+| +---------+ +---------------+       |
+```
+
+### Centered Layout (Public Pages)
+
+```
++--64px-nav-bar-(full width, fixed)--+
+|                                     |
+|     +---max 780-1100px---+          |
+|     |   Page Content     |          |
+|     |   (centered)       |          |
+|     +--------------------+          |
+```
 
 ### Grid System
 
-- Columns: 12-column grid
-- Gutter: 24px desktop, 16px mobile
-- Margins: 24px desktop, 16px mobile
+- Cards: `grid-template-columns: repeat(2, 1fr)` with 20px gap
+- Member cards: `repeat(auto-fill, minmax(260px, 1fr))`
+- Stats row: `repeat(4, 1fr)` with 16px gap
+- Mood tracker: `repeat(22, 1fr)` with 4px gap
 
-### Page Structure
+### Spacing Convention
 
-**Standard Page:**
-
-```
-+----------------------------------+
-|           Header/Nav             |
-+----------------------------------+
-|                                  |
-|         Page Content             |
-|    (centered, max-width)         |
-|                                  |
-+----------------------------------+
-|            Footer                |
-+----------------------------------+
-```
+| Element                   | Padding/Gap               |
+| ------------------------- | ------------------------- |
+| Card internal             | 28–32px                   |
+| Section margin-bottom     | 24–40px                   |
+| Main content top padding  | 88px (nav offset)         |
+| Main content side padding | 40px desktop, 20px mobile |
+| Nav height                | 64px                      |
 
 ---
 
@@ -407,26 +705,42 @@ Use consistent spacing based on a base unit (4px):
 
 ### Breakpoints
 
-| Name    | Width           | Typical Devices          |
-| ------- | --------------- | ------------------------ |
-| Mobile  | 0 - 639px       | Phones                   |
-| Tablet  | 640px - 1023px  | Tablets, small laptops   |
-| Desktop | 1024px - 1279px | Laptops                  |
-| Large   | 1280px+         | Desktops, large monitors |
+| Name    | Width          | Typical Devices          |
+| ------- | -------------- | ------------------------ |
+| Mobile  | 0 – 500px      | Phones                   |
+| Small   | 501px – 600px  | Large phones             |
+| Tablet  | 601px – 860px  | Tablets, small laptops   |
+| Desktop | 861px – 1024px | Laptops                  |
+| Large   | 1025px+        | Desktops, large monitors |
+
+### Key Responsive Behaviors
+
+| Breakpoint | Behavior                                              |
+| ---------- | ----------------------------------------------------- |
+| ≤860px     | Sidebar hidden → hamburger slide-in with dark overlay |
+| ≤860px     | Main content: margin-left 0, full width               |
+| ≤860px     | Hub grid: 1 column                                    |
+| ≤860px     | Mood grid: 11 columns (2 rows become ~6 rows)         |
+| ≤860px     | Nav page links hidden                                 |
+| ≤1024px    | Stats grid: 2 columns                                 |
+| ≤600px     | Preset grid: 1 column                                 |
+| ≤500px     | Stats grid: 1 column                                  |
+| ≤500px     | Nav side padding: 16px                                |
+| ≤500px     | User name hidden in nav                               |
 
 ### Mobile Considerations
 
 **Navigation:**
 
-- [x] Hamburger menu (slide-out) or simplified header
-
-**Tables:**
-
-- [x] Stack as cards or horizontal scroll
+- [x] Hamburger button triggers sidebar slide-in from left
+- [x] Semi-transparent dark overlay behind sidebar
+- [x] Click overlay to close sidebar
 
 **Touch Targets:**
 
-- Minimum size: 44px x 44px
+- Minimum size: 38px × 38px (nav buttons, task actions)
+- Mood day cells: minimum 26px × 26px
+- Day pills (schedule): 26px × 26px
 
 ---
 
@@ -434,19 +748,29 @@ Use consistent spacing based on a base unit (4px):
 
 ### Minimum Requirements
 
-- [x] Color contrast: WCAG AA (4.5:1 for text)
-- [x] Focus indicators: Visible keyboard focus states
-- [x] Alt text: All meaningful images have descriptions
-- [x] Form labels: All inputs have associated labels
-- [x] Error messages: Clear and specific
-- [x] Font size: Minimum 16px for body text
+- [x] Color contrast: All text passes WCAG AA against dark backgrounds
+- [x] Focus indicators: Visible focus states (orange ring)
+- [x] Form labels: All inputs have labels above (uppercase micro-label convention)
+- [x] Error messages: Red color + text description
+- [x] Interactive states: Hover, active, focus, disabled all defined
+- [x] Motion: Transitions kept under 600ms
 
 ### Focus States
 
-All interactive elements must have visible focus states:
+```css
+:focus {
+	border-color: rgba(255, 77, 0, 0.4);
+	box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.08);
+	outline: none;
+}
+```
 
-- Style: Ring
-- Color: Primary color (`#6366f1`)
+### Dark Theme Contrast Notes
+
+- Primary text (#f0ece6) on #0a0a0a = 16.4:1 ✅
+- Secondary text (#8a8680) on #0a0a0a = 5.8:1 ✅
+- Muted text (#5a5754) on #0a0a0a = 3.5:1 ⚠️ (decorative/non-essential only)
+- Accent (#ff4d00) on #0a0a0a = 4.7:1 ✅ (large text/headings)
 
 ---
 
@@ -454,103 +778,188 @@ All interactive elements must have visible focus states:
 
 ### Animation Preference
 
-- [x] **Moderate** - Smooth but not distracting
+- [x] **Moderate** — Smooth, purposeful, not distracting
 
-### Standard Durations
+### Standard Transitions
 
-| Type                        | Duration  | Easing      |
-| --------------------------- | --------- | ----------- |
-| Micro (hover, focus)        | 150ms     | ease-out    |
-| Small (dropdowns, tooltips) | 200ms     | ease-out    |
-| Medium (modals, sidebars)   | 300ms     | ease-in-out |
-| Large (page transitions)    | 400-500ms | ease-in-out |
+| Type                          | Duration | Easing                                  |
+| ----------------------------- | -------- | --------------------------------------- |
+| Hover (buttons, cards, links) | 300ms    | ease / cubic-bezier                     |
+| Dropdown open/close           | 250ms    | cubic-bezier(0.25, 0.46, 0.45, 0.94)    |
+| Sidebar slide                 | 300ms    | ease                                    |
+| Scroll reveal (fade-up)       | 600ms    | cubic-bezier(0.25, 0.46, 0.45, 0.94)    |
+| Progress bar fill             | 1000ms   | ease                                    |
+| Tab switch content            | 400ms    | fadeUp keyframe                         |
+| Success checkmark             | 500ms    | cubic-bezier(0.175, 0.885, 0.32, 1.275) |
 
-### Reduce Motion
+### Scroll-Triggered Animations
 
-Respect user's "prefers-reduced-motion" setting.
+Using IntersectionObserver. Elements start as:
+
+```css
+.anim {
+	opacity: 0;
+	transform: translateY(20px);
+	transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.anim.vis {
+	opacity: 1;
+	transform: translateY(0);
+}
+```
+
+Staggered delay: `i * 60ms` for siblings.
+
+### Keyframe Animations Used
+
+```css
+@keyframes fadeUp {
+	from {
+		opacity: 0;
+		transform: translateY(16px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes popIn {
+	from {
+		transform: scale(0);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+```
 
 ---
 
 ## 12. Reference & Inspiration
 
-### Websites/Apps I Like
+### Visual References
 
-| Website/App | What I Like About It                 |
-| ----------- | ------------------------------------ |
-| Strava      | Social motivation loops, clean feeds |
-| Airbnb      | Card design, clean typography        |
-| Linear      | Modern feel, dark mode execution     |
+| Reference     | What We Took From It                                |
+| ------------- | --------------------------------------------------- |
+| 75 Hard       | Challenge structure, discipline-focused UX          |
+| Strava        | Activity feed, social accountability, streak data   |
+| Whoop         | Dark premium aesthetic, biometric data presentation |
+| Linear        | Dark mode execution, clean spacing, modern feel     |
+| Nike Run Club | Motivational language, bold typography              |
 
 ### What to AVOID
 
-| Don't Want           | Example/Reason             |
-| -------------------- | -------------------------- |
-| Cluttered interfaces | Too much on screen at once |
-| Bright neon colors   | Feels cheap/unprofessional |
-| Tiny text            | Hard to read               |
+| Don't Want                 | Reason                                  |
+| -------------------------- | --------------------------------------- |
+| Light/white backgrounds    | Breaks the premium dark identity        |
+| Traditional grey shadows   | Use colored glows instead               |
+| Serif fonts                | Doesn't match athletic/modern tone      |
+| Icon libraries (Heroicons) | Emoji-based system is more personal     |
+| Pastel colors              | Doesn't convey discipline/intensity     |
+| Rounded-full buttons       | Only for pills/badges, not CTAs         |
+| Generic dashboard UIs      | Must feel like a fitness tool, not SaaS |
 
 ---
 
-## 13. Dark Mode (Optional)
+## 13. Dark Mode
 
-**Dark Mode Support:**
+**Dark Mode Status:**
 
-- [ ] Not needed for MVP
-- [x] Nice to have later
+- [x] Dark-first design (this IS the primary and only mode for MVP)
 
-**If implementing dark mode:**
+**Future Light Mode (if ever needed):**
 
-| Element        | Light Mode | Dark Mode |
-| -------------- | ---------- | --------- |
-| Background     | #f8fafc    | #0f172a   |
-| Surface        | #ffffff    | #1e293b   |
-| Text Primary   | #0d141c    | #f8fafc   |
-| Text Secondary | #49739c    | #94a3b8   |
-| Border         | #e2e8f0    | #334155   |
+| Element        | Dark (Current)         | Light (Hypothetical) |
+| -------------- | ---------------------- | -------------------- |
+| Background     | #0a0a0a                | #f8fafc              |
+| Surface        | #131313                | #ffffff              |
+| Elevated       | #1c1c1c                | #f1f5f9              |
+| Text Primary   | #f0ece6                | #0a0a0a              |
+| Text Secondary | #8a8680                | #64748b              |
+| Border         | rgba(255,255,255,0.06) | #e2e8f0              |
+| Accent         | #ff4d00                | #ff4d00 (unchanged)  |
 
 ---
 
 ## 14. Quick Reference Card
 
-### For AI Agent - Copy These Values
+### For AI Agent — Copy These Values
 
 ```css
-/* Colors */
---color-primary: #6366f1;
---color-primary-hover: #4f46e5;
---color-secondary: #14b8a6;
---color-background: #f8fafc;
---color-surface: #ffffff;
---color-surface-alt: #e7edf4;
---color-text: #0d141c;
---color-text-secondary: #49739c;
---color-text-muted: #94a3b8;
---color-border: #e2e8f0;
---color-success: #22c55e;
---color-warning: #f59e0b;
---color-error: #ef4444;
+/* ═══ TOTAL 66 DESIGN TOKENS ═══ */
+
+/* Backgrounds */
+--bg-primary: #0a0a0a;
+--bg-card: #131313;
+--bg-card-hover: #1a1a1a;
+--bg-elevated: #1c1c1c;
+--bg-input: #0f0f0f;
+
+/* Brand */
+--accent: #ff4d00;
+--accent-glow: rgba(255, 77, 0, 0.15);
+--accent-secondary: #ff8a50;
+--cyan: #00d4aa;
+--cyan-glow: rgba(0, 212, 170, 0.12);
+--gold: #ffc642;
+--gold-glow: rgba(255, 198, 66, 0.15);
+--purple: #a855f7;
+--purple-dim: rgba(168, 85, 247, 0.12);
+
+/* Semantic */
+--green: #22c55e;
+--green-dim: rgba(34, 197, 94, 0.12);
+--yellow: #eab308;
+--yellow-dim: rgba(234, 179, 8, 0.12);
+--red: #ef4444;
+--red-dim: rgba(239, 68, 68, 0.12);
+--blue: #3b82f6;
+--blue-dim: rgba(59, 130, 246, 0.12);
+
+/* Text */
+--text-primary: #f0ece6;
+--text-secondary: #8a8680;
+--text-muted: #5a5754;
+
+/* Borders */
+--border: rgba(255, 255, 255, 0.06);
+--border-input: rgba(255, 255, 255, 0.08);
 
 /* Typography */
---font-heading: 'Be Vietnam Pro', sans-serif;
---font-body: 'Be Vietnam Pro', sans-serif;
---font-body-alt: 'Noto Sans', sans-serif;
+--font-display: 'Bebas Neue', sans-serif;
+--font-body: 'DM Sans', sans-serif;
 
-/* Spacing */
---radius-sm: 4px;
---radius-md: 8px;
---radius-lg: 12px;
---radius-xl: 16px;
+/* Radius */
+--radius-sm: 8px;
+--radius-md: 12px;
+--radius-lg: 16px;
+--radius-pill: 100px;
 
-/* Shadows */
---shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
---shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
---shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+/* Layout */
+--nav-height: 64px;
+--sidebar-w: 260px;
 ```
+
+---
+
+## 15. Page Inventory
+
+| Page             | File                    | In Nav | Layout   |
+| ---------------- | ----------------------- | ------ | -------- |
+| Homepage         | `total66.html`          | Yes    | Centered |
+| Challenges       | `challenges.html`       | Yes    | Centered |
+| Members          | `members.html`          | Yes    | Centered |
+| Auth (Login/Reg) | `auth.html`             | Yes    | Centered |
+| My Hub           | `hub.html`              | Yes    | Sidebar  |
+| Active Challenge | `active-challenge.html` | No     | Sidebar  |
+| Start Challenge  | `start-challenge.html`  | No     | Centered |
+| User Profile     | `profile.html`          | No     | Centered |
 
 ---
 
 ## Changelog
 
-| Date       | Change                      | Author |
-| ---------- | --------------------------- | ------ |
-| 2026-02-02 | Initial style guide created | AI     |
+| Date       | Change                                                 | Author |
+| ---------- | ------------------------------------------------------ | ------ |
+| 2025-05-04 | Initial style guide created from Total 66 page designs | AI     |

@@ -1,501 +1,104 @@
+<.topnav current_user={@current_user} />
+
+<%!-- Sidebar overlay (mobile) --%>
 <div
-  x-data="{ menuOpen: false, closeMenu() { this.menuOpen = false } }"
-  @keydown.escape.window="closeMenu()"
-  @click.window="if (menuOpen && !$refs.menuDrawer.contains($event.target) && !$refs.menuButton.contains($event.target)) closeMenu()"
-  class="min-h-screen bg-[#F0F4FF] flex items-center justify-center lg:p-3 overflow-hidden"
+  x-data="{ sidebarOpen: false }"
+  @toggle-sidebar.window="sidebarOpen = !sidebarOpen"
+  @keydown.escape.window="sidebarOpen = false"
 >
-  <%!-- ===== APP SHELL ===== --%>
-  <div class="bg-white w-full lg:max-w-[1920px] lg:h-[calc(100vh-24px)] lg:rounded-[48px] lg:shadow-2xl flex overflow-hidden relative lg:border lg:border-slate-100/60">
-    <%!-- ===== LEFT SIDEBAR (Desktop only) ===== --%>
-    <aside class="hidden lg:flex w-[340px] flex-shrink-0 border-r border-slate-100 p-8 flex-col z-10 bg-white/60 backdrop-blur-md overflow-y-auto custom-scrollbar">
-      <%!-- Logo --%>
-      <a href="/" class="flex items-center gap-3 mb-8 px-2">
-        <div class="w-11 h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-          <svg
-            class="w-6 h-6 text-white"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
+  <%!-- Overlay --%>
+  <div
+    x-show="sidebarOpen"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    @click="sidebarOpen = false"
+    class="fixed inset-0 bg-black/50 z-[140] lg:hidden"
+    style="display: none; top: 64px;"
+  ></div>
+
+  <%!-- Sidebar --%>
+  <aside
+    class="fixed top-16 bottom-0 left-0 w-[260px] bg-[#0e0e0e] border-r border-[rgba(255,255,255,0.06)] flex flex-col overflow-y-auto custom-scrollbar z-[150] transition-transform duration-300 lg:translate-x-0"
+    x-bind:class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+  >
+    <%!-- User header --%>
+    <div class="px-[22px] py-7 border-b border-[rgba(255,255,255,0.06)] flex items-center gap-3.5">
+      <div class="w-12 h-12 rounded-full bg-t66-card border-2 border-[rgba(255,77,0,0.3)] flex items-center justify-center font-display text-[1.2rem] tracking-[2px] text-t66-text-muted flex-shrink-0">
+        {String.first(@current_user.name || @current_user.user_name || "U") |> String.upcase()}
+      </div>
+      <div class="min-w-0">
+        <div class="font-bold text-[0.95rem] text-t66-text truncate">
+          {@current_user.name || @current_user.user_name}
         </div>
-        <span class="text-2xl font-extrabold tracking-tight text-slate-900">HeadsUp</span>
-      </a>
-
-      <%!-- Profile Card --%>
-      <%= if @current_user do %>
-        <div class="flex flex-col items-center mb-8 p-6 bg-slate-50/80 rounded-3xl border border-slate-100">
-          <div class="relative mb-3">
-            <div class="w-20 h-20 rounded-full p-1 bg-gradient-to-tr from-blue-500 to-indigo-600">
-              <HeadsUpWeb.Components.UI.Avatar.avatar
-                name={@current_user.name || @current_user.user_name || "U"}
-                src={@current_user.image_path}
-                size={:xl}
-                class="border-4 border-white"
-              />
-            </div>
-            <div class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 border-4 border-white rounded-full">
-            </div>
-          </div>
-          <h3 class="font-bold text-lg text-slate-900 leading-tight">
-            {@current_user.name || @current_user.user_name}
-          </h3>
-          <p class="text-slate-400 text-xs font-medium">@{@current_user.user_name}</p>
-        </div>
-      <% else %>
-        <div class="flex flex-col items-center mb-8 p-6 bg-slate-50/80 rounded-3xl border border-slate-100">
-          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mb-3">
-            <.icon name="hero-user" class="w-8 h-8 text-blue-400" />
-          </div>
-          <h3 class="font-bold text-lg text-slate-900">Welcome!</h3>
-          <p class="text-slate-400 text-xs font-medium mb-4">Join HeadsUp today</p>
-          <.link
-            href={~p"/users/register"}
-            class="w-full text-center bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-sm font-bold px-4 py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20"
-          >
-            Get Started
-          </.link>
-        </div>
-      <% end %>
-
-      <%!-- Navigation - Browse --%>
-      <nav class="flex-grow space-y-6">
-        <section class="space-y-1">
-          <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-            Browse
-          </p>
-          <.sidebar_link href="/" label="Home" icon="hero-home" />
-          <.sidebar_link href="/all-goals" label="Goals" icon="hero-flag" />
-          <.sidebar_link href="/challenges" label="Challenges" icon="hero-fire" />
-          <.sidebar_link href="/goals-category" label="Groups" icon="hero-user-group" />
-          <.sidebar_link href="/people" label="Members" icon="hero-users" />
-        </section>
-
-        <%!-- Navigation - My Stuff --%>
-        <%= if @current_user do %>
-          <section class="space-y-1">
-            <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-              My Stuff
-            </p>
-            <.sidebar_link href="/my-goals" label="My Goals" icon="hero-bookmark" />
-            <.sidebar_link href="/my-challenges" label="My Challenges" icon="hero-trophy" />
-            <.sidebar_link href="/connections" label="Connections" icon="hero-link" />
-            <.sidebar_link href="/messages" label="Messages" icon="hero-chat-bubble-left-right" />
-            <.sidebar_link href="/feed" label="Feed" icon="hero-rss" />
-            <.sidebar_link href="/goals/new" label="Create Goal" icon="hero-plus-circle" />
-            <.sidebar_link
-              href="/challenges/new"
-              label="Create Challenge"
-              icon="hero-plus-circle"
-            />
-          </section>
-        <% end %>
-
-        <%!-- Navigation - Coach (hidden for now) --%>
-        <%!-- <%= if HeadsUpWeb.Helpers.RoleHelper.is_coach_or_admin?(@current_user) do %>
-          <section class="space-y-1">
-            <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Coach</p>
-            <.sidebar_link href="/coach" label="Coach Center" icon="hero-academic-cap" />
-          </section>
-        <% end %> --%>
-
-        <%!-- Navigation - Admin --%>
-        <%= if HeadsUpWeb.Helpers.RoleHelper.is_admin?(@current_user) do %>
-          <section class="space-y-1">
-            <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-              Admin
-            </p>
-            <.sidebar_link
-              href="/admin/categories"
-              label="Goal Categories"
-              icon="hero-squares-2x2"
-            />
-            <.sidebar_link
-              href="/admin/challenge-categories"
-              label="Challenge Categories"
-              icon="hero-rectangle-group"
-            />
-          </section>
-        <% end %>
-
-        <%!-- Navigation - Account --%>
-        <section class="space-y-1 border-t border-slate-100 pt-5">
-          <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-            Account
-          </p>
-          <%= if @current_user do %>
-            <.sidebar_link
-              href={"/people/#{@current_user.user_name}"}
-              label="View Profile"
-              icon="hero-user-circle"
-            />
-            <.sidebar_link href="/users/settings" label="Settings" icon="hero-cog-6-tooth" />
-            <form method="post" action="/users/log_out" class="m-0">
-              <input type="hidden" name="_method" value="delete" />
-              <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-              <button
-                type="submit"
-                class="flex items-center gap-4 px-5 py-3.5 rounded-2xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all font-bold text-sm w-full"
-              >
-                <.icon name="hero-arrow-right-on-rectangle" class="w-5 h-5" />
-                <span>Log out</span>
-              </button>
-            </form>
-          <% else %>
-            <.sidebar_link
-              href="/users/log_in"
-              label="Log in"
-              icon="hero-arrow-left-on-rectangle"
-            />
-            <.sidebar_link href="/users/register" label="Register" icon="hero-user-plus" />
-          <% end %>
-        </section>
-      </nav>
-
-      <%!-- Bottom Promo Card --%>
-      <%= if @current_user do %>
-        <div class="mt-6 bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-3xl relative overflow-hidden shadow-lg shadow-blue-500/20">
-          <div class="relative z-10">
-            <p class="text-white font-bold leading-tight mb-2">Create a Goal</p>
-            <p class="text-blue-200 text-xs mb-4">Track progress & build momentum</p>
-            <.link
-              navigate={~p"/goals/new"}
-              class="inline-block bg-white text-blue-600 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-blue-50 transition-colors"
-            >
-              New Goal
-            </.link>
-          </div>
-          <div class="absolute -right-4 -bottom-4 opacity-20 text-white">
-            <.icon name="hero-rocket-launch" class="w-16 h-16" />
-          </div>
-        </div>
-      <% end %>
-    </aside>
-
-    <%!-- ===== MOBILE HEADER + MAIN CONTENT ===== --%>
-    <div class="flex flex-col flex-grow min-h-screen lg:min-h-0 overflow-hidden">
-      <%!-- Mobile Header --%>
-      <header class="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-slate-100">
-        <div class="flex items-center justify-between px-4 py-3">
-          <a href="/" class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-              <svg
-                class="w-5 h-5 text-white"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-            <span class="text-lg font-extrabold tracking-tight text-slate-900">HeadsUp</span>
-          </a>
-
-          <div class="flex items-center gap-2">
-            <%= if @current_user do %>
-              <.link
-                navigate={~p"/goals/new"}
-                class="inline-flex items-center gap-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
-              >
-                <.icon name="hero-plus" class="w-4 h-4" />
-                <span class="hidden sm:inline">Create</span>
-              </.link>
-            <% else %>
-              <.link
-                href={~p"/users/log_in"}
-                class="text-sm font-bold text-slate-600 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors"
-              >
-                Log in
-              </.link>
-              <.link
-                href={~p"/users/register"}
-                class="text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2.5 rounded-xl transition-colors shadow-lg shadow-blue-500/20"
-              >
-                Sign up
-              </.link>
-            <% end %>
-
-            <button
-              x-ref="menuButton"
-              type="button"
-              @click.stop="menuOpen = !menuOpen"
-              class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-600 transition hover:bg-slate-100"
-              aria-label="Open menu"
-            >
-              <svg
-                x-show="!menuOpen"
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 7h16M4 12h16M4 17h16"
-                />
-              </svg>
-              <svg
-                x-show="menuOpen"
-                x-cloak
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <%!-- Slide-out Drawer (Mobile) --%>
-      <aside
-        x-ref="menuDrawer"
-        x-show="menuOpen"
-        style="display: none;"
-        x-cloak
-        @click.outside="closeMenu()"
-        x-transition:enter="transform transition ease-out duration-220"
-        x-transition:enter-start="translate-x-full"
-        x-transition:enter-end="translate-x-0"
-        x-transition:leave="transform transition ease-in duration-160"
-        x-transition:leave-start="translate-x-0"
-        x-transition:leave-end="translate-x-full"
-        class="fixed inset-y-0 right-0 z-50 w-[320px] max-w-[88vw] bg-white shadow-2xl rounded-l-3xl lg:hidden"
-      >
-        <div class="flex h-full flex-col">
-          <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
-            <p class="text-sm font-bold uppercase tracking-wider text-slate-400">Menu</p>
-            <button
-              type="button"
-              @click="closeMenu()"
-              class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-500 transition hover:bg-slate-100"
-              aria-label="Close menu"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <nav class="flex-1 overflow-y-auto px-4 py-5 space-y-6">
-            <section class="space-y-1">
-              <p class="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-                Browse
-              </p>
-              <.drawer_link href="/" label="Home" icon="hero-home" x_click="closeMenu()" />
-              <.drawer_link
-                href="/all-goals"
-                label="Goals"
-                icon="hero-flag"
-                x_click="closeMenu()"
-              />
-              <.drawer_link
-                href="/challenges"
-                label="Challenges"
-                icon="hero-fire"
-                x_click="closeMenu()"
-              />
-              <.drawer_link
-                href="/goals-category"
-                label="Groups"
-                icon="hero-user-group"
-                x_click="closeMenu()"
-              />
-              <.drawer_link
-                href="/people"
-                label="Members"
-                icon="hero-users"
-                x_click="closeMenu()"
-              />
-            </section>
-
-            <%= if @current_user do %>
-              <section class="space-y-1">
-                <p class="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-                  My Stuff
-                </p>
-                <.drawer_link
-                  href="/my-goals"
-                  label="My Goals"
-                  icon="hero-bookmark"
-                  x_click="closeMenu()"
-                />
-                <.drawer_link
-                  href="/my-challenges"
-                  label="My Challenges"
-                  icon="hero-trophy"
-                  x_click="closeMenu()"
-                />
-                <.drawer_link
-                  href="/connections"
-                  label="Connections"
-                  icon="hero-link"
-                  x_click="closeMenu()"
-                />
-                <.drawer_link
-                  href="/messages"
-                  label="Messages"
-                  icon="hero-chat-bubble-left-right"
-                  x_click="closeMenu()"
-                />
-                <.drawer_link href="/feed" label="Feed" icon="hero-rss" x_click="closeMenu()" />
-                <.drawer_link
-                  href="/goals/new"
-                  label="Create Goal"
-                  icon="hero-plus-circle"
-                  x_click="closeMenu()"
-                />
-                <.drawer_link
-                  href="/challenges/new"
-                  label="Create Challenge"
-                  icon="hero-plus-circle"
-                  x_click="closeMenu()"
-                />
-              </section>
-            <% end %>
-
-            <%!-- Coach menu hidden for now --%>
-            <%!-- <%= if HeadsUpWeb.Helpers.RoleHelper.is_coach_or_admin?(@current_user) do %>
-              <section class="space-y-1">
-                <p class="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Coach</p>
-                <.drawer_link href="/coach" label="Coach Center" icon="hero-academic-cap" x_click="closeMenu()" />
-              </section>
-            <% end %> --%>
-
-            <%= if HeadsUpWeb.Helpers.RoleHelper.is_admin?(@current_user) do %>
-              <section class="space-y-1">
-                <p class="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-                  Admin
-                </p>
-                <.drawer_link
-                  href="/admin/categories"
-                  label="Goal Categories"
-                  icon="hero-squares-2x2"
-                  x_click="closeMenu()"
-                />
-                <.drawer_link
-                  href="/admin/challenge-categories"
-                  label="Challenge Categories"
-                  icon="hero-rectangle-group"
-                  x_click="closeMenu()"
-                />
-              </section>
-            <% end %>
-
-            <section class="space-y-1 border-t border-slate-100 pt-5">
-              <p class="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
-                Account
-              </p>
-              <%= if @current_user do %>
-                <.drawer_link
-                  href={"/people/#{@current_user.user_name}"}
-                  label="View Profile"
-                  icon="hero-user-circle"
-                  x_click="closeMenu()"
-                />
-                <.drawer_link
-                  href="/users/settings"
-                  label="Settings"
-                  icon="hero-cog-6-tooth"
-                  x_click="closeMenu()"
-                />
-                <form method="post" action="/users/log_out" class="m-0">
-                  <input type="hidden" name="_method" value="delete" />
-                  <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-                  <button
-                    type="submit"
-                    @click="closeMenu()"
-                    class="flex items-center gap-3 rounded-2xl px-6 py-3 text-sm font-bold text-slate-500 transition hover:bg-red-50 hover:text-red-600 w-full"
-                  >
-                    <.icon name="hero-arrow-right-on-rectangle" class="w-5 h-5" />
-                    <span>Log out</span>
-                  </button>
-                </form>
-              <% else %>
-                <.drawer_link
-                  href="/users/log_in"
-                  label="Log in"
-                  icon="hero-arrow-left-on-rectangle"
-                  x_click="closeMenu()"
-                />
-                <.drawer_link
-                  href="/users/register"
-                  label="Register"
-                  icon="hero-user-plus"
-                  x_click="closeMenu()"
-                />
-              <% end %>
-            </section>
-
-            <%!-- Drawer Promo Card --%>
-            <%= if @current_user do %>
-              <div class="mx-2 bg-gradient-to-br from-blue-600 to-indigo-700 p-5 rounded-2xl relative overflow-hidden shadow-lg shadow-blue-500/20">
-                <div class="relative z-10">
-                  <p class="text-white font-bold leading-tight mb-1">Create a Goal</p>
-                  <p class="text-blue-200 text-[11px] mb-3">Track progress & build momentum</p>
-                  <a
-                    href="/goals/new"
-                    @click="closeMenu()"
-                    class="inline-block bg-white text-blue-600 text-xs font-bold px-4 py-2 rounded-xl hover:bg-blue-50 transition-colors"
-                  >
-                    New Goal
-                  </a>
-                </div>
-                <div class="absolute -right-3 -bottom-3 opacity-20 text-white">
-                  <.icon name="hero-rocket-launch" class="w-14 h-14" />
-                </div>
-              </div>
-            <% end %>
-          </nav>
-        </div>
-      </aside>
-
-      <%!-- Main Content Area --%>
-      <main class="flex-grow bg-[#F0F4FF] overflow-y-auto custom-scrollbar pb-20 lg:pb-0">
-        <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-none lg:px-0">
-          <.flash_group flash={@flash} />
-        </div>
-        {@inner_content}
-      </main>
+        <div class="text-t66-text-muted text-[0.8rem]">@{@current_user.user_name}</div>
+      </div>
     </div>
-  </div>
 
-  <%!-- Mobile Bottom Navigation --%>
-  <div class="lg:hidden">
-    <HeadsUpWeb.Components.UI.BottomNav.bottom_nav
-      current_path={if assigns[:conn], do: assigns.conn.request_path, else: "/"}
-      current_user={@current_user}
-    />
-  </div>
+    <%!-- Navigation --%>
+    <nav class="flex-1 px-3 py-4">
+      <%!-- Main --%>
+      <div class="text-[0.6rem] uppercase tracking-[3px] text-t66-text-muted font-bold px-3 pt-4 pb-2">
+        Main
+      </div>
+      <.sidebar_link href="/feed" label="Feed" icon="hero-rss" />
+      <.sidebar_link href="/my-challenges" label="My Challenges" icon="hero-fire" />
+      <.sidebar_link href="/messages" label="Messages" icon="hero-chat-bubble-left-right" />
+
+      <%!-- Social --%>
+      <div class="text-[0.6rem] uppercase tracking-[3px] text-t66-text-muted font-bold px-3 pt-4 pb-2">
+        Social
+      </div>
+      <.sidebar_link href="/connections" label="Connections" icon="hero-user-group" />
+
+      <%!-- Account --%>
+      <div class="text-[0.6rem] uppercase tracking-[3px] text-t66-text-muted font-bold px-3 pt-4 pb-2">
+        Account
+      </div>
+      <.sidebar_link
+        href={"/people/#{@current_user.user_name}"}
+        label="Profile"
+        icon="hero-user-circle"
+      />
+      <.sidebar_link href="/users/settings" label="Settings" icon="hero-cog-6-tooth" />
+
+      <%!-- Admin --%>
+      <%= if HeadsUpWeb.Helpers.RoleHelper.is_admin?(@current_user) do %>
+        <div class="text-[0.6rem] uppercase tracking-[3px] text-t66-text-muted font-bold px-3 pt-4 pb-2">
+          Admin
+        </div>
+        <.sidebar_link
+          href="/admin/challenge-categories"
+          label="Challenge Categories"
+          icon="hero-rectangle-group"
+        />
+      <% end %>
+    </nav>
+
+    <%!-- Footer: Log Out --%>
+    <div class="px-3 py-4 border-t border-[rgba(255,255,255,0.06)]">
+      <form method="post" action="/users/log_out" class="m-0">
+        <input type="hidden" name="_method" value="delete" />
+        <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+        <button
+          type="submit"
+          class="relative flex items-center gap-3 px-3.5 py-[11px] rounded-[10px] text-[0.88rem] text-red-400 font-medium w-full transition-all hover:bg-[rgba(239,68,68,0.12)]"
+        >
+          <.icon name="hero-arrow-right-on-rectangle" class="w-5 h-5 flex-shrink-0" />
+          <span>Log Out</span>
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <%!-- Main content --%>
+  <main class="pt-16 lg:ml-[260px] min-h-screen bg-t66-bg">
+    <div class="max-w-[900px] px-5 sm:px-10 py-10">
+      <.flash_group flash={@flash} />
+      {@inner_content}
+    </div>
+  </main>
 </div>

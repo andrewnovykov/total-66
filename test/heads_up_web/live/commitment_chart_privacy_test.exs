@@ -135,8 +135,7 @@ defmodule HeadsUpWeb.CommitmentChartPrivacyTest do
              )
 
       # Should show lock icon
-      # Lock icon
-      assert has_element?(view, "svg")
+      assert has_element?(view, "span[class*='hero-lock-closed']")
 
       # Should NOT show actual chart content
       refute_chart_component(view, html)
@@ -165,8 +164,7 @@ defmodule HeadsUpWeb.CommitmentChartPrivacyTest do
              )
 
       # Should show lock icon
-      # Lock icon
-      assert has_element?(view, "svg")
+      assert has_element?(view, "span[class*='hero-lock-closed']")
 
       # Should NOT show actual chart content
       refute_chart_component(view, html)
@@ -215,8 +213,7 @@ defmodule HeadsUpWeb.CommitmentChartPrivacyTest do
              )
 
       # Should show lock icon
-      # Lock icon
-      assert has_element?(view, "svg")
+      assert has_element?(view, "span[class*='hero-lock-closed']")
 
       # Should NOT show actual chart content
       refute_chart_component(view, html)
@@ -271,8 +268,7 @@ defmodule HeadsUpWeb.CommitmentChartPrivacyTest do
              )
 
       # Should show lock icon
-      # Lock icon
-      assert has_element?(view, "svg")
+      assert has_element?(view, "span[class*='hero-lock-closed']")
 
       # Should NOT show actual chart content
       refute_chart_component(view, html)
@@ -359,8 +355,8 @@ defmodule HeadsUpWeb.CommitmentChartPrivacyTest do
         |> log_in_user(viewer_user)
         |> live("/people/#{private_user.user_name}")
 
-      # Lock icon SVG
-      assert has_element?(private_view, "svg")
+      # Lock icon
+      assert has_element?(private_view, "span[class*='hero-lock-closed']")
 
       # Test friends-only user lock icon
       {:ok, friends_view, _html} =
@@ -368,8 +364,8 @@ defmodule HeadsUpWeb.CommitmentChartPrivacyTest do
         |> log_in_user(viewer_user)
         |> live("/people/#{friends_only_user.user_name}")
 
-      # Lock icon SVG
-      assert has_element?(friends_view, "svg")
+      # Lock icon
+      assert has_element?(friends_view, "span[class*='hero-lock-closed']")
     end
   end
 

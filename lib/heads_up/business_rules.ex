@@ -30,15 +30,12 @@ defmodule HeadsUp.BusinessRules do
   end
 
   @doc """
-  Counts total active items for a user (goals + challenges).
+  Counts total active items for a user (challenges).
   Active items include:
-  - Goals with status :active
   - Personal challenges (non-template) with status :active
   """
   def count_active_items(user_id) do
-    active_goals = count_active_goals(user_id)
-    active_challenges = count_active_challenges(user_id)
-    active_goals + active_challenges
+    count_active_challenges(user_id)
   end
 
   @doc """
@@ -68,13 +65,6 @@ defmodule HeadsUp.BusinessRules do
   """
   def require_authenticated(nil), do: {:error, :guest_not_allowed}
   def require_authenticated(_user_id), do: :ok
-
-  defp count_active_goals(user_id) do
-    from(g in HeadsUp.Goal,
-      where: g.user_id == ^user_id and g.status == :active and is_nil(g.deleted_at)
-    )
-    |> Repo.aggregate(:count)
-  end
 
   defp count_active_challenges(user_id) do
     from(c in HeadsUp.Challenges.Challenge,

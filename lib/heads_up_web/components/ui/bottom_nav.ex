@@ -7,33 +7,33 @@ defmodule HeadsUpWeb.Components.UI.BottomNav do
 
   def bottom_nav(assigns) do
     ~H"""
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-100 lg:hidden z-50">
+    <nav class="fixed bottom-0 left-0 right-0 backdrop-blur-[20px] bg-[rgba(10,10,10,0.85)] border-t border-t66 lg:hidden z-50">
       <div class="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         <.nav_item icon="hero-home" label="Home" to="/" active={@current_path == "/"} />
         <.nav_item
           icon="hero-magnifying-glass"
           label="Explore"
-          to="/all-goals"
-          active={@current_path == "/all-goals"}
+          to="/challenges"
+          active={@current_path == "/challenges"}
         />
         <.nav_item
           icon="hero-plus-circle-solid"
           label="Create"
-          to="/goals/new"
-          active={@current_path == "/goals/new"}
+          to="/challenges/new"
+          active={@current_path == "/challenges/new"}
           primary={true}
         />
         <.nav_item
-          icon="hero-fire"
-          label="Challenges"
-          to="/challenges"
-          active={String.starts_with?(@current_path, "/challenges")}
+          icon="hero-users"
+          label="Members"
+          to="/people"
+          active={String.starts_with?(@current_path, "/people")}
         />
         <.nav_item
           icon="hero-user"
           label={if @current_user, do: "Profile", else: "Login"}
           to={if @current_user, do: "/people/#{@current_user.user_name}", else: "/users/log_in"}
-          active={@current_user && String.starts_with?(@current_path, "/people/")}
+          active={@current_user && String.starts_with?(@current_path, "/people/#{@current_user && @current_user.user_name}")}
         />
       </div>
     </nav>
@@ -51,10 +51,10 @@ defmodule HeadsUpWeb.Components.UI.BottomNav do
     <.link
       navigate={@to}
       class={[
-        "flex flex-col items-center justify-center gap-0.5 min-w-[48px] min-h-[44px] px-2",
-        @primary && "text-blue-600",
-        !@primary && @active && "text-slate-900",
-        !@primary && !@active && "text-slate-400"
+        "flex flex-col items-center justify-center gap-0.5 min-w-[48px] min-h-[44px] px-2 transition-colors",
+        @primary && "text-t66-accent",
+        !@primary && @active && "text-t66-accent",
+        !@primary && !@active && "text-t66-text-muted"
       ]}
     >
       <.icon name={@icon} class={if @primary, do: "w-7 h-7", else: "w-6 h-6"} />

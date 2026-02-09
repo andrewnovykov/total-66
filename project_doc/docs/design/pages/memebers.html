@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total 66 – Members</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #131313;
+            --bg-card-hover: #1a1a1a;
+            --accent: #ff4d00;
+            --accent-glow: rgba(255, 77, 0, 0.15);
+            --accent-secondary: #ff8a50;
+            --gold: #ffc642;
+            --gold-glow: rgba(255, 198, 66, 0.15);
+            --text-primary: #f0ece6;
+            --text-secondary: #8a8680;
+            --text-muted: #5a5754;
+            --border: rgba(255, 255, 255, 0.06);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Noise texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 10, 0.7);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.6rem;
+            letter-spacing: 4px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-links a.active {
+            color: var(--accent);
+        }
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            padding: 140px 40px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .page-header::before {
+            content: 'MEMBERS';
+            position: absolute;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(120px, 18vw, 280px);
+            color: rgba(255, 77, 0, 0.03);
+            top: 80px;
+            left: 40px;
+            pointer-events: none;
+            line-height: 1;
+            letter-spacing: 10px;
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+            line-height: 1.1;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            max-width: 500px;
+            font-size: 1.05rem;
+        }
+
+        /* ── STATS BAR ── */
+        .stats-bar {
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 0 40px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+        }
+
+        .stat-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        /* ── FILTER / SEARCH ── */
+        .toolbar {
+            max-width: 1200px;
+            margin: 0 auto 40px;
+            padding: 0 40px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 220px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-box input:focus {
+            border-color: rgba(255, 77, 0, 0.4);
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .filter-btn {
+            padding: 14px 22px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        /* ── MEMBERS GRID ── */
+        .members-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 100px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        /* ── MEMBER CARD ── */
+        .member-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            transition: background 0.4s;
+        }
+
+        .member-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 77, 0, 0.15);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        .member-card:hover::before {
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        /* Finisher card special styling */
+        .member-card.finisher {
+            border-color: rgba(255, 198, 66, 0.12);
+        }
+
+        .member-card.finisher::before {
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .member-card.finisher:hover {
+            border-color: rgba(255, 198, 66, 0.25);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4), 0 0 40px rgba(255, 198, 66, 0.05);
+        }
+
+        /* ── AVATAR ── */
+        .avatar-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+            transition: border-color 0.3s;
+        }
+
+        .member-card:hover .avatar {
+            border-color: var(--accent);
+        }
+
+        .member-card.finisher .avatar {
+            border-color: rgba(255, 198, 66, 0.3);
+        }
+
+        .member-card.finisher:hover .avatar {
+            border-color: var(--gold);
+        }
+
+        /* Finisher badge on avatar */
+        .finisher-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 30px;
+            height: 30px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 10px rgba(255, 198, 66, 0.4);
+            border: 3px solid var(--bg-card);
+        }
+
+        /* Placeholder avatar for no image */
+        .avatar-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03);
+            transition: border-color 0.3s;
+        }
+
+        .member-card:hover .avatar-placeholder {
+            border-color: var(--accent);
+        }
+
+        .member-card.finisher .avatar-placeholder {
+            border-color: rgba(255, 198, 66, 0.3);
+        }
+
+        .member-card.finisher:hover .avatar-placeholder {
+            border-color: var(--gold);
+        }
+
+        /* ── NAME / NICKNAME ── */
+        .member-name {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 2px;
+        }
+
+        .member-nickname {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 18px;
+        }
+
+        /* ── STATS ROW ── */
+        .member-stats {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+
+        .member-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .member-stat-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            line-height: 1.1;
+            color: var(--accent);
+        }
+
+        .member-card.finisher .member-stat-value {
+            color: var(--gold);
+        }
+
+        .member-stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+        }
+
+        /* ── FINISHER TAG ── */
+        .finisher-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 18px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .finisher-tag.yes {
+            color: var(--gold);
+            background: var(--gold-glow);
+        }
+
+        .finisher-tag.no {
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .animate-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            nav {
+                padding: 16px 20px;
+            }
+
+            .page-header {
+                padding: 120px 20px 40px;
+            }
+
+            .stats-bar,
+            .toolbar,
+            .members-grid {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .members-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-links a {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+            }
+
+            .members-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .member-card {
+                padding: 24px 16px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .members-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <a href="/" class="nav-logo">TOTAL <span>66</span></a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/challenges">Challenges</a>
+            <a href="/members" class="active">Members</a>
+            <a href="/auth" style="color:var(--text-muted);font-size:0.7rem;padding:4px 10px;">Login</a>
+            <a href="/hub"
+                style="color:var(--accent);border:1px solid rgba(255,77,0,0.3);border-radius:8px;padding:6px 16px;">My
+                Hub</a>
+        </div>
+    </nav>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <p class="section-label">Community</p>
+        <h1 class="section-title">Our Members</h1>
+        <p class="section-desc">Meet the warriors who committed to transforming their lives. 66 days. No excuses.</p>
+    </div>
+
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+        <div class="stat-pill">
+            <div class="stat-num" id="totalMembers">12</div>
+            <div class="stat-label">Members</div>
+        </div>
+        <div class="stat-pill">
+            <div class="stat-num" id="totalFinishers">4</div>
+            <div class="stat-label">Finishers</div>
+        </div>
+        <div class="stat-pill">
+            <div class="stat-num" id="totalAttempts">27</div>
+            <div class="stat-label">Total Attempts</div>
+        </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search members...">
+        </div>
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="finisher">🏆 Finishers</button>
+        <button class="filter-btn" data-filter="active">In Progress</button>
+    </div>
+
+    <!-- MEMBERS GRID -->
+    <div class="members-grid" id="membersGrid">
+        <!-- Cards injected by JS -->
+    </div>
+
+    <script>
+        // ── SAMPLE MEMBER DATA ──
+        // Replace this array with your real data source
+        const members = [
+            { name: "Andrew Kovach", nickname: "@andrewk", avatar: "", attempts: 3, finisher: true },
+            { name: "Maria Santos", nickname: "@mariasantos", avatar: "", attempts: 2, finisher: true },
+            { name: "Jake Thompson", nickname: "@jakethompson", avatar: "", attempts: 5, finisher: false },
+            { name: "Olena Shevchenko", nickname: "@olena_s", avatar: "", attempts: 1, finisher: false },
+            { name: "David Kim", nickname: "@dkim66", avatar: "", attempts: 4, finisher: true },
+            { name: "Sophia Rivera", nickname: "@sophiar", avatar: "", attempts: 2, finisher: false },
+            { name: "Marcus Johnson", nickname: "@marcusj", avatar: "", attempts: 1, finisher: false },
+            { name: "Emma Müller", nickname: "@emmamuller", avatar: "", attempts: 3, finisher: true },
+            { name: "Carlos Ruiz", nickname: "@carlosr66", avatar: "", attempts: 2, finisher: false },
+            { name: "Aya Tanaka", nickname: "@ayatanaka", avatar: "", attempts: 1, finisher: false },
+            { name: "Liam O'Brien", nickname: "@liamob", avatar: "", attempts: 2, finisher: false },
+            { name: "Nina Petrova", nickname: "@ninap", avatar: "", attempts: 1, finisher: false },
+        ];
+
+        function getInitials(name) {
+            return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        function renderCard(member, index) {
+            const finisherClass = member.finisher ? ' finisher' : '';
+            const avatarHTML = member.avatar
+                ? `<img class="avatar" src="${member.avatar}" alt="${member.name}">`
+                : `<div class="avatar-placeholder">${getInitials(member.name)}</div>`;
+            const badgeHTML = member.finisher ? `<div class="finisher-badge">🏆</div>` : '';
+            const tagHTML = member.finisher
+                ? `<span class="finisher-tag yes">🏆 Finisher</span>`
+                : `<span class="finisher-tag no">In Progress</span>`;
+
+            return `
+        <div class="member-card${finisherClass} animate-in" data-status="${member.finisher ? 'finisher' : 'active'}" data-name="${member.name.toLowerCase()} ${member.nickname.toLowerCase()}" style="transition-delay: ${index * 50}ms">
+          <div class="avatar-wrapper">
+            ${avatarHTML}
+            ${badgeHTML}
+          </div>
+          <div class="member-name">${member.name}</div>
+          <div class="member-nickname">${member.nickname}</div>
+          ${tagHTML}
+          <div class="member-stats">
+            <div class="member-stat">
+              <div class="member-stat-value">${member.attempts}</div>
+              <div class="member-stat-label">Attempts</div>
+            </div>
+            <div class="member-stat">
+              <div class="member-stat-value">${member.finisher ? '66' : '—'}</div>
+              <div class="member-stat-label">Best Day</div>
+            </div>
+          </div>
+        </div>`;
+        }
+
+        // Render all cards
+        const grid = document.getElementById('membersGrid');
+        grid.innerHTML = members.map((m, i) => renderCard(m, i)).join('');
+
+        // Update stats
+        document.getElementById('totalMembers').textContent = members.length;
+        document.getElementById('totalFinishers').textContent = members.filter(m => m.finisher).length;
+        document.getElementById('totalAttempts').textContent = members.reduce((sum, m) => sum + m.attempts, 0);
+
+        // Scroll animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.05 });
+
+        document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filter = btn.dataset.filter;
+                document.querySelectorAll('.member-card').forEach(card => {
+                    if (filter === 'all' || card.dataset.status === filter) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            document.querySelectorAll('.member-card').forEach(card => {
+                card.style.display = card.dataset.name.includes(q) ? '' : 'none';
+            });
+            // Reset filter buttons
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-filter="all"]').classList.add('active');
+        });
+    </script>
+
+</body>
+
+</html>
